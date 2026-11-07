@@ -392,13 +392,16 @@ internal fun AboutSection(
         SettingsDivider()
 
         // Optional "support development" link. Offers Ko-fi and PayPal; both open in the browser.
-        NavigationRow(
-            icon = Icons.Filled.Favorite,
-            label = stringResource(R.string.settings_support_label),
-            value = stringResource(R.string.settings_support_value),
-            supporting = stringResource(R.string.settings_support_supporting),
-            onClick = { showSupportDialog = true }
-        )
+        // ABP Call: upstream donation links are not shown.
+        if (com.baba.callvault.ploshadki.PloshadkiFork.UPSTREAM_SUPPORT_LINKS_ENABLED) {
+            NavigationRow(
+                icon = Icons.Filled.Favorite,
+                label = stringResource(R.string.settings_support_label),
+                value = stringResource(R.string.settings_support_value),
+                supporting = stringResource(R.string.settings_support_supporting),
+                onClick = { showSupportDialog = true }
+            )
+        }
 
         Row(
             modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp),

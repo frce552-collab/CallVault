@@ -67,6 +67,10 @@ Modified by Ploshadki.kz since 2026-11-07, based on CallVault v2.4.9
   `kz.ploshadki.recorder` and provider authority; visible FORK marking and links to
   CallVault and ShizuCallRecorder on the first-run disclaimer and in Settings → About;
   debug CI workflow `.github/workflows/ploshadki-debug-apk.yml`.
+- 2026-11-07: own launcher icon ("ABP"); app calls recorded only for WhatsApp Business
+  (`com.whatsapp.w4b`), fail-closed — personal WhatsApp and unidentified apps are not recorded;
+  upstream self-update from GitHub, donation links and community card switched off
+  (`ploshadki/PloshadkiFork.kt`).
 
 ABP Call remains licensed under GPL-3.0-or-later with the Section 7 terms in LICENSE.
 Source: https://github.com/frce552-collab/CallVault

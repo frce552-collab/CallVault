@@ -8,6 +8,7 @@
 
 package com.baba.callvault.system.updates
 
+import com.baba.callvault.ploshadki.PloshadkiFork
 import android.content.Context
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -46,7 +47,7 @@ object UpdateScheduler {
 
     fun apply(context: Context) {
         val workManager = WorkManager.getInstance(context)
-        if (!AppPreferences(context).isUpdateCheckEnabled()) {
+        if (!PloshadkiFork.UPSTREAM_UPDATES_ENABLED || !AppPreferences(context).isUpdateCheckEnabled()) {
             workManager.cancelUniqueWork(WORK_NAME)
             AppLogger.d(TAG, "Update checks disabled; periodic work cancelled")
             return
@@ -68,6 +69,7 @@ object UpdateScheduler {
      * the GitHub API. No-op when checks are disabled.
      */
     fun checkNowIfDue(context: Context) {
+        if (!PloshadkiFork.UPSTREAM_UPDATES_ENABLED) return
         val preferences = AppPreferences(context)
         if (!preferences.isUpdateCheckEnabled()) return
         val elapsed = System.currentTimeMillis() - preferences.getLastUpdateCheckMillis()
@@ -87,6 +89,7 @@ object UpdateScheduler {
      * taps don't stack; requires a network connection. Runs in WorkManager so it outlives the UI.
      */
     fun enqueueInstallNow(context: Context) {
+        if (!PloshadkiFork.UPSTREAM_UPDATES_ENABLED) return
         val request = OneTimeWorkRequestBuilder<UpdateInstallWorker>()
             .setConstraints(
                 Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()

@@ -76,6 +76,19 @@ jobs:
           -PciBuildNumber=${{ github.run_id }}
           --no-daemon --stacktrace
 
+      # Unit tests for the fork's own behaviour (fail-closed WhatsApp Business policy, etc.).
+      - name: Fork unit tests
+        run: >
+          ./gradlew testDebugUnitTest
+          --tests 'com.baba.callvault.data.voip.VoipAppPolicyTest'
+          --tests 'com.baba.callvault.services.recording.VoipLateCallerTest'
+          --tests 'com.baba.callvault.ploshadki.*'
+          --tests 'com.baba.callvault.ui.screens.WizardStepsTest'
+          -PversionName="${VERSION_NAME}"
+          -PversionCode=${{ github.run_number }}
+          -PciBuildNumber=${{ github.run_id }}
+          --no-daemon --stacktrace
+
       - name: Verify APK (ABI, package, signature) and SHA-256
         id: verify
         run: |
@@ -103,6 +116,7 @@ jobs:
             echo "sha256=$(cut -d' ' -f1 "$NAME.sha256")"
             echo "size=$(stat -c %s "$NAME")"
             grep -m1 '^package:' badging.txt
+          grep -m1 "^application-label:" badging.txt || true
             echo "abi=$(tr '\n' ' ' < abis.txt)"
             grep -m1 'SHA-256 digest' signature.txt || true
           } > build-info.txt

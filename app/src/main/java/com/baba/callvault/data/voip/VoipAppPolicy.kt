@@ -8,6 +8,8 @@
 
 package com.baba.callvault.data.voip
 
+import com.baba.callvault.ploshadki.PloshadkiFork
+
 /**
  * Whether an app call should be recorded, given the user's per-app choices.
  *
@@ -32,7 +34,11 @@ object VoipAppPolicy {
      * open is the recoverable direction, and it is also what the app did before this existed.
      */
     fun shouldRecord(packageName: String?, excluded: Set<String>): Boolean {
-        if (packageName.isNullOrBlank()) return true
+        // ABP Call (Ploshadki fork): fail-CLOSED allow-list. Only WhatsApp Business is recorded;
+        // an unidentified app, personal WhatsApp and every other app are not. Replaces upstream's
+        // fail-open rule described above.
+        if (packageName.isNullOrBlank()) return false
+        if (packageName !in PloshadkiFork.RECORDABLE_VOIP_PACKAGES) return false
         return packageName !in excluded
     }
 

@@ -49,7 +49,7 @@ object GitHubReleases {
      *                    prerelease/draft target. Null in normal use.
      * @return The release info, or null on any failure (network, parse, no APK asset).
      */
-    fun fetchLatestRelease(overrideUrl: String? = null): ReleaseInfo? = runCatching {
+    fun fetchLatestRelease(overrideUrl: String? = null): ReleaseInfo? = if (!com.baba.callvault.ploshadki.PloshadkiFork.UPSTREAM_UPDATES_ENABLED) null else runCatching {
         val connection = (URL(overrideUrl ?: LATEST_RELEASE_URL).openConnection() as HttpURLConnection).apply {
             connectTimeout = CONNECT_TIMEOUT_MS
             readTimeout = READ_TIMEOUT_MS
