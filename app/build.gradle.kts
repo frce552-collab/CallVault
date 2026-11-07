@@ -430,6 +430,8 @@ dependencies {
 
     // WorkManager: reliable background task execution for post-call Drive copy.
     implementation("androidx.work:work-runtime-ktx:2.10.0")
+    // ABP Call: HTTP client for the company server (PATCH for resumable uploads). Apache-2.0.
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     // Room: the on-device recordings catalog — CallVault's own source of truth for the Home list,
     // so it never depends on a cloud provider's (Google Drive's) eventually-consistent folder listing.

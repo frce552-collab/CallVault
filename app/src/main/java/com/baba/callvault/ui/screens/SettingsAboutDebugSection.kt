@@ -359,6 +359,17 @@ internal fun AboutSection(
     }
 
     SettingsSection(title = stringResource(R.string.settings_section_about), expanded = expanded, onToggle = onToggle) {
+        // ABP Call: connection to the company server (enrollment link, status of sending).
+        NavigationRow(
+            icon = Icons.Filled.Save,
+            label = "Сервер ABP",
+            value = if (com.baba.callvault.ploshadki.AbpStore.connection(context) != null) "Подключён" else "Не подключён",
+            supporting = "Вход по ссылке от администратора, отправка записей на сервер",
+            onClick = { context.startActivity(android.content.Intent(context, com.baba.callvault.ploshadki.AbpConnectActivity::class.java)) }
+        )
+
+        SettingsDivider()
+
         NavigationRow(
             icon = Icons.Filled.Save,
             label = stringResource(R.string.settings_ui_about_app),

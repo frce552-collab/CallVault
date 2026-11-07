@@ -71,6 +71,10 @@ Modified by Ploshadki.kz since 2026-11-07, based on CallVault v2.4.9
   (`com.whatsapp.w4b`), fail-closed — personal WhatsApp and unidentified apps are not recorded;
   upstream self-update from GitHub, donation links and community card switched off
   (`ploshadki/PloshadkiFork.kt`).
+- 2026-11-07: connection to the company server (`ploshadki/`): phone login with a one-time
+  enrollment link (DPoP, RFC 9449, key in Android Keystore) and automatic, resumable upload of every
+  call recording over Wi-Fi or mobile data, using only the open contract `air.wa-capture.upload.v1`.
+  Uses OkHttp (Apache-2.0).
 
 ABP Call remains licensed under GPL-3.0-or-later with the Section 7 terms in LICENSE.
 Source: https://github.com/frce552-collab/CallVault

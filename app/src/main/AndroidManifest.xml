@@ -156,6 +156,21 @@
             finished, and leaving it in the recents list would also leave a thumbnail of somebody's
             file name there.
         -->
+        <!-- ABP Call: connection to the company server; opened by the enrollment link / QR. -->
+        <activity
+            android:name=".ploshadki.AbpConnectActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.CallVault">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="abpcall" android:host="enroll" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".ShareImportActivity"
             android:exported="true"
