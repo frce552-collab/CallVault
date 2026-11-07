@@ -42,6 +42,9 @@ private const val TAG = "CV:SystemIntentHelpers"
  */
 const val ORIGINAL_PROJECT_URL = "https://github.com/kitsumed/ShizuCallRecorder"
 
+/** Ploshadki fork (GPLv3 §7 b, c): the project ABP Call is a direct fork of. */
+const val CALLVAULT_PROJECT_URL = "https://github.com/madkongo/CallVault"
+
 /**
  * The maintainer's Ko-fi page. Surfaced as an optional "support development" link on Home and in
  * About. Donations happen entirely on Ko-fi's site (opened in the browser) — no in-app payment SDK.
@@ -171,6 +174,11 @@ fun Context.openWirelessDebugging() {
 /** Opens the upstream project repository (required fork attribution, GPLv3 §7). */
 fun Context.openOriginalProjectRepo() {
     launchSmartIntent(Intent(Intent.ACTION_VIEW).apply { data = ORIGINAL_PROJECT_URL.toUri() })
+}
+
+/** Opens the CallVault repository (the project this fork is based on). */
+fun Context.openCallVaultProjectRepo() {
+    launchSmartIntent(Intent(Intent.ACTION_VIEW).apply { data = CALLVAULT_PROJECT_URL.toUri() })
 }
 
 /** Opens the project's Telegram group, in the Telegram app when it is installed, else the browser. */

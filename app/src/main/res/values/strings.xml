@@ -11,7 +11,7 @@
     <!-- ========================================== -->
     <!-- GENERAL MESSAGES & APP LEVEL               -->
     <!-- ========================================== -->
-    <string name="app_name" translatable="false">CallVault</string>
+    <string name="app_name" translatable="false">ABP Call</string>
     <string name="general_close">Close</string>
     <!-- Spoken by TalkBack for a section header that folds open and shut. -->
     <string name="voicemail_contact_label">Voicemail</string>
@@ -29,22 +29,24 @@
     <string name="general_outgoing">outgoing</string>
     <string name="general_reset">Reset</string>
     <string name="general_system_limitation">System Limitation</string>
-    <string name="general_system_limitation_message">CallVault will not work on this device as your shell application does not have the required permissions:\n\n%1$s\n\nThere is nothing you can do about this, the app cannot function and will now close.</string>
+    <string name="general_system_limitation_message">ABP Call will not work on this device as your shell application does not have the required permissions:\n\n%1$s\n\nThere is nothing you can do about this, the app cannot function and will now close.</string>
 
     <!-- ========================================== -->
     <!-- UI SECTIONS                                -->
     <!-- ========================================== -->
 
     <!-- Disclaimer Screen -->
-    <string name="disclaimer_title">Welcome to CallVault</string>
+    <string name="disclaimer_title">Welcome to ABP Call</string>
     <string name="disclaimer_introduction">Please read the disclaimer below carefully before continuing.</string>
     <string name="disclaimer_body" translatable="false">
         By using this application, you confirm that you have read this disclaimer and acknowledge that this software is licensed under the GNU General Public License v3.0 with additional clauses under Section 7.\n\n
 
         This software is a fork of ShizuCallRecorder, available at https://github.com/kitsumed/ShizuCallRecorder\n\n
+        ABP Call is a modified version (FORK) of CallVault, available at https://github.com/madkongo/CallVault, which is itself a fork of ShizuCallRecorder. ABP Call is not affiliated with, endorsed or supported by the authors of CallVault or ShizuCallRecorder. Source code of this fork: https://github.com/frce552-collab/CallVault\n\n
 
         Copyright © 2026 Kitsumed (Med) (ShizuCallRecorder)\n
-        Copyright © 2026 The CallVault Authors\n\n
+        Copyright © 2026 The CallVault Authors\n
+        Copyright © 2026 Ploshadki.kz (modifications in ABP Call)\n\n
 
         This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.\n\n
 
@@ -94,7 +96,7 @@
     <string name="permission_call_log_description">Required so we receive the unredacted phone number on phone state events.</string>
 
     <string name="permission_usb_debugging_label">USB debugging</string>
-    <string name="permission_usb_debugging_description">Recommended. Keeps recording working away from Wi-Fi, and lets CallVault switch Wireless debugging off after setup. No cable needed.</string>
+    <string name="permission_usb_debugging_description">Recommended. Keeps recording working away from Wi-Fi, and lets ABP Call switch Wireless debugging off after setup. No cable needed.</string>
     <string name="permission_battery_label">Battery Optimization</string>
     <string name="permission_battery_description">Keeps the app alive when it needs and allow to bypass possible background startup limitations. On some phones (e.g. OnePlus/OxygenOS) also set this app\'s battery mode to \"Allow background activity\".</string>
     <string name="permission_battery_oem_hint">Battery exemption set. Now on this App info page, tap \"Battery\", then choose \"Allow background activity\" (Unrestricted) — required so recording survives in the background on OnePlus/OxygenOS.</string>
@@ -128,51 +130,51 @@
     <string name="retention_confirm_enable">Enable</string>
     <string name="settings_section_recording_storage">Recording &amp; storage</string>
     <string name="permissions_shizuku_offer_title">Shizuku is running on this phone</string>
-    <string name="permissions_shizuku_offer_body">CallVault can use it instead, and skip pairing entirely. Or set CallVault up on its own, so it needs nothing else running.</string>
-    <string name="permissions_shizuku_needs_permission">Allow CallVault in Shizuku to finish. Nothing records until you do.</string>
+    <string name="permissions_shizuku_offer_body">ABP Call can use it instead, and skip pairing entirely. Or set ABP Call up on its own, so it needs nothing else running.</string>
+    <string name="permissions_shizuku_needs_permission">Allow ABP Call in Shizuku to finish. Nothing records until you do.</string>
     <string name="permissions_shizuku_active">Using Shizuku. There is nothing to pair — setup is done.</string>
     <string name="permissions_shizuku_use">Use Shizuku</string>
-    <string name="permissions_shizuku_use_callvault">Use CallVault</string>
+    <string name="permissions_shizuku_use_callvault">Use ABP Call</string>
     <string name="permissions_shizuku_offer_title_stopped">Shizuku is not running</string>
-    <string name="permissions_shizuku_offer_stopped">Start it from the Shizuku app and come back, and CallVault can use it instead of pairing. Or set CallVault up on its own — it needs nothing else running.</string>
+    <string name="permissions_shizuku_offer_stopped">Start it from the Shizuku app and come back, and ABP Call can use it instead of pairing. Or set ABP Call up on its own — it needs nothing else running.</string>
     <string name="home_hero_pill_shizuku">Shizuku stopped</string>
     <string name="home_status_shizuku_title">Shizuku is not ready</string>
-    <string name="home_status_shizuku_suggestion">Open Shizuku and start it. It stops whenever the phone restarts, and CallVault cannot record until it is running.</string>
+    <string name="home_status_shizuku_suggestion">Open Shizuku and start it. It stops whenever the phone restarts, and ABP Call cannot record until it is running.</string>
     <string name="home_health_missed_shizuku">%1$s was not recorded — Shizuku was not running</string>
     <string name="home_health_missed_shizuku_unnamed">A call was not recorded — Shizuku was not running</string>
-    <string name="settings_unavailable_in_shizuku">Not available in Shizuku mode — this needs CallVault\'s own recorder.</string>
+    <string name="settings_unavailable_in_shizuku">Not available in Shizuku mode — this needs ABP Call\'s own recorder.</string>
     <string name="mode_switch_to_shizuku">Switching to Shizuku…</string>
-    <string name="mode_switch_to_standalone">Switching to CallVault…</string>
+    <string name="mode_switch_to_standalone">Switching to ABP Call…</string>
     <string name="mode_switch_working">Stopping the old recorder and starting the new one. This takes a few seconds.</string>
     <string name="mode_switch_done_title">Ready to record</string>
     <string name="mode_switch_problem_title">Not ready yet</string>
     <string name="mode_switch_done_shizuku">Ready — using Shizuku</string>
-    <string name="mode_switch_done_standalone">Ready — using CallVault</string>
-    <string name="mode_switch_ready_shizuku">CallVault is recording through Shizuku. Everything is available except recording away from Wi-Fi, which needs CallVault\'s own recorder.</string>
-    <string name="mode_switch_ready_standalone">CallVault is recording with its own recorder. Everything is available, including VoIP calls and speaker names.</string>
+    <string name="mode_switch_done_standalone">Ready — using ABP Call</string>
+    <string name="mode_switch_ready_shizuku">ABP Call is recording through Shizuku. Everything is available except recording away from Wi-Fi, which needs ABP Call\'s own recorder.</string>
+    <string name="mode_switch_ready_standalone">ABP Call is recording with its own recorder. Everything is available, including VoIP calls and speaker names.</string>
     <string name="mode_switch_ready">The recorder is running. Calls will be recorded.</string>
     <string name="mode_switch_shizuku_not_installed">Shizuku is not installed, so there is nothing to switch to.</string>
     <string name="mode_switch_shizuku_not_running">Shizuku is not running. Open Shizuku and start it, then try again — it stops whenever the phone restarts.</string>
-    <string name="mode_switch_shizuku_not_permitted">Shizuku has not allowed CallVault to use it yet. Open Shizuku and allow it, then try again.</string>
-    <string name="mode_switch_voip_not_armed">Switched, but app-call recording could not be armed. Phone calls will record; app calls may not until you reopen CallVault.</string>
+    <string name="mode_switch_shizuku_not_permitted">Shizuku has not allowed ABP Call to use it yet. Open Shizuku and allow it, then try again.</string>
+    <string name="mode_switch_voip_not_armed">Switched, but app-call recording could not be armed. Phone calls will record; app calls may not until you reopen ABP Call.</string>
     <string name="mode_switch_recorder_failed">The recorder did not start. Nothing will be recorded until it does.</string>
     <string name="home_hero_pill_with_mode">%1$s · %2$s</string>
-    <string name="home_mode_badge_standalone">CallVault</string>
+    <string name="home_mode_badge_standalone">ABP Call</string>
     <string name="home_mode_badge_shizuku">Shizuku</string>
-    <string name="settings_subsection_privileges">How CallVault gets permission</string>
+    <string name="settings_subsection_privileges">How ABP Call gets permission</string>
     <string name="settings_shizuku_mode">Shizuku mode</string>
-    <string name="settings_shizuku_not_installed">Shizuku is not installed. CallVault does not need it — this is only for people who already use it.</string>
+    <string name="settings_shizuku_not_installed">Shizuku is not installed. ABP Call does not need it — this is only for people who already use it.</string>
     <string name="settings_shizuku_not_running">Shizuku is installed but not running. It has to be started again after every restart of the phone.</string>
-    <string name="settings_shizuku_no_permission">Shizuku is running, but has not allowed CallVault to use it yet.</string>
-    <string name="settings_shizuku_ready">Shizuku is running and ready. With this on, CallVault does not need its own pairing.</string>
-    <string name="settings_shizuku_grant">Allow CallVault in Shizuku</string>
+    <string name="settings_shizuku_no_permission">Shizuku is running, but has not allowed ABP Call to use it yet.</string>
+    <string name="settings_shizuku_ready">Shizuku is running and ready. With this on, ABP Call does not need its own pairing.</string>
+    <string name="settings_shizuku_grant">Allow ABP Call in Shizuku</string>
     <string name="settings_shizuku_grant_description">Opens Shizuku so you can allow it. Nothing records until you do.</string>
     <string name="settings_section_audio">Audio configuration</string>
     <string name="settings_section_reliability">Reliability</string>
     <string name="settings_voip_recording_label">Record VoIP calls</string>
     <string name="settings_voip_recording_description">Also record calls made in apps like WhatsApp, Signal and Telegram. Some apps block recording, and this cannot be known until a call is under way.</string>
     <string name="settings_voip_auto_start_label">Start automatically</string>
-    <string name="settings_voip_auto_start_description">Off means CallVault asks first: a notification with a Record button appears when an app call starts.</string>
+    <string name="settings_voip_auto_start_description">Off means ABP Call asks first: a notification with a Record button appears when an app call starts.</string>
     <string name="voip_prompt_title">App call in progress</string>
     <string name="voip_prompt_text">Tap Record to record this call.</string>
     <string name="voip_prompt_text_named">%1$s call. Tap Record to record it.</string>
@@ -181,8 +183,8 @@
     <string name="voip_recording_warning_continue">I understand, turn it on</string>
     <string name="voip_recording_arming">Preparing VoIP recording…</string>
     <string name="notif_voip_recording_title">Recording VoIP call</string>
-    <string name="notif_voip_recording_text">CallVault is recording an app call.</string>
-    <string name="voip_missed_not_ready">An app call was not recorded — CallVault was not ready in time. This can happen for a short while after a phone call ends. The next call should record normally.</string>
+    <string name="notif_voip_recording_text">ABP Call is recording an app call.</string>
+    <string name="voip_missed_not_ready">An app call was not recorded — ABP Call was not ready in time. This can happen for a short while after a phone call ends. The next call should record normally.</string>
     <string name="voip_missed_no_folder">An app call was not recorded — the recordings folder is missing or cannot be written to. Choose it again in Settings.</string>
     <string name="voip_missed_label">App call</string>
     <string name="voip_one_sided_warning">Only your side of that app call was recorded — the other app does not allow its call audio to be captured.</string>
@@ -191,13 +193,13 @@
     <string name="voip_recording_unavailable">Couldn\'t enable on this device — VoIP recording isn\'t available here.</string>
     <string name="voip_recording_names_hint">Contact names come from the calling app\'s own call notification. If notifications are turned off for that app, its recordings are saved without a name.</string>
     <string name="settings_usb_debugging_label">USB debugging</string>
-    <string name="settings_usb_debugging_description">Recommended. Keeps recording working when you leave Wi-Fi, and lets CallVault switch Wireless debugging off. No cable needed.</string>
+    <string name="settings_usb_debugging_description">Recommended. Keeps recording working when you leave Wi-Fi, and lets ABP Call switch Wireless debugging off. No cable needed.</string>
     <string name="settings_usb_debugging_recommended">Without this, recording only works on Wi-Fi, and Wireless debugging has to stay on.</string>
-    <string name="settings_usb_debugging_on_hint">CallVault can keep Wireless debugging off. If you turn this off, recording stops for a few seconds while CallVault restarts it over Wi-Fi — and away from Wi-Fi it can\'t restart.</string>
-    <string name="settings_usb_debugging_shizuku_hint">Leave USB debugging on while you use Shizuku. Shizuku\'s service is started over Android\'s debugging service and stops when it does — CallVault does not need this switch in Shizuku mode.</string>
-    <string name="settings_usb_debugging_failed">Couldn\'t change it — CallVault needs the permission it gets during setup.</string>
-    <string name="notif_info_channel">CallVault notices</string>
-    <string name="notif_wd_required">Wireless debugging has to stay on because USB debugging is off. Turn on USB debugging in CallVault\'s settings and CallVault will switch Wireless debugging off again.</string>
+    <string name="settings_usb_debugging_on_hint">ABP Call can keep Wireless debugging off. If you turn this off, recording stops for a few seconds while ABP Call restarts it over Wi-Fi — and away from Wi-Fi it can\'t restart.</string>
+    <string name="settings_usb_debugging_shizuku_hint">Leave USB debugging on while you use Shizuku. Shizuku\'s service is started over Android\'s debugging service and stops when it does — ABP Call does not need this switch in Shizuku mode.</string>
+    <string name="settings_usb_debugging_failed">Couldn\'t change it — ABP Call needs the permission it gets during setup.</string>
+    <string name="notif_info_channel">ABP Call notices</string>
+    <string name="notif_wd_required">Wireless debugging has to stay on because USB debugging is off. Turn on USB debugging in ABP Call\'s settings and ABP Call will switch Wireless debugging off again.</string>
     <string name="settings_section_debug">Debug</string>
     <string name="settings_section_security">Security</string>
     <string name="settings_section_recorder_server">Recorder service</string>
@@ -244,7 +246,7 @@
     <string name="usb_mode_midi">MIDI</string>
     <string name="offline_recording_warning_title">Enable offline recording?</string>
     <string name="offline_recording_warning_message">This opens a local debugging port on your phone so calls can record with no Wi-Fi. It is protected by your device\'s key, but it is a small security tradeoff. Only enable it if you need to record calls without Wi-Fi.</string>
-    <string name="offline_recording_warning_shizuku">Shizuku is running. Turning this on restarts Android\'s debugging service, which stops Shizuku — CallVault will start it again straight afterwards, and tell you if it cannot.</string>
+    <string name="offline_recording_warning_shizuku">Shizuku is running. Turning this on restarts Android\'s debugging service, which stops Shizuku — ABP Call will start it again straight afterwards, and tell you if it cannot.</string>
     <string name="offline_recording_warning_continue">Continue anyway</string>
 
     <string name="settings_file_name_template">File Name Template</string>
@@ -258,7 +260,7 @@
     <string name="settings_file_name_preset_contact_date">Contact · Date</string>
     <string name="settings_file_name_preset_number_date">Number · Date</string>
     <string name="settings_file_name_preset_honor_dialer">Honor / Huawei phone app</string>
-    <string name="honor_dialer_hint">Your phone app can play a recording from the call history only if it is saved in %1$s as .m4a. In CallVault, set %2$s to that folder and %3$s to AAC.</string>
+    <string name="honor_dialer_hint">Your phone app can play a recording from the call history only if it is saved in %1$s as .m4a. In ABP Call, set %2$s to that folder and %3$s to AAC.</string>
     <string name="honor_dialer_ready">✓ Ready: the folder and the format are set.</string>
     <string name="honor_dialer_missing">Still to change: %1$s</string>
     <string name="settings_file_name_preset_custom">Custom</string>
@@ -362,13 +364,15 @@
     <!-- Persistent reminder that debug logging is enabled -->
     <string name="debug_notification_channel_name">Debug logging</string>
     <string name="debug_notification_title">Debug logging is on</string>
-    <string name="debug_notification_text">Tap to open CallVault and turn it off when you\'re done.</string>
+    <string name="debug_notification_text">Tap to open ABP Call and turn it off when you\'re done.</string>
 
     <!-- Settings Screen: About/Server Section -->
     <string name="settings_copy_version">Copy Version</string>
     <string name="settings_view_licenses">View Licenses</string>
     <string name="settings_scrcpy_server" translatable="false">Scrcpy-Server: %1$s</string>
-    <string name="settings_fork_attribution" translatable="false">CallVault is a fork of ShizuCallRecorder</string>
+    <string name="settings_fork_attribution" translatable="false">This software is a fork of ShizuCallRecorder</string>
+    <string name="settings_fork_attribution_callvault" translatable="false">ABP Call is a FORK of CallVault, not affiliated with its authors</string>
+    <string name="settings_fork_attribution_callvault_supporting" translatable="false">github.com/madkongo/CallVault</string>
     <string name="settings_fork_attribution_supporting" translatable="false">github.com/kitsumed/ShizuCallRecorder</string>
     <string name="settings_support_label">Support development</string>
     <string name="settings_support_value">Buy me a coffee on Ko-fi</string>
@@ -411,7 +415,7 @@
     <string name="recording_unexpected_error">An unexpected error occurred during recording. Please report this with the steps to reproduce and the apps logs.</string>
 
     <!-- Setup Wizard -->
-    <string name="wizard_title">Set up CallVault</string>
+    <string name="wizard_title">Set up ABP Call</string>
     <string name="wizard_step_of">Step %1$d of %2$d</string>
     <string name="wizard_back">Back</string>
     <string name="wizard_next">Next</string>
@@ -445,14 +449,14 @@
     <string name="wizard_auto_record_title">Automatic recording</string>
     <string name="wizard_auto_record_subtitle">Choose which calls are recorded automatically. You can fine-tune this later in Settings.</string>
     <string name="wizard_auto_record_line">Pick which calls record on their own.</string>
-    <string name="wizard_auto_record_nothing_warning">With both phone calls and app calls off, CallVault will not record anything. Turn at least one on unless that is what you want.</string>
+    <string name="wizard_auto_record_nothing_warning">With both phone calls and app calls off, ABP Call will not record anything. Turn at least one on unless that is what you want.</string>
     <!-- Wizard: Audio step -->
     <string name="wizard_experimental_title">Optional extras</string>
     <string name="wizard_experimental_subtitle">It is off by default — you can turn it on later in Settings.</string>
     <string name="wizard_experimental_line">Off by default.</string>
     <string name="wizard_updates_title">Staying up to date</string>
-    <string name="wizard_updates_subtitle">CallVault is not on an app store, so it checks GitHub for new versions itself.</string>
-    <string name="wizard_updates_line">How CallVault finds new versions.</string>
+    <string name="wizard_updates_subtitle">ABP Call is not on an app store, so it checks GitHub for new versions itself.</string>
+    <string name="wizard_updates_line">How ABP Call finds new versions.</string>
     <string name="wizard_reliability_title">Reliable recording</string>
     <string name="wizard_reliability_subtitle">Two optional settings that keep recording working in tricky conditions. You can skip these and change them later in Settings.</string>
     <string name="wizard_reliability_line">Two optional safety nets.</string>
@@ -476,7 +480,7 @@
       step also asks about summaries and models, but it is not untrue, so a locale still showing it
       until the next translation pass says less rather than something wrong.
     -->
-    <string name="wizard_transcription_subtitle">CallVault can turn a recording into text on the phone itself, and write a short summary from it — nothing is sent anywhere. Choose when that happens, which language your calls are in, and download what it needs.</string>
+    <string name="wizard_transcription_subtitle">ABP Call can turn a recording into text on the phone itself, and write a short summary from it — nothing is sent anywhere. Choose when that happens, which language your calls are in, and download what it needs.</string>
     <string name="wizard_transcription_line">Turn calls into text on this phone.</string>
     <string name="wizard_transcription_language_note">Set to the language this phone is set to. Naming it is far more reliable than letting the app guess, and you can still pick a different one per call later.</string>
     <!--
@@ -499,8 +503,8 @@
     <!-- Joins the list above. A resource because the comma is not the right separator everywhere. -->
     <string name="list_separator">", "</string>
     <string name="wizard_transcription_summary_heading">Summaries</string>
-    <string name="wizard_transcription_summary_body">Once a call has a transcript, CallVault can also write a short summary of it — on the phone, like everything else here.</string>
-    <string name="wizard_transcription_background_note">Both downloads keep going in the background. You can carry on and finish setup now — CallVault\'s settings show the same progress afterwards.</string>
+    <string name="wizard_transcription_summary_body">Once a call has a transcript, ABP Call can also write a short summary of it — on the phone, like everything else here.</string>
+    <string name="wizard_transcription_background_note">Both downloads keep going in the background. You can carry on and finish setup now — ABP Call\'s settings show the same progress afterwards.</string>
 
     <string name="wizard_audio_title">Audio quality</string>
     <string name="wizard_audio_subtitle">Pick the recording format and bit rate. Opus at 16 kbps is recommended for clear voice at small file sizes.</string>
@@ -510,7 +514,7 @@
     <string name="wizard_filename_line">Pick how files are named.</string>
 
     <!-- Home -->
-    <string name="home_all_set_message">You\'re all set. CallVault is ready to record your calls.</string>
+    <string name="home_all_set_message">You\'re all set. ABP Call is ready to record your calls.</string>
     <string name="home_open_settings">Settings</string>
 
     <!-- Home: status card -->
@@ -519,13 +523,13 @@
     <string name="home_status_not_paired_title">Setup not complete</string>
     <string name="home_status_not_paired_suggestion">Finish Wireless Debugging pairing in setup.</string>
     <string name="home_status_dev_options_off_title">Developer options is off</string>
-    <string name="home_status_dev_options_off_suggestion">CallVault records through Wireless debugging, which needs Developer options. Recording cannot work until you re-enable Developer options (and Wireless debugging) in system settings.</string>
+    <string name="home_status_dev_options_off_suggestion">ABP Call records through Wireless debugging, which needs Developer options. Recording cannot work until you re-enable Developer options (and Wireless debugging) in system settings.</string>
     <string name="home_status_update_regrant_title">Reconnect to keep recording</string>
-    <string name="home_status_update_regrant_suggestion">An update removed a permission CallVault needs to restart recording. It may still work for now — tap here, then turn Wireless debugging on once to restore it. No reinstall needed.</string>
+    <string name="home_status_update_regrant_suggestion">An update removed a permission ABP Call needs to restart recording. It may still work for now — tap here, then turn Wireless debugging on once to restore it. No reinstall needed.</string>
     <string name="home_status_ready_title">Ready to record</string>
-    <string name="home_status_ready_suggestion">CallVault records calls automatically per your settings.</string>
+    <string name="home_status_ready_suggestion">ABP Call records calls automatically per your settings.</string>
     <string name="home_status_stopped_title">Recording stopped</string>
-    <string name="home_status_stopped_suggestion">CallVault is turned off, calls will not be recorded.</string>
+    <string name="home_status_stopped_suggestion">ABP Call is turned off, calls will not be recorded.</string>
     <string name="home_hero_pill_stopped">Stopped</string>
     <string name="home_hero_pill_starting">Starting…</string>
     <string name="home_recording_stop">Stop</string>
@@ -630,7 +634,7 @@
     <string name="transcription_model_best">Best quality</string>
     <string name="transcription_model_best_small_download">Best quality, smaller download</string>
     <string name="transcription_model_persian">Persian-tuned</string>
-    <string name="transcription_model_persian_licence">Best quality, trained on Persian speech. Whisper large-v3-turbo Persian by givia, CC BY 4.0 licence, quantised for whisper.cpp. It is downloaded separately rather than included in CallVault.</string>
+    <string name="transcription_model_persian_licence">Best quality, trained on Persian speech. Whisper large-v3-turbo Persian by givia, CC BY 4.0 licence, quantised for whisper.cpp. It is downloaded separately rather than included in ABP Call.</string>
     <string name="transcription_model_download">Download model</string>
     <string name="transcription_model_download_subtitle">%1$d MB</string>
     <string name="transcription_model_delete">Delete model</string>
@@ -648,7 +652,7 @@
     <string name="model_import_waiting">Getting ready to import…</string>
     <string name="model_import">Import from a file</string>
     <string name="model_import_subtitle">Use a copy you already have</string>
-    <string name="model_import_info">Pick the official model file (%1$s, %2$d MB). CallVault checks it is exactly that file before using it, and leaves your copy where it is.</string>
+    <string name="model_import_info">Pick the official model file (%1$s, %2$d MB). ABP Call checks it is exactly that file before using it, and leaves your copy where it is.</string>
     <string name="model_import_failed_wrong_file">That isn\'t the right file. Pick %1$s.</string>
     <string name="model_import_failed_other_model">That\'s the file for another model (%1$s). Choose that model first, then import.</string>
     <string name="model_import_failed_unreadable">Couldn\'t read that file. Pick it again.</string>
@@ -694,7 +698,7 @@
     <string name="summary_model_failed">The download did not finish. Try again.</string>
     <string name="summary_requirements_title">What this needs</string>
     <string name="summary_requirements_body">Summaries are written on your phone — nothing is sent anywhere. That costs a %1$.1f GB download and about %2$.1f GB of memory while it runs, so it needs a recent phone with room to spare. A short call takes a minute or two.</string>
-    <string name="summary_model_licence">The summariser is Google\'s Gemma 4, used under the Apache 2.0 licence. It is downloaded separately rather than included in CallVault.</string>
+    <string name="summary_model_licence">The summariser is Google\'s Gemma 4, used under the Apache 2.0 licence. It is downloaded separately rather than included in ABP Call.</string>
 
     <!--
       The summary card on the playback screen. "Generated from the transcript" is not decoration:
@@ -867,9 +871,9 @@
     <string name="transcript_delete_confirm_title">Delete this transcript?</string>
     <string name="transcript_delete_confirm_message">The transcript of %1$s will be deleted. The recording itself is kept, and you can transcribe it again later.</string>
     <string name="home_status_recovery_stuck_title">Recording is down</string>
-    <string name="home_status_recovery_stuck_suggestion">CallVault keeps failing to restart its recorder, so calls are not being recorded. Reopening the app usually clears it.</string>
+    <string name="home_status_recovery_stuck_suggestion">ABP Call keeps failing to restart its recorder, so calls are not being recorded. Reopening the app usually clears it.</string>
     <string name="home_hero_pill_recovery_stuck">Not recording</string>
-    <string name="app_lock_prompt_title">Unlock CallVault</string>
+    <string name="app_lock_prompt_title">Unlock ABP Call</string>
     <string name="app_lock_locked">Locked</string>
     <string name="app_lock_unlock">Unlock</string>
     <string name="settings_section_privacy">Privacy</string>
@@ -877,7 +881,7 @@
     <string name="settings_app_lock_description">Ask for your screen lock before showing recordings and transcripts. Also keeps them out of screenshots and the app switcher.</string>
     <string name="settings_app_lock_unavailable">Set a screen lock on your phone to use this.</string>
     <string name="settings_allow_screenshots_title">Allow screenshots</string>
-    <string name="settings_allow_screenshots_description">Let you take screenshots of CallVault. This also shows its content in the app switcher. Off keeps everything hidden.</string>
+    <string name="settings_allow_screenshots_description">Let you take screenshots of ABP Call. This also shows its content in the app switcher. Off keeps everything hidden.</string>
     <string name="playback_tags_title">Tags</string>
     <string name="playback_tags_add">Add tag</string>
     <string name="playback_tags_remove">Remove tag</string>
@@ -901,18 +905,18 @@
     <string name="storage_cap_caption">Once your recordings pass this, the daily clean-up deletes the oldest from this phone until they fit. Starred recordings are never deleted, even if that means going over. A recording kept in Drive as well only loses its copy here. Audio you imported is never deleted by the limit either: it has no copy in Drive, so this phone holds the only one.</string>
     <string name="storage_cap_confirm_message">Recordings will be deleted from this phone whenever they exceed the limit, oldest first. Starred recordings are never taken. This cannot be undone.</string>
     <string name="notif_health_channel">Problems that need you</string>
-    <string name="notif_health_recorder_title">CallVault cannot record right now</string>
+    <string name="notif_health_recorder_title">ABP Call cannot record right now</string>
     <string name="notif_health_shizuku_stopped_title">Shizuku was stopped</string>
-    <string name="notif_health_shizuku_stopped_text">CallVault had to restart Android\'s debugging service, and that stops Shizuku. Open Shizuku and start it again if you use it with other apps.</string>
+    <string name="notif_health_shizuku_stopped_text">ABP Call had to restart Android\'s debugging service, and that stops Shizuku. Open Shizuku and start it again if you use it with other apps.</string>
     <string name="notif_health_shizuku_restarted_title">Shizuku was started again</string>
-    <string name="notif_health_shizuku_restarted_text">CallVault had to restart Android\'s debugging service, which stops Shizuku, so it started Shizuku again for you. There is nothing to do.</string>
+    <string name="notif_health_shizuku_restarted_text">ABP Call had to restart Android\'s debugging service, which stops Shizuku, so it started Shizuku again for you. There is nothing to do.</string>
     <string name="notif_health_shizuku_restart_failed_title">Shizuku was stopped</string>
-    <string name="notif_health_shizuku_restart_failed_text">CallVault had to restart Android\'s debugging service, and that stops Shizuku. It tried to start Shizuku again and could not — open Shizuku and start it yourself.</string>
+    <string name="notif_health_shizuku_restart_failed_text">ABP Call had to restart Android\'s debugging service, and that stops Shizuku. It tried to start Shizuku again and could not — open Shizuku and start it yourself.</string>
     <string name="notif_health_recorder_text">Calls will not be recorded until this phone joins a Wi-Fi network once. Any network will do and it does not need internet — a few seconds is enough, then it keeps working even off Wi-Fi.</string>
     <string name="notif_health_sync_title">Recordings are not reaching Drive</string>
-    <string name="notif_health_sync_text">Copying to Google Drive stopped some time ago. Nothing is lost — the recordings are still on this phone — but they are not backed up. Open CallVault to check your storage settings.</string>
+    <string name="notif_health_sync_text">Copying to Google Drive stopped some time ago. Nothing is lost — the recordings are still on this phone — but they are not backed up. Open ABP Call to check your storage settings.</string>
     <string name="notif_health_recorder_text_shizuku">Calls will not be recorded until Shizuku is running again. A reboot stops it, so it has to be started once after the phone restarts.</string>
-    <string name="settings_offline_recording_reboot_note">After a restart this stops working until the phone joins a Wi-Fi network once. Any network will do and it does not need internet — a few seconds is enough. CallVault will tell you when that is needed.</string>
+    <string name="settings_offline_recording_reboot_note">After a restart this stops working until the phone joins a Wi-Fi network once. Any network will do and it does not need internet — a few seconds is enough. ABP Call will tell you when that is needed.</string>
     <string name="general_stop">Stop</string>
     <string name="settings_metadata_file_label">Write a details file</string>
     <string name="settings_metadata_file_desc">Save a small .json beside each recording</string>
@@ -963,22 +967,22 @@
     <string name="settings_debug_skip_mdns">Skip mDNS when connecting (test the port search)</string>
     <string name="settings_debug_skip_mdns_description">For testing. The next Wireless debugging connection ignores mDNS and the last known port, and finds the port by searching this phone\'s local ports. Only works while log recording is on.</string>
     <string name="usb_debugging_off_warn_title">Turn off USB debugging?</string>
-    <string name="usb_debugging_off_warn_no_way_in">You\'re not on Wi-Fi, so CallVault will have no way to reach the recorder. Calls won\'t be recorded until you connect to Wi-Fi or turn this back on.</string>
+    <string name="usb_debugging_off_warn_no_way_in">You\'re not on Wi-Fi, so ABP Call will have no way to reach the recorder. Calls won\'t be recorded until you connect to Wi-Fi or turn this back on.</string>
     <string name="usb_debugging_off_warn_offline">Off-Wi-Fi recording needs USB debugging. With it off, calls made away from Wi-Fi won\'t be recorded.</string>
     <string name="usb_debugging_off_confirm">Turn off anyway</string>
     <string name="usb_debugging_off_keep">Keep it on</string>
     <string name="settings_wd_enforce_label">Keep Wireless debugging on for recording</string>
-    <string name="settings_wd_enforce_description">If you switch Wireless debugging off while nothing else lets CallVault in, it turns it back on so calls keep recording. When this is off, your switch stays off and the notification says recording is paused.</string>
+    <string name="settings_wd_enforce_description">If you switch Wireless debugging off while nothing else lets ABP Call in, it turns it back on so calls keep recording. When this is off, your switch stays off and the notification says recording is paused.</string>
     <string name="settings_wd_auto_approve_label">Approve new Wi-Fi networks automatically</string>
-    <string name="settings_wd_auto_approve_description">When the phone joins a Wi-Fi network, CallVault answers Android\'s \"Allow wireless debugging on this network?\" itself, so recording does not wait for your tap. Works while the recorder is running. Only devices already paired with this phone can connect.</string>
+    <string name="settings_wd_auto_approve_description">When the phone joins a Wi-Fi network, ABP Call answers Android\'s \"Allow wireless debugging on this network?\" itself, so recording does not wait for your tap. Works while the recorder is running. Only devices already paired with this phone can connect.</string>
     <string name="settings_wd_never_off_label">Never turn Wireless debugging off</string>
-    <string name="settings_wd_never_off_description">CallVault won\'t switch Wireless debugging off, so the debugging port stays open on your Wi-Fi network. CallVault may still switch it on when the recorder needs it. Built-in mode only.</string>
-    <string name="settings_wd_left_on_by_setting">Wireless debugging is on. CallVault is leaving it on because of this setting.</string>
-    <string name="settings_wd_left_on_by_user">Wireless debugging is on. You switched it on, so CallVault is leaving it on.</string>
+    <string name="settings_wd_never_off_description">ABP Call won\'t switch Wireless debugging off, so the debugging port stays open on your Wi-Fi network. ABP Call may still switch it on when the recorder needs it. Built-in mode only.</string>
+    <string name="settings_wd_left_on_by_setting">Wireless debugging is on. ABP Call is leaving it on because of this setting.</string>
+    <string name="settings_wd_left_on_by_user">Wireless debugging is on. You switched it on, so ABP Call is leaving it on.</string>
     <string name="oem_gate_title">Your phone is blocking this step</string>
     <string name="oem_gate_body_oppo">OnePlus, OPPO and realme phones refuse to give apps this permission until you turn on \"Disable system optimization\" in Developer options — near the bottom, under Apps. Older versions call it \"Disable permission monitoring\". Turn it on and try again. If you cannot find it, switch the phone to English, turn it on, then switch back.</string>
     <string name="oem_gate_body_xiaomi">Xiaomi, Redmi and POCO phones refuse to give apps this permission until you turn on \"USB debugging (Security settings)\" in Developer options. It is separate from USB debugging, and needs you to be signed in to a Mi account. Turn it on and try again.</string>
-    <string name="oem_gate_body_other">This phone refuses to give CallVault the permission it needs. In Developer options, look for a switch about permission monitoring or system optimisation, turn it on, and try again.</string>
+    <string name="oem_gate_body_other">This phone refuses to give ABP Call the permission it needs. In Developer options, look for a switch about permission monitoring or system optimisation, turn it on, and try again.</string>
     <string name="oem_gate_open_dev_options">Open Developer options</string>
     <string name="oem_gate_continue_hint">You can carry on for now, but calls will not be recorded until this is done.</string>
     <string name="home_hub_community_eyebrow">JOIN</string>
@@ -1017,18 +1021,18 @@
     <string name="note_saved">Saved</string>
     <string name="note_saving">Saving…</string>
     <string name="home_status_pairing_lost_title">Pairing expired</string>
-    <string name="home_status_pairing_lost_suggestion">Android forgot CallVault\'s Wireless debugging pairing, so the recorder can\'t restart. Tap here to pair again — your recordings and settings stay as they are.</string>
+    <string name="home_status_pairing_lost_suggestion">Android forgot ABP Call\'s Wireless debugging pairing, so the recorder can\'t restart. Tap here to pair again — your recordings and settings stay as they are.</string>
     <string name="settings_pair_again_label">Pair again</string>
-    <string name="settings_pair_again_value">Pair CallVault with Wireless debugging</string>
-    <string name="settings_pair_again_hint">Use this if Android forgot CallVault\'s pairing. Your recordings and settings stay as they are. Turning on Offline recording keeps the pairing from expiring.</string>
-    <string name="notif_readiness_pairing_lost_text">Android forgot CallVault\'s pairing, so calls can\'t be recorded. Open CallVault and tap the status card to pair again.</string>
+    <string name="settings_pair_again_value">Pair ABP Call with Wireless debugging</string>
+    <string name="settings_pair_again_hint">Use this if Android forgot ABP Call\'s pairing. Your recordings and settings stay as they are. Turning on Offline recording keeps the pairing from expiring.</string>
+    <string name="notif_readiness_pairing_lost_text">Android forgot ABP Call\'s pairing, so calls can\'t be recorded. Open ABP Call and tap the status card to pair again.</string>
     <string name="notif_cut_off_saved_title">A call was cut off</string>
-    <string name="notif_cut_off_saved_text">Your phone closed CallVault during a call. What was recorded before that was saved as %1$s.</string>
-    <string name="home_health_failed_cut_off">Your last call was cut off when the phone closed CallVault — the part recorded before that was saved.</string>
+    <string name="notif_cut_off_saved_text">Your phone closed ABP Call during a call. What was recorded before that was saved as %1$s.</string>
+    <string name="home_health_failed_cut_off">Your last call was cut off when the phone closed ABP Call — the part recorded before that was saved.</string>
     <string name="settings_needs_newer_android">Needs Android %1$s or newer — this phone runs Android %2$s.</string>
     <string name="notif_turned_off_for_android_title">Some settings were turned off</string>
     <string name="notif_turned_off_for_android_text">%1$s: this needs a newer Android version than the one on this phone (Android %2$s), so it was switched off. Phone calls still record.</string>
-    <string name="update_popup_title">CallVault %1$s is available</string>
+    <string name="update_popup_title">ABP Call %1$s is available</string>
     <string name="update_popup_text">A new version is ready to install. Updating keeps recording reliable and brings the latest fixes.</string>
     <string name="update_popup_update_now">Update now</string>
     <string name="update_popup_later">Later</string>

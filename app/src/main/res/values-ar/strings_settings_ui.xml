@@ -5,7 +5,7 @@
   Licensed under the GNU General Public License v3 or later.
 -->
 <resources>
-    <string name="settings_ui_about_app">CallVault</string>
+    <string name="settings_ui_about_app">ABP Call</string>
     <string name="settings_ui_open_repo_hint">انقر لفتح المستودع الأصلي للمشروع</string>
     <string name="settings_ui_recording_server_label">محرك التسجيل</string>
 </resources>

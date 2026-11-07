@@ -20,7 +20,7 @@
     <string name="permissions_status_adb_not_connected">غير متصل</string>
     <string name="permissions_ui_eyebrow">الإعداد</string>
     <string name="permissions_ui_hero_line">بضعة أذونات لتسجيل مكالماتك.</string>
-    <string name="permissions_ui_hero_subtitle">بضعة أذونات تمكّن CallVault من التقاط مكالماتك وتسميتها بدقة. يُرجى الموافقة على كل عنصر أدناه.</string>
+    <string name="permissions_ui_hero_subtitle">بضعة أذونات تمكّن ABP Call من التقاط مكالماتك وتسميتها بدقة. يُرجى الموافقة على كل عنصر أدناه.</string>
     <string name="permissions_ui_hero_title">لنبدأ عملية الإعداد</string>
     <string name="permissions_ui_section_label">الأذونات</string>
 </resources>

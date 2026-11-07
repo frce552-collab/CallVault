@@ -32,5 +32,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "CallVault"
+rootProject.name = "ABPCall"
 include(":app")

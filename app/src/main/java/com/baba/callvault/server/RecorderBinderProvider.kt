@@ -159,7 +159,7 @@ class RecorderBinderProvider : ContentProvider() {
         private const val TAG = "CV:RecorderConn"
 
         /** Provider authority registered in the manifest; the daemon resolves "<authority>". */
-        const val AUTHORITY = "com.baba.callvault.recorder"
+        const val AUTHORITY = "kz.ploshadki.recorder.recorder" // must equal recorderAuthority in app/build.gradle.kts
 
         /** Mirrors ShizukuProvider.METHOD_SEND_BINDER. */
         const val METHOD_SEND_BINDER = "sendBinder"

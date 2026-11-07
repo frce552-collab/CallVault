@@ -38,6 +38,7 @@ import androidx.compose.runtime.setValue
 import com.baba.callvault.R
 import com.baba.callvault.system.copyToClipboard
 import com.baba.callvault.system.openOriginalProjectRepo
+import com.baba.callvault.system.openCallVaultProjectRepo
 import com.baba.callvault.ui.common.formatByteSize
 import com.baba.callvault.ui.common.SupportDialog
 import com.baba.callvault.server.RecorderBackend
@@ -377,6 +378,15 @@ internal fun AboutSection(
             value = stringResource(R.string.settings_fork_attribution_supporting),
             supporting = stringResource(R.string.settings_ui_open_repo_hint),
             onClick = { context.openOriginalProjectRepo() }
+        )
+
+        // Ploshadki fork: visible FORK marking and link to CallVault (GPLv3 §7 b, c).
+        NavigationRow(
+            icon = Icons.Filled.Gavel,
+            label = stringResource(R.string.settings_fork_attribution_callvault),
+            value = stringResource(R.string.settings_fork_attribution_callvault_supporting),
+            supporting = stringResource(R.string.settings_ui_open_repo_hint),
+            onClick = { context.openCallVaultProjectRepo() }
         )
 
         SettingsDivider()

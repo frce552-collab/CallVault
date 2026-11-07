@@ -20,7 +20,7 @@
     <string name="home_update_banner_button">Оновити</string>
     <string name="home_update_banner_downloading">Завантаження… %1$d%%</string>
     <string name="home_update_banner_installing">Встановлення…</string>
-    <string name="home_updated_banner_text">CallVault оновлено до %1$s</string>
+    <string name="home_updated_banner_text">ABP Call оновлено до %1$s</string>
     <string name="home_whatsnew_title">Що нового</string>
     <string name="home_whatsnew_offline_cta">Увімкнути запис без Wi-Fi</string>
     <string name="home_whatsnew_offline_enabled">Запис без Wi-Fi увімкнено.</string>
@@ -97,11 +97,11 @@
     <string name="share_import_label">Імпорт аудіо</string>
     <string name="share_import_working_body">Копіювання та перевірка аудіофайлу.</string>
     <string name="share_import_done_title">Додано до записів</string>
-    <string name="share_import_done_body">Аудіофайл уже в CallVault. Можна прослухати чи створити транскрипцію.</string>
+    <string name="share_import_done_body">Аудіофайл уже в ABP Call. Можна прослухати чи створити транскрипцію.</string>
     <string name="share_import_open">Відкрити</string>
-    <string name="share_import_open_app">Відкрити CallVault</string>
+    <string name="share_import_open_app">Відкрити ABP Call</string>
     <string name="share_import_close">Закрити</string>
-    <string name="share_import_not_set_up_title">Спочатку завершіть налаштування CallVault</string>
+    <string name="share_import_not_set_up_title">Спочатку завершіть налаштування ABP Call</string>
     <string name="share_import_choice_title">Що зробити з аудіо?</string>
     <string name="share_import_choice_unnamed">Надісланий аудіофайл</string>
     <string name="import_choice_keep">Імпортувати й розпізнати</string>
@@ -117,7 +117,7 @@
     <string name="offline_failed_needs_wd">Не вдалося ввімкнути: бездротове налагодження вимкнено. Увімкніть його в параметрах розробника та повторіть.</string>
     <string name="offline_failed_no_service">Не вдалося підключитися до служби налагодження. Перевірте Wi-Fi та бездротове налагодження.</string>
     <string name="offline_failed_port">Не вдалося відновити локальний порт. Повторіть трохи пізніше.</string>
-    <string name="home_whatsnew_resilient_body">Підвищує стійкість запису до переривань.\n\nAndroid може зупинити фонову службу CallVault, але поточний запис продовжиться.\n\nФункція вимкнена за замовчуванням і доступна у налаштуваннях надійності.</string>
+    <string name="home_whatsnew_resilient_body">Підвищує стійкість запису до переривань.\n\nAndroid може зупинити фонову службу ABP Call, але поточний запис продовжиться.\n\nФункція вимкнена за замовчуванням і доступна у налаштуваннях надійності.</string>
     <string name="home_whatsnew_resilient_enabled">Стійкий запис увімкнено. Якщо Android зупинить фонову службу, поточний запис продовжиться.</string>
     <string name="whatsnew_153_title">Перевірка налаштувань за реальними дзвінками</string>
     <string name="whatsnew_155_title">Зручніші налаштування та надійніший запис</string>
@@ -126,18 +126,18 @@
     <string name="whatsnew_154_body">Якщо звʼязок зі службою запису зависав, програма могла мовчки припинити запис. Тепер вона виявляє проблему й відновлює роботу.\n\nТакож зʼявився розклад завантажень у Drive та налаштування терміну зберігання.</string>
     <string name="whatsnew_153_body">Картка стану показує не просто запуск програми, а підтверджує роботу за реальними дзвінками. Якщо запис не відбувся, вона пояснює причину: відсутня папка, вимкнені параметри розробника або втрачений дозвіл.\n\nОновлено переклади та локалізації.</string>
     <string name="whatsnew_150_title">Вимикання бездротового налагодження</string>
-    <string name="whatsnew_150_body">Якщо ввімкнути налагодження USB, CallVault може вимикати бездротове налагодження між дзвінками. Кабель не потрібен, а ризик відкритого мережевого порту менший.\n\nВиправлено втрату запису після вимкнення налагодження USB.</string>
+    <string name="whatsnew_150_body">Якщо ввімкнути налагодження USB, ABP Call може вимикати бездротове налагодження між дзвінками. Кабель не потрібен, а ризик відкритого мережевого порту менший.\n\nВиправлено втрату запису після вимкнення налагодження USB.</string>
     <string name="whatsnew_150_where">Налаштування ▸ Експериментальні ▸ Налагодження USB</string>
     <string name="whatsnew_148_title">Стабільніший запуск</string>
     <string name="whatsnew_148_body">Виправлено випадки, коли програма безкінечно перемикала бездротове налагодження, але не ставала готовою до запису. Тепер вона показує причину та підказує потрібні дії.</string>
     <string name="whatsnew_147_title">Запис дзвінків у месенджерах (VoIP)</string>
-    <string name="whatsnew_147_body">CallVault отримав експериментальний запис дзвінків WhatsApp, Signal і Telegram із можливістю записувати обидва голоси. Джерело дзвінка відображається в архіві.\n\nДеякі програми або прошивки можуть блокувати запис.</string>
+    <string name="whatsnew_147_body">ABP Call отримав експериментальний запис дзвінків WhatsApp, Signal і Telegram із можливістю записувати обидва голоси. Джерело дзвінка відображається в архіві.\n\nДеякі програми або прошивки можуть блокувати запис.</string>
     <string name="whatsnew_147_where">Налаштування ▸ Експериментальні ▸ Дзвінки VoIP</string>
     <string name="whatsnew_146_title">Стійкий запис</string>
     <string name="whatsnew_146_body">Android може зупиняти фонову службу під час дзвінка. Завдяки стійкому режиму вже розпочатий запис може продовжитися після такого зупинення.</string>
     <string name="whatsnew_146_where">Налаштування ▸ Експериментальні ▸ Стійкість</string>
     <string name="whatsnew_145_title">Запис із заблокованим екраном</string>
-    <string name="whatsnew_145_body">Виправлено зупинення запису під час блокування екрана на деяких телефонах. CallVault попереджає, якщо причиною може бути вибраний режим USB.</string>
+    <string name="whatsnew_145_body">Виправлено зупинення запису під час блокування екрана на деяких телефонах. ABP Call попереджає, якщо причиною може бути вибраний режим USB.</string>
     <string name="offline_recording_on">Запис без Wi-Fi увімкнено.</string>
     <string name="offline_recording_disabling">Вимкнення запису без Wi-Fi…</string>
     <string name="home_health_call_not_recorded">Дзвінок не записано — %1$s, %2$s.</string>
@@ -148,12 +148,12 @@
     <string name="home_health_missed_adb_pairing_unnamed">Дзвінок не записано: налаштування ще не завершено.</string>
     <string name="home_health_missed_developer_options">Дзвінок не записано: параметри розробника були вимкнені, %1$s.</string>
     <string name="home_health_missed_developer_options_unnamed">Дзвінок не записано: параметри розробника були вимкнені.</string>
-    <string name="home_health_missed_secure_settings">Дзвінок не записано: CallVault утратив дозвіл на запуск рекордера, %1$s.</string>
+    <string name="home_health_missed_secure_settings">Дзвінок не записано: ABP Call утратив дозвіл на запуск рекордера, %1$s.</string>
     <string name="home_health_missed_secure_settings_unnamed">Дзвінок не записано: втрачено дозвіл на запуск рекордера.</string>
     <string name="home_health_failed_one_sided_vivo">Записано лише ваш голос. На vivo перевірте параметр запису дзвінків із застосунків у системному диктофоні.</string>
     <string name="home_health_failed_one_sided_vivo_overseas">Записано лише ваш голос. Цей телефон vivo не дозволяє застосункам записувати співрозмовника в дзвінках через застосунки, і дозволити це неможливо. Звичайні телефонні дзвінки записуються з обох сторін.</string>
     <string name="whatsnew_221_title">Швидший запуск і менше хибних попереджень</string>
-    <string name="whatsnew_221_body">CallVault швидко відкривається навіть із великим архівом: програма більше не перечитує тривалість усіх записів щоразу під час показу списку.\n\nТакож покращено діагностику резервного копіювання в Google Drive.</string>
+    <string name="whatsnew_221_body">ABP Call швидко відкривається навіть із великим архівом: програма більше не перечитує тривалість усіх записів щоразу під час показу списку.\n\nТакож покращено діагностику резервного копіювання в Google Drive.</string>
     <string name="whatsnew_220_title">Швидкий пошук та керування під час дзвінка</string>
     <string name="whatsnew_220_body">Під час розмови можна ставити мітки важливих моментів безпосередньо зі сповіщення. Записи мають кнопки переходу до цих моментів. Для VoIP зʼявилися пауза, продовження, зупинка й мітки.\n\nШукати записи та додавати їх до обраного стало простіше.</string>
     <string name="whatsnew_220_where">Налаштування ▸ Сховище ▸ Термін зберігання</string>
@@ -166,7 +166,7 @@
     <string name="whatsnew_200_body">Дві нові можливості працюють локально, без надсилання аудіо на сервер.\n\nТранскрипція перетворює запис на текст із пошуком і переходом до конкретного моменту.\n\nПідсумки допомагають виділити тему, рішення та завдання з розмови.</string>
     <string name="whatsnew_200_where">Налаштування ▸ Транскрипція та підсумки</string>
     <string name="whatsnew_157_title">Виправлене автовидалення старих записів</string>
-    <string name="whatsnew_157_body">Раніше очищення могло не видаляти файли, які зникли з каталогу CallVault. Тепер щоденна перевірка сканує самі папки записів, щоб термін зберігання застосовувався послідовно.</string>
+    <string name="whatsnew_157_body">Раніше очищення могло не видаляти файли, які зникли з каталогу ABP Call. Тепер щоденна перевірка сканує самі папки записів, щоб термін зберігання застосовувався послідовно.</string>
     <string name="whatsnew_157_where">Налаштування ▸ Сховище ▸ Термін зберігання</string>
     <string name="whatsnew_156_title">Контроль запису та впорядкування архіву</string>
     <string name="whatsnew_156_body">Для звичайних і VoIP-дзвінків тепер можна незалежно вибирати автоматичний запис, запит дозволу чи вимкнення.\n\nДодано масове видалення й надсилання записів, а також вибір, яку копію видаляти — локальну чи на Drive.</string>
@@ -208,7 +208,7 @@
         <item>Пропускати ігноровані контакти й у дзвінках застосунків</item>
         <item>Назви файлів Honor / Huawei — застосунок «Телефон» на Honor може відтворювати записи з журналу дзвінків</item>
         <item>Дзвінки в застосунках записуються на телефонах Honor з MagicOS 11</item>
-        <item>Виправлення — CallVault більше не конфліктує зі сторожем Shizuku, рекордер Shizuku повертається після зупинки Android, файли з контактом або номером на початку назви знову об’єднуються й знаходяться пошуком, грецькі та перські підсумки пишуться потрібною мовою, і виправлення безпеки рекордера</item>
+        <item>Виправлення — ABP Call більше не конфліктує зі сторожем Shizuku, рекордер Shizuku повертається після зупинки Android, файли з контактом або номером на початку назви знову об’єднуються й знаходяться пошуком, грецькі та перські підсумки пишуться потрібною мовою, і виправлення безпеки рекордера</item>
     </string-array>
     <string name="whatsnew_246_title">Головний перемикач, грецька мова та виправлення</string>
     <string name="whatsnew_244_where">Налаштування ▸ Надійність ▸ Повторити сполучення</string>
@@ -217,13 +217,13 @@
     <string name="whatsnew_230_title">Обʼєднання кількох дзвінків в один запис</string>
     <string name="offline_failed_no_wifi">Не вдалося ввімкнути: немає Wi-Fi. Один раз підключіться до будь-якої мережі й повторіть.</string>
     <string name="offline_failed_wd_refused">Android заборонив бездротове налагодження в цій мережі. Увімкніть його в параметрах розробника та підтвердьте.</string>
-    <string name="offline_failed_needs_usb">Спочатку ввімкніть налагодження USB у налаштуваннях CallVault. Воно потрібне для запису без Wi-Fi.</string>
+    <string name="offline_failed_needs_usb">Спочатку ввімкніть налагодження USB у налаштуваннях ABP Call. Воно потрібне для запису без Wi-Fi.</string>
     <string name="home_transcripts_empty_hint">Попросіть розшифровку в меню запису або натисніть «Імпорт», щоб додати аудіофайл. Вона з\'явиться тут, щойно буде готова.</string>
     <string name="home_summaries_empty_hint">Відкрийте розмову з транскрипцією та створіть підсумок. Він зʼявиться тут.</string>
     <string name="transcripts_waiting_hint">Ці файли додані для розпізнавання. Натисніть, щоб розпочати, або відкрийте для прослуховування чи видалення.</string>
     <string name="import_failed_undecodable">Телефон не може прочитати аудіо в цьому файлі. Він може бути пошкоджений або мати непідтримуваний формат.</string>
     <string name="share_import_nothing">У надісланих даних немає аудіо. Спробуйте поділитися самим файлом.</string>
-    <string name="share_import_not_set_up_body">Початкове налаштування CallVault ще не завершено. Відкрийте програму, налаштуйте папку записів і повторіть надсилання.</string>
+    <string name="share_import_not_set_up_body">Початкове налаштування ABP Call ще не завершено. Відкрийте програму, налаштуйте папку записів і повторіть надсилання.</string>
     <string name="share_import_queued_keep_body">Файл є у записах. Після завершення текст зʼявиться в розділі «Транскрипції».</string>
     <string name="share_import_queued_only_body">Текст зʼявиться в розділі «Транскрипції». Аудіофайл видалиться після успішного збереження тексту.</string>
     <string name="share_import_kept_body">Файл збережено серед записів. Транскрипцію можна створити пізніше.</string>
@@ -247,7 +247,7 @@
         <item>Виправлено помилкові повідомлення про перервані дзвінки</item>
     </string-array>
     <string-array name="whatsnew_244_items">
-        <item>Якщо Android закриє CallVault під час дзвінка, уже записаний фрагмент буде збережено</item>
+        <item>Якщо Android закриє ABP Call під час дзвінка, уже записаний фрагмент буде збережено</item>
         <item>Можна повторити сполучення в налаштуваннях без перевстановлення застосунку</item>
         <item>Про нову версію повідомляє спливне вікно та швидша перевірка оновлень</item>
         <item>Несумісні з версією Android налаштування стають недоступними з поясненням</item>

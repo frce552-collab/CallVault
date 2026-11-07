@@ -16,9 +16,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'versionName для debug-сборки (например 2.4.9-ploshadki)'
+        description: 'versionName для debug-сборки (например 2.4.9-abpcall)'
         required: false
-        default: '2.4.9-ploshadki'
+        default: '2.4.9-abpcall'
         type: string
   push:
     branches:
@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     env:
-      VERSION_NAME: ${{ inputs.version || '2.4.9-ploshadki' }}
+      VERSION_NAME: ${{ inputs.version || '2.4.9-abpcall' }}
       NDK_VERSION: '27.2.12479018'
       CMAKE_VERSION: '3.22.1'
       BUILD_TOOLS: '36.0.0'
@@ -85,7 +85,7 @@ jobs:
           test -f "$SRC"
           OUT=dist; mkdir -p "$OUT"
           SHORT=$(git rev-parse --short=8 HEAD)
-          NAME="callvault-ploshadki-${VERSION_NAME}-${SHORT}-debug.apk"
+          NAME="abp-call-${VERSION_NAME}-${SHORT}-debug.apk"
           cp "$SRC" "$OUT/$NAME"
           cd "$OUT"
           "$BT/aapt2" dump badging "$NAME" > badging.txt

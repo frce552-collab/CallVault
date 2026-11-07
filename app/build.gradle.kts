@@ -142,7 +142,8 @@ android {
     ndkVersion = "27.2.12479018"
 
     defaultConfig {
-        applicationId = "com.baba.callvault"
+        // Ploshadki fork (GPLv3 §7 c): own package id; Kotlin namespace stays com.baba.callvault (JNI symbols).
+        applicationId = "kz.ploshadki.recorder"
         minSdk = 30
         targetSdk = 36
         versionCode = ciVersionCode.get()
@@ -161,7 +162,7 @@ android {
         // Default provider authority. Only an isolated instrumented build overrides it; every normal
         // build resolves to exactly the string RecorderBinderProvider.AUTHORITY hardcodes, so release
         // output is unchanged.
-        manifestPlaceholders["recorderAuthority"] = "com.baba.callvault.recorder"
+        manifestPlaceholders["recorderAuthority"] = "kz.ploshadki.recorder.recorder"
 
         // 16 KB page sizes (Android 15+ devices that run with 16 KB pages). NDK 27 still links with
         // 4 KB LOAD-segment alignment by default, and a 4 KB-aligned .so fails to load on such a phone.
@@ -255,7 +256,7 @@ android {
                 // moves; every normal build keeps the authority RecorderBinderProvider.AUTHORITY
                 // expects. The isolated build never uses that provider — the instrumented tests
                 // exercise the whisper.cpp JNI bridge, which needs no provider and no daemon.
-                manifestPlaceholders["recorderAuthority"] = "com.baba.callvault.instrtest.recorder"
+                manifestPlaceholders["recorderAuthority"] = "kz.ploshadki.recorder.instrtest.recorder"
             }
         }
     }

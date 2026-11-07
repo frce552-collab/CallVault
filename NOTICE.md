@@ -53,3 +53,20 @@ These are **not** bundled: the app downloads them only when the user chooses the
   (file `ggml-large-v3-turbo-persian-q5_0.bin`, SHA-256
   d832fe5cd81c756bc1962765cff4a33cacde00a7701809837875245870b6d5a8). CallVault does
   not modify the file. The credit is also shown in the app under the model's download rows.
+
+## ABP Call (Ploshadki.kz fork of CallVault)
+
+ABP Call is a MODIFIED version (FORK) of CallVault (https://github.com/madkongo/CallVault),
+which is itself a fork of ShizuCallRecorder (https://github.com/kitsumed/ShizuCallRecorder).
+It is not affiliated with, endorsed or supported by the authors of CallVault or
+ShizuCallRecorder. Their names are used here only for attribution.
+
+Modified by Ploshadki.kz since 2026-11-07, based on CallVault v2.4.9
+(commit ec6e526c21d962793ce1b10bfd180d850c8cb022). Changes so far:
+- 2026-11-07: renamed to "ABP Call" in all user-facing strings; own application id
+  `kz.ploshadki.recorder` and provider authority; visible FORK marking and links to
+  CallVault and ShizuCallRecorder on the first-run disclaimer and in Settings → About;
+  debug CI workflow `.github/workflows/ploshadki-debug-apk.yml`.
+
+ABP Call remains licensed under GPL-3.0-or-later with the Section 7 terms in LICENSE.
+Source: https://github.com/frce552-collab/CallVault
