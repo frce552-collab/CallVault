@@ -54,6 +54,7 @@ object RecorderRuntime {
         if (initialized) return
         initialized = true
         com.baba.callvault.ploshadki.HostPackage.init(app)
+        com.baba.callvault.ploshadki.SecureScreens.install(app)
         AppLogger.init(app.applicationContext)
 
         // Hide Recordings is a property of the folder, and the folder can change under us: a settings

@@ -10,4 +10,7 @@
     <!-- Handle abpcall://enroll links (enrollment QR). A host that passes the link itself, e.g. through
          RecorderEntry.openServerConnection(context, link), sets false so only one app claims the scheme. -->
     <bool name="abp_enroll_deeplink_enabled">true</bool>
+    <!-- FLAG_SECURE on every recorder screen (numbers, names, transcripts): no screenshots, screen recording or
+         recents thumbnail. ABP Call keeps upstream behaviour (false); the CRM sets true. -->
+    <bool name="abp_secure_screens">false</bool>
 </resources>
