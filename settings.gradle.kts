@@ -34,3 +34,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "ABPCall"
 include(":app")
+include(":recorder") // S5: recorder as an Android library (sources in app/src/main)

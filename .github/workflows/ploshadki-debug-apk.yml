@@ -23,6 +23,7 @@ on:
   push:
     branches:
       - 's1/**'
+      - 's5/**'
       - 'ploshadki/main'
 
 concurrency:
@@ -79,7 +80,7 @@ jobs:
       # Unit tests for the fork's own behaviour (fail-closed WhatsApp Business policy, etc.).
       - name: Fork unit tests
         run: >
-          ./gradlew testDebugUnitTest
+          ./gradlew :recorder:testDebugUnitTest
           --tests 'com.baba.callvault.data.voip.VoipAppPolicyTest'
           --tests 'com.baba.callvault.services.recording.VoipLateCallerTest'
           --tests 'com.baba.callvault.ploshadki.*'

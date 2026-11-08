@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ ABP Call host shell (S5). All components, the Application class, icon and label come from the
+  ~ :recorder library (sources in app/src/main). This manifest only exists so the APK keeps its own
+  ~ applicationId; the merged manifest is identical to the pre-library ABP Call.
+  ~ Licensed under GPL-3.0-or-later with the Section 7 terms in LICENSE.
+  -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application />
+</manifest>
