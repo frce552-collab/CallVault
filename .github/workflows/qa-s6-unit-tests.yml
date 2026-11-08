@@ -49,8 +49,10 @@ jobs:
               r=ET.parse(p).getroot()
               t+=int(r.get('tests',0)); f+=int(r.get('failures',0)); e+=int(r.get('errors',0)); s+=int(r.get('skipped',0))
               for c in r.iter('testcase'):
-                  if c.find('failure') is not None or c.find('error') is not None:
+                  x = c.find('failure') if c.find('failure') is not None else c.find('error')
+                  if x is not None:
                       bad.append(f"{c.get('classname')}.{c.get('name')}")
+                      if len(bad) <= 3: print("QA-S6-TRACE", (x.text or x.get('message') or '')[:1500])
           print(f"QA-S6-SUMMARY tests={t} failures={f} errors={e} skipped={s}")
           for b in bad[:100]: print("QA-S6-FAILED", b)
           PY
