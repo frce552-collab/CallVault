@@ -85,6 +85,8 @@ Modified by Ploshadki.kz since 2026-11-07, based on CallVault v2.4.9
   (`abp_enroll_deeplink_enabled`); the connection screen is no longer exported.
 - 2026-11-08: recordings and login are sent to the company server over HTTPS only;
   plain-HTTP links are rejected and redirects are not followed.
+- 2026-11-08: a host app can protect the recorder screens from screenshots and screen
+  recording (`abp_secure_screens`, sets FLAG_SECURE on the recorder's activities).
 
 ABP Call remains licensed under GPL-3.0-or-later with the Section 7 terms in LICENSE.
 Source: https://github.com/frce552-collab/CallVault
