@@ -33,6 +33,8 @@ kotlin {
 dependencies {
     implementation(project(":recorder"))
     compileOnly("com.capacitorjs:core:7.6.9")
+    // Capacitor's Plugin.getActivity() is an AppCompatActivity; the host app ships appcompat.
+    compileOnly(libs.androidx.appcompat)
 }
 
 afterEvaluate {

@@ -7,6 +7,7 @@
  */
 package kz.ploshadki.recorder.capacitor
 
+import android.content.Context
 import com.baba.callvault.ploshadki.AbpStore
 import com.baba.callvault.ploshadki.RecorderEntry
 import com.getcapacitor.JSObject
@@ -49,7 +50,7 @@ class AbpRecorderPlugin : Plugin() {
     /** Recorder home: setup wizard on first run (permissions, Wireless debugging), then recordings. */
     @PluginMethod
     fun openSetup(call: PluginCall) {
-        RecorderEntry.openRecorder(activity ?: context)
+        RecorderEntry.openRecorder(hostContext())
         call.resolve()
     }
 
@@ -57,7 +58,7 @@ class AbpRecorderPlugin : Plugin() {
     @PluginMethod
     fun connect(call: PluginCall) {
         val link = call.getString("link")
-        val host = activity ?: context
+        val host = hostContext()
         if (link.isNullOrBlank()) {
             RecorderEntry.openServerConnection(host)
         } else {
@@ -69,6 +70,9 @@ class AbpRecorderPlugin : Plugin() {
         }
         call.resolve()
     }
+
+    /** The bridge activity when there is one (no NEW_TASK flag needed), else the application context. */
+    private fun hostContext(): Context = activity ?: context
 
     companion object {
         const val BRIDGE_VERSION = 1
