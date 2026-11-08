@@ -92,9 +92,22 @@
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.APPLICATION_PREFERENCES" /> <!-- Show "Additional settings in the app" button in Settings App Info -->
                 <category android:name="android.intent.category.NOTIFICATION_PREFERENCES" /> <!-- Show "Additional settings in the app" button in Settings App Info -> notifications -->
-                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- ABP: the home-screen icon is an alias, so a host app that embeds the recorder can hide it by
+             overriding the resource bool/abp_show_launcher_icon = false. ABP Call keeps it (default true). -->
+        <activity-alias
+            android:name=".AbpLauncher"
+            android:enabled="@bool/abp_show_launcher_icon"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
 
         <!--
             Share target: one audio file sent to CallVault from another app.

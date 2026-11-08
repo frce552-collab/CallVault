@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ ABP Call — Ploshadki.kz fork of CallVault. GPL-3.0-or-later with the Section 7 terms in LICENSE.
+  ~ Host switches: an app that embeds the recorder overrides these in its own resources.
+  -->
+<resources>
+    <!-- Show the recorder's own icon on the home screen. A host app (CRM) sets false and opens the
+         recorder screens through com.baba.callvault.ploshadki.RecorderEntry instead. -->
+    <bool name="abp_show_launcher_icon">true</bool>
+</resources>
