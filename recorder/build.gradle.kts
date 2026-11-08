@@ -284,9 +284,6 @@ android {
                 // S1 (run 42454865567): Robolectric installs Conscrypt by default, but conscrypt-android on the
                 // test classpath has no host JNI → 472 UnsatisfiedLinkError upstream too. Tests are not skipped.
                 it.systemProperty("robolectric.conscryptMode", "OFF")
-                // Upstream tests read sources, resources and Room schemas by paths relative to the app module
-                // (src/main/..., schemas/...). The sources still live there, so run the tests from app/.
-                it.workingDir = rootProject.file("app")
             }
         }
     }
