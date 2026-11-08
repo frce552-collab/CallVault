@@ -16,6 +16,7 @@ plugins {
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.aboutlibraries)
     alias(libs.plugins.ksp)
+    `maven-publish`
 }
 
 val scrcpyVersion = "4.0"
@@ -270,7 +271,7 @@ android {
         getByName("androidTest") {
             java.setSrcDirs(listOf("../app/src/androidTest/java"))
             kotlin.setSrcDirs(listOf("../app/src/androidTest/java"))
-            assets.setSrcDirs(listOf("../app/src/androidTest/assets"))
+            assets.setSrcDirs(listOf("../app/src/androidTest/assets", "$rootDir/app/schemas"))
         }
     }
     testOptions {
@@ -281,6 +282,10 @@ android {
             // Declared as inputs so a source-only change re-runs them instead of being "up to date".
             all { it.inputs.dir("../app/src/main/java/com/baba/callvault/ui") }
         }
+    }
+    // S5: the CRM app consumes :recorder as an AAR from a local maven repo (separate Gradle build, CRM CI).
+    publishing {
+        singleVariant("release") { }
     }
     lint {
         // Fail the build if any shipped locale is missing a translatable string, or has a
@@ -320,7 +325,7 @@ ksp {
  * APK's assets, not from the project. Without this the helper throws at construction and the
  * migration test cannot run at all.
  */
-android.sourceSets.getByName("androidTest").assets.srcDir("$rootDir/app/schemas")
+// (schemas are added to androidTest assets in the sourceSets block above)
 
 androidComponents {
     onVariants { variant ->
@@ -449,4 +454,34 @@ dependencies {
     // and the unit-level drift guard compares SQL, which cannot catch a statement that fails to
     // execute or silently drops rows. Needs the exported schemas, wired into assets below.
     androidTestImplementation(libs.androidx.room.testing)
+}
+
+// S5: `./gradlew :recorder:publishReleasePublicationToRecorderRepoRepository -PrecorderRepo=<dir>`
+// → <dir>/kz/ploshadki/abp-recorder/<version>/ (AAR + POM with the runtime dependencies).
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
+                from(components["release"])
+                groupId = "kz.ploshadki"
+                artifactId = "abp-recorder"
+                version = providers.gradleProperty("recorderVersion").getOrElse("0.1.0-local")
+                pom {
+                    name.set("ABP Call recorder (fork of CallVault / ShizuCallRecorder)")
+                    licenses {
+                        license {
+                            name.set("GPL-3.0-or-later with Section 7 additional terms (see LICENSE)")
+                            url.set("https://github.com/frce552-collab/CallVault/blob/main/LICENSE")
+                        }
+                    }
+                }
+            }
+        }
+        repositories {
+            maven {
+                name = "recorderRepo"
+                url = uri(providers.gradleProperty("recorderRepo").getOrElse("${rootDir}/build/recorder-repo"))
+            }
+        }
+    }
 }
