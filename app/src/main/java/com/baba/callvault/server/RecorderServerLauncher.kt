@@ -55,7 +55,7 @@ object RecorderServerLauncher {
      * positional arg (`apkPath`, used by [RecorderServer] to self-extract scrcpy).
      */
     private const val PRIMARY_CMD_FORMAT =
-        "setsid sh -c 'CLASSPATH=%1\$s exec app_process / $DAEMON_FQCN %1\$s' >/dev/null 2>&1 </dev/null & sleep $LAUNCH_KEEPALIVE_SEC"
+        "setsid sh -c 'CLASSPATH=%1\$s exec app_process / $DAEMON_FQCN %1\$s %2\$s' >/dev/null 2>&1 </dev/null & sleep $LAUNCH_KEEPALIVE_SEC"
 
     /**
      * How long to block-drain the launching shell. Must exceed [LAUNCH_KEEPALIVE_SEC] so we hold the
@@ -281,7 +281,7 @@ object RecorderServerLauncher {
         } else {
             AppLogger.d(TAG, "Recent boot (uptime < ${RECENT_BOOT_GRACE_MS}ms); skipping killStaleDaemons — reboot already cleared any stale daemon")
         }
-        val command = String.format(PRIMARY_CMD_FORMAT, apk)
+        val command = String.format(PRIMARY_CMD_FORMAT, apk, com.baba.callvault.ploshadki.HostPackage.recorderAuthority())
         AppLogger.i(TAG, "Attempt $attempt: launching recorder daemon. apk=$apk")
 
         // Background thread: send the command and hold the shell's stream open for the keep-alive

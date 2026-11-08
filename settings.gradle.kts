@@ -32,5 +32,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "CallVault"
+rootProject.name = "ABPCall"
 include(":app")
+include(":recorder") // S5: recorder as an Android library (sources in app/src/main)
+include(":capacitor-abp-recorder") // S5: Capacitor bridge "AbpRecorder" for the CRM APK

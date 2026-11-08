@@ -41,7 +41,12 @@ import kotlin.system.exitProcess
  *   load `libaudiohandoff.so` from inside the APK.
  */
 @Keep
-open class RecorderServiceImpl(private val apkPath: String) : IRecorderService.Stub() {
+open class RecorderServiceImpl(
+    private val apkPath: String,
+    // ABP Call: authority of the app-side provider the handoff is delivered to. Passed in, because the
+    // daemon has no Context and, embedded in a host app, the constant would name the wrong package.
+    private val authority: String = RecorderBinderProvider.AUTHORITY,
+) : IRecorderService.Stub() {
 
     /** Guards single-session recording (binder threads + worker may race). */
     private val recordingActive = AtomicBoolean(false)
@@ -198,7 +203,7 @@ open class RecorderServiceImpl(private val apkPath: String) : IRecorderService.S
         }
         return runCatching {
             HandoffSource.deliverToApp(
-                RecorderBinderProvider.AUTHORITY, source, sampleRate, channels
+                authority, source, sampleRate, channels
             )
         }.onFailure { AppLogger.w(TAG, "startHandoff error: ${it.message}") }.getOrDefault(false)
     }
@@ -312,7 +317,7 @@ open class RecorderServiceImpl(private val apkPath: String) : IRecorderService.S
         }
         return runCatching {
             HandoffSource.deliverToApp(
-                authority = RecorderBinderProvider.AUTHORITY,
+                authority = authority,
                 sourceCliKey = source ?: "voice-call",
                 sampleRate = sampleRate,
                 preferredChannels = channels,

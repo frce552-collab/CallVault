@@ -1,19 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ ABP Call (Ploshadki.kz fork of CallVault). Own launcher icon, GPLv3 §7 (brand distinction).
+  ~  Licensed under GPL-3.0-or-later; see LICENSE.
+  -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <group
-        android:translateX="28"
-        android:translateY="36"
-        android:scaleX="1.85"
-        android:scaleY="1.85">
-        <path
-            android:fillColor="#000000"
-            android:pathData="M6.62,10.79c1.44,2.83 3.76,5.14 6.59,6.59l2.2,-2.2c0.27,-0.27 0.67,-0.36 1.02,-0.24 1.12,0.37 2.33,0.57 3.57,0.57 0.55,0 1,0.45 1,1V20c0,0.55 -0.45,1 -1,1 -9.39,0 -17,-7.61 -17,-17 0,-0.55 0.45,-1 1,-1h3.5c0.55,0 1,0.45 1,1 0,1.25 0.2,2.45 0.57,3.57 0.11,0.35 0.03,0.74 -0.25,1.02l-2.2,2.2z" />
-    </group>
-    <path
-        android:fillColor="#000000"
-        android:pathData="M73,33 m-7,0 a7,7 0 1,0 14,0 a7,7 0 1,0 -14,0" />
+    <path android:strokeColor="#FFFFFF" android:strokeWidth="5.5" android:strokeLineCap="round" android:strokeLineJoin="round" android:fillColor="#00000000" android:pathData="M27,63 L35.5,39 L44,63" />
+    <path android:strokeColor="#FFFFFF" android:strokeWidth="5.5" android:strokeLineCap="round" android:strokeLineJoin="round" android:fillColor="#00000000" android:pathData="M30.5,55 L40.5,55" />
+    <path android:strokeColor="#FFFFFF" android:strokeWidth="5.5" android:strokeLineCap="round" android:strokeLineJoin="round" android:fillColor="#00000000" android:pathData="M49,63 L49,39 L55.5,39 A6,6 0 0 1 55.5,51 L49,51 M49,51 L56.5,51 A6,6 0 0 1 56.5,63 L49,63" />
+    <path android:strokeColor="#FFFFFF" android:strokeWidth="5.5" android:strokeLineCap="round" android:strokeLineJoin="round" android:fillColor="#00000000" android:pathData="M68,63 L68,39 L74.5,39 A6.5,6.5 0 0 1 74.5,52 L68,52" />
+    <path android:fillColor="#FFFFFF" android:pathData="M50,74a4,4 0 1,0 8,0a4,4 0 1,0 -8,0z" />
 </vector>

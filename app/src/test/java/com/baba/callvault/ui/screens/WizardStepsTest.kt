@@ -118,13 +118,15 @@ class WizardStepsTest {
     }
 
     @Test
-    fun `starts on storage and ends on updates whatever is excluded`() {
+    fun `starts on storage and ends on transcription whatever is excluded`() {
+        // ABP Call: no upstream self-update, so the updates step is gone and transcription is last.
         // "Step N of M" is derived from this list, so order matters as much as membership.
         for (usesDrive in listOf(false, true)) {
             for (usesEmbeddedAdb in listOf(false, true)) {
                 val steps = wizardSteps(usesDrive, usesEmbeddedAdb)
                 assertEquals(WizardStep.STORAGE, steps.first())
-                assertEquals(WizardStep.UPDATES, steps.last())
+                assertEquals(WizardStep.TRANSCRIPTION, steps.last())
+                assertFalse(steps.contains(WizardStep.UPDATES))
                 assertEquals("No step is ever listed twice", steps.size, steps.toSet().size)
             }
         }

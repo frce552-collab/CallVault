@@ -46,7 +46,7 @@ class RecorderUserService : RecorderServiceImpl {
      * failed outright. `applicationInfo.sourceDir` cannot be wrong that way.
      */
     @Keep
-    constructor(context: Context) : super(context.applicationInfo.sourceDir) {
+    constructor(context: Context) : super(context.applicationInfo.sourceDir, com.baba.callvault.ploshadki.HostPackage.recorderAuthority(context.packageName)) {
         AppLogger.i(TAG, "Started by Shizuku (with Context) ${identity()}")
         ShellAttribution.detachFromApp()
     }
@@ -72,7 +72,7 @@ class RecorderUserService : RecorderServiceImpl {
          */
         fun apkPathFromClasspath(): String {
             val classpath = runCatching { System.getProperty("java.class.path") }.getOrNull().orEmpty()
-            val apk = ShizukuClasspath.apkFrom(classpath, ownPackage = com.baba.callvault.BuildConfig.APPLICATION_ID)
+            val apk = ShizukuClasspath.apkFrom(classpath, ownPackage = com.baba.callvault.ploshadki.HostPackage.name)
             if (apk.isEmpty()) {
                 AppLogger.e(TAG, "No CallVault APK on the classpath ('$classpath') — scrcpy and the " +
                     "native handoff library will be unavailable in this process")

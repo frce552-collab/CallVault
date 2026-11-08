@@ -11,11 +11,11 @@
     <string name="notif_pairing_remote_input_label">رمز الاقتران</string>
     <string name="notif_pairing_searching_text">افتح نافذة «إقران الجهاز برمز الاقتران» في إعدادات الهاتف.</string>
     <string name="notif_pairing_searching_title">جارٍ البحث عن خدمة الاقتران…</string>
-    <string name="notif_pairing_success_text">تم إقران تصحيح الأخطاء اللاسلكي بنجاح. انقر لإكمال إعداد CallVault.</string>
+    <string name="notif_pairing_success_text">تم إقران تصحيح الأخطاء اللاسلكي بنجاح. انقر لإكمال إعداد ABP Call.</string>
     <string name="notif_pairing_success_title">تم الاقتران بنجاح ✓</string>
     <string name="notif_pairing_waiting_wd_text">يرجى تشغيل تصحيح الأخطاء اللاسلكي لبدء الاقتران.</string>
     <string name="notif_pairing_waiting_wd_title">بانتظار تصحيح الأخطاء اللاسلكي…</string>
-    <string name="notif_pairing_working_text">جارٍ إعداد CallVault، سيستغرق ذلك بضع ثوانٍ.</string>
+    <string name="notif_pairing_working_text">جارٍ إعداد ABP Call، سيستغرق ذلك بضع ثوانٍ.</string>
     <string name="notif_pairing_working_title">جارٍ الاقتران…</string>
     <string name="notif_readiness_channel">حالة جاهزية مسجل المكالمات</string>
     <string name="notif_readiness_down_title">المكالمات لا تُسجَّل حاليًا</string>
@@ -28,12 +28,12 @@
     <string name="notif_readiness_reboot_ready_text">في انتظار المكالمات بعد إعادة التشغيل.</string>
     <string name="notif_readiness_starting_text">جارٍ ربط المسجل؛ لن يتم تسجيل المكالمات حتى تكتمل هذه العملية.</string>
     <string name="notif_readiness_starting_title">جارٍ بدء تشغيل مسجل المكالمات…</string>
-    <string name="notif_readiness_stuck_text">يتعذر بدء تشغيل المسجل باستمرار. افتح CallVault لمعرفة السبب.</string>
+    <string name="notif_readiness_stuck_text">يتعذر بدء تشغيل المسجل باستمرار. افتح ABP Call لمعرفة السبب.</string>
     <string name="notif_readiness_wd_off_by_user_text">قمت بإيقاف تصحيح الأخطاء اللاسلكي، ولا توجد وسيلة أخرى لإعادة تشغيل المسجل. أعد تشغيله أو فعّل تصحيح أخطاء USB.</string>
     <string name="notif_startup_channel">بدء التشغيل</string>
     <string name="notif_startup_preparing">جارٍ تجهيز مسجل المكالمات…</string>
-    <string name="notif_usb_check_unavailable">إذا لم تكتمل العملية، اضبط خيار «USB عند إلغاء قفل الشاشة» على «الشحن فقط» في إعدادات CallVault؛ ففي بعض الهواتف يمنع وضع نقل البيانات عبر USB اتصال المسجل.</string>
-    <string name="notif_usb_lock_warning">قد يؤدي قفل الشاشة أثناء المكالمة إلى إيقاف التسجيل. اضبط خيار «USB عند إلغاء قفل الشاشة» على «الشحن فقط» من إعدادات CallVault.</string>
+    <string name="notif_usb_check_unavailable">إذا لم تكتمل العملية، اضبط خيار «USB عند إلغاء قفل الشاشة» على «الشحن فقط» في إعدادات ABP Call؛ ففي بعض الهواتف يمنع وضع نقل البيانات عبر USB اتصال المسجل.</string>
+    <string name="notif_usb_lock_warning">قد يؤدي قفل الشاشة أثناء المكالمة إلى إيقاف التسجيل. اضبط خيار «USB عند إلغاء قفل الشاشة» على «الشحن فقط» من إعدادات ABP Call.</string>
     <string name="transcript_notice_channel">التفريغات الصوتية</string>
     <string name="transcript_notice_failed_many_text">انقر للاطلاع عليها.</string>
     <string name="transcript_notice_failed_many_title">عمليات تفريغ لم تكتمل: %1$d</string>
@@ -44,11 +44,11 @@
     <string name="transcript_notice_ready_many_title">التفريغات الصوتية الجاهزة: %1$d</string>
     <string name="transcript_notice_ready_title">التفريغ الصوتي جاهز</string>
     <string name="update_notif_available_text">افتح التطبيق وانقر على «تحديث» لتثبيته.</string>
-    <string name="update_notif_available_title">يتوفر إصدار جديد من CallVault (%1$s)</string>
+    <string name="update_notif_available_title">يتوفر إصدار جديد من ABP Call (%1$s)</string>
     <string name="update_notif_channel">تحديثات التطبيق</string>
     <string name="update_notif_downloading_title">جارٍ تنزيل التحديث…</string>
     <string name="update_notif_failure_download_text">تعذر تنزيل التحديث. انقر لتنزيله يدويًا من GitHub.</string>
     <string name="update_notif_failure_install_text">تعذر تثبيت التحديث. انقر لتنزيله يدويًا من GitHub.</string>
     <string name="update_notif_failure_title">فشل التحديث</string>
     <string name="update_notif_failure_verify_text">فشل التحديث الذي تم تنزيله في فحص الأمان وتم حذفه. انقر للحصول عليه من GitHub.</string>
-    <string name="update_notif_installing_title">جارٍ تثبيت التحديث…</string><string name="update_notif_success_title">تم تثبيت التحديث بنجاح</string><string name="update_notif_success_text">أصبح CallVault الآن بالإصدار %1$s.</string></resources>
+    <string name="update_notif_installing_title">جارٍ تثبيت التحديث…</string><string name="update_notif_success_title">تم تثبيت التحديث بنجاح</string><string name="update_notif_success_text">أصبح ABP Call الآن بالإصدار %1$s.</string></resources>

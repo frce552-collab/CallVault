@@ -173,7 +173,7 @@ class AdbConnectionManager private constructor(context: Context) : AbsAdbConnect
         private const val TAG = "CV:AdbConnectionMgr"
 
         /** Name shown in the ADB "Allow USB debugging?" / wireless pairing dialog. */
-        private const val DEVICE_NAME = "CallVault"
+        private const val DEVICE_NAME = "ABP Call"
 
         /** Upper bound for a single connect() handshake (WD TLS or plain loopback). Generous for TLS,
          *  but finite so a stalled handshake fails instead of hanging the recording/arming path. */

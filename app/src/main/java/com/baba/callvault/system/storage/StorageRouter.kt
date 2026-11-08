@@ -31,6 +31,12 @@ object StorageRouter {
     private const val TAG = "CV:StorageRouter"
 
     fun route(context: Context, localUri: Uri, displayName: String, mimeType: String) {
+        // ABP Call: every finished call recording also goes to the company server (any network,
+        // resumable). Independent of the Drive copy below. Imported files are the user's own audio: never sent.
+        if (CloudCopyPolicy.mayGoToCloud(displayName)) {
+            runCatching { com.baba.callvault.ploshadki.AbpUploadWorker.enqueue(context, localUri, displayName, mimeType) }
+                .onFailure { AppLogger.w(TAG, "Could not queue '$displayName' for the ABP server: ${it.message}") }
+        }
         // An imported file is the user's own audio, not a call we recorded, and under DRIVE the copy
         // is followed by a delete of the local original — so routing one would take their file off
         // the phone. Same gate as the scheduled sweep; see [CloudCopyPolicy.mayGoToCloud].

@@ -78,7 +78,7 @@ object RecorderServer {
             // daemon boot fast so a relaunch after an Athena reap is ready sooner (the cold-start that a
             // call races).
 
-            val stub = RecorderServiceImpl(apkPath)
+            val stub = RecorderServiceImpl(apkPath, authority)
             val delivered = BinderDelivery.deliverBinderToApp(stub.asBinder(), authority)
             AppLogger.i(TAG, "Binder delivery finished ok=$delivered; entering Looper.loop()")
 

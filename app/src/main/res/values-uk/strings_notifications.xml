@@ -6,8 +6,8 @@
     <string name="notif_readiness_starting_title">Запуск рекордера…</string>
     <string name="notif_readiness_ready_text">Рекордер підключено.</string>
     <string name="notif_readiness_starting_text">Підключення рекордера. Дзвінки поки не записуються.</string>
-    <string name="notif_usb_lock_warning">Блокування екрана може зупинити запис. У налаштуваннях CallVault виберіть режим USB «Лише заряджання».</string>
-    <string name="notif_usb_check_unavailable">Якщо перевірка не завершується, встановіть «Режим USB при розблокуванні» на «Лише заряджання» в налаштуваннях CallVault — на деяких телефонах режим USB для передачі даних не дає рекордеру підключитися.</string>
+    <string name="notif_usb_lock_warning">Блокування екрана може зупинити запис. У налаштуваннях ABP Call виберіть режим USB «Лише заряджання».</string>
+    <string name="notif_usb_check_unavailable">Якщо перевірка не завершується, встановіть «Режим USB при розблокуванні» на «Лише заряджання» в налаштуваннях ABP Call — на деяких телефонах режим USB для передачі даних не дає рекордеру підключитися.</string>
     <string name="notif_pairing_channel">Сполучення ADB</string>
     <string name="notif_pairing_searching_title">Пошук служби сполучення…</string>
     <string name="notif_pairing_searching_text">Відкрийте «Звʼязати пристрій за кодом» у налаштуваннях телефону.</string>
@@ -16,7 +16,7 @@
     <string name="notif_pairing_found_title">Службу сполучення знайдено</string>
     <string name="notif_pairing_found_text">Введіть шестизначний код сполучення.</string>
     <string name="notif_pairing_working_title">Сполучення…</string>
-    <string name="notif_pairing_working_text">Налаштування CallVault. Це займе кілька секунд.</string>
+    <string name="notif_pairing_working_text">Налаштування ABP Call. Це займе кілька секунд.</string>
     <string name="notif_pairing_success_title">Сполучено ✓</string>
     <string name="notif_pairing_success_text">ADB сполучено. Натисніть, щоб завершити налаштування.</string>
     <string name="notif_pairing_failed_title">Помилка сполучення</string>
@@ -28,10 +28,10 @@
     <string name="notif_startup_channel">Запуск</string>
     <string name="notif_startup_preparing">Підготовка рекордера…</string>
     <string name="update_notif_channel">Оновлення програми</string>
-    <string name="update_notif_available_title">Доступний CallVault %1$s</string>
+    <string name="update_notif_available_title">Доступний ABP Call %1$s</string>
     <string name="update_notif_available_text">Відкрийте програму й натисніть «Оновити».</string>
     <string name="update_notif_success_title">Оновлення встановлено</string>
-    <string name="update_notif_success_text">Версія CallVault: %1$s.</string>
+    <string name="update_notif_success_text">Версія ABP Call: %1$s.</string>
     <string name="update_notif_failure_title">Помилка оновлення</string>
     <string name="update_notif_failure_download_text">Не вдалося завантажити оновлення. Відкрийте GitHub.</string>
     <string name="update_notif_failure_verify_text">Перевірка безпеки не пройдена. Завантажений APK видалено.</string>
@@ -41,7 +41,7 @@
     <string name="notif_readiness_down_title">Дзвінки не записуються</string>
     <string name="notif_readiness_no_debugging_text">Налагодження USB та бездротове налагодження вимкнені. Увімкніть хоча б одне в параметрах розробника.</string>
     <string name="notif_readiness_needs_wifi_text">Налагодження USB вимкнено, а Wi-Fi недоступний. Підключіться до Wi-Fi або ввімкніть налагодження USB.</string>
-    <string name="notif_readiness_stuck_text">Рекордер постійно не запускається. Відкрийте CallVault, щоб дізнатися причину.</string>
+    <string name="notif_readiness_stuck_text">Рекордер постійно не запускається. Відкрийте ABP Call, щоб дізнатися причину.</string>
     <string name="notif_readiness_needs_wifi_restart_text">Рекордер зупинився, і для повторного запуску потрібен Wi-Fi. Щоб цього уникнути, увімкніть «Запис без Wi-Fi», поки ви підключені до Wi-Fi.</string>
     <string name="notif_readiness_offline_paused_text">Запис без Wi-Fi призупинено: потрібне налагодження USB. Через Wi-Fi запис працює.</string>
     <string name="notif_action_turn_wd_on">Увімкнути бездротове налагодження</string>

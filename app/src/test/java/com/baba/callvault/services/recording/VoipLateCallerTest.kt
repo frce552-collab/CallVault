@@ -94,7 +94,7 @@ class VoipLateCallerTest {
 
     @Test
     fun `an app the user records is named straight away, with no second lookup`() {
-        assertEquals(VoipLateCaller.LateAppVerdict.RECORD, VoipLateCaller.verdict("org.telegram.messenger", null, off))
+        assertEquals(VoipLateCaller.LateAppVerdict.RECORD, VoipLateCaller.verdict("com.whatsapp.w4b", null, off))
     }
 
     @Test

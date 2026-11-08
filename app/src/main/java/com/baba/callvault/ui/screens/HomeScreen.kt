@@ -935,13 +935,15 @@ fun HomeScreen(
             TranscribingPill(state = transcribingShown, onClick = { showTranscribingSheet = true })
         } else {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                SupportPill(onClick = { showSupport = true })
+                if (com.baba.callvault.ploshadki.PloshadkiFork.UPSTREAM_SUPPORT_LINKS_ENABLED) {
+                    SupportPill(onClick = { showSupport = true })
+                }
                 // Where the Telegram card goes when the user long-presses it away — moved, not dismissed,
                 // because someone who tucks it away has usually joined and may still want the way back.
                 // Long-pressing here undoes it, which is the only way back: nothing else mentions it.
                 // Main screen only: on the pages it crowded the title row, and with a long title pushed
                 // the settings icon off screen (OP9, 2026-10-21).
-                if (communityTucked && section == HomeSection.Hub) {
+                if (com.baba.callvault.ploshadki.PloshadkiFork.UPSTREAM_SUPPORT_LINKS_ENABLED && communityTucked && section == HomeSection.Hub) {
                     Spacer(Modifier.width(8.dp))
                     CommunityPill(
                         onClick = { context.openTelegramGroup() },
@@ -989,7 +991,8 @@ fun HomeScreen(
                 communityTucked = true
                 Toast.makeText(context, R.string.home_community_tucked_hint, Toast.LENGTH_LONG).show()
             },
-            communityTucked = communityTucked,
+            // ABP Call: no upstream Telegram card — reported as "tucked" so the card never shows.
+            communityTucked = communityTucked || !com.baba.callvault.ploshadki.PloshadkiFork.UPSTREAM_SUPPORT_LINKS_ENABLED,
             titleTrailing = titleTrailing,
             // The state of the app, all on the page a notification about it now lands on. Kept off
             // the recordings list rather than drawn in both places: a banner in two places is two
@@ -1515,7 +1518,7 @@ fun HomeScreen(
         val dismiss = {
             viewModel.markWhatsNewSeen()
             viewModel.dismissUpdatedBanner()
-            showSupportAppeal = true
+            showSupportAppeal = com.baba.callvault.ploshadki.PloshadkiFork.UPSTREAM_SUPPORT_LINKS_ENABLED
         }
         WhatsNewDialog(onDismiss = dismiss, onOpenSettings = { dismiss(); onOpenSettings() })
     }

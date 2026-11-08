@@ -1,0 +1,145 @@
+# Площадки: debug-APK форка CallVault (CV-02, #458).
+# Шаблон лежит в ploshadki-kz-platform: docs/callvault/fork-ci/. В форк кладётся как
+# .github/workflows/ploshadki-debug-apk.yml (ветка s1/ci-debug-build → PR в ploshadki/main).
+#
+# Почему отдельный файл, а не правка upstream build-app.yml:
+#   - build-app.yml (и release-сборка с секретами) остаётся байт-в-байт как у upstream →
+#     синхронизация main форка с madkongo/CallVault без конфликтов;
+#   - здесь только debug, без секретов подписи, без релизов, права только contents: read.
+# Сборка та же, что в build-app.yml («Debug Asset»): ./gradlew assembleDebug с теми же -P.
+# Добавлено только: явная установка NDK/CMake, проверка ABI (aapt2 badging), сертификат
+# (apksigner) и SHA-256 рядом с APK в артефакте.
+
+name: Ploshadki Debug APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'versionName для debug-сборки (например 2.4.9-abpcall)'
+        required: false
+        default: '2.4.9-abpcall'
+        type: string
+  push:
+    branches:
+      - 's1/**'
+      - 's5/**'
+      - 'ploshadki/main'
+
+concurrency:
+  group: ploshadki-debug-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-debug:
+    name: Build debug APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      VERSION_NAME: ${{ inputs.version || '2.4.9-abpcall' }}
+      NDK_VERSION: '27.2.12479018'
+      CMAKE_VERSION: '3.22.1'
+      BUILD_TOOLS: '36.0.0'
+    steps:
+      # whisper.cpp и llama.cpp — сабмодули, без них нативная часть не соберётся.
+      - name: Checkout (with submodules)
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          validate-wrappers: true
+          cache-provider: basic   # как в upstream: только FOSS-кэш
+
+      - name: Install SDK packages (platform 36, build-tools, NDK 27.2, CMake)
+        run: |
+          SDKM="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKM" --licenses > /dev/null || true
+          "$SDKM" --install "platforms;android-36" "build-tools;${BUILD_TOOLS}" \
+                            "ndk;${NDK_VERSION}" "cmake;${CMAKE_VERSION}" > /dev/null
+
+      - name: Build debug APK
+        run: >
+          ./gradlew assembleDebug
+          -PversionName="${VERSION_NAME}"
+          -PversionCode=${{ github.run_number }}
+          -PciBuildNumber=${{ github.run_id }}
+          --no-daemon --stacktrace
+
+      # Unit tests for the fork's own behaviour (fail-closed WhatsApp Business policy, etc.).
+      - name: Fork unit tests (full :recorder suite)
+        run: >
+          ./gradlew :recorder:testDebugUnitTest
+          -PversionName="${VERSION_NAME}"
+          -PversionCode=${{ github.run_number }}
+          -PciBuildNumber=${{ github.run_id }}
+          --no-daemon --stacktrace
+
+      # S5: the same recorder as an AAR for the CRM app (kz.ploshadki:abp-recorder). Listed only, not uploaded.
+      - name: Recorder AAR (library publish check)
+        run: |
+          ./gradlew :recorder:publishReleasePublicationToRecorderRepoRepository :capacitor-abp-recorder:publishReleasePublicationToRecorderRepoRepository \
+            -PrecorderRepo="$GITHUB_WORKSPACE/build/recorder-repo" -PrecorderVersion=0.1.0-local \
+            -PversionName="${VERSION_NAME}" -PversionCode=${{ github.run_number }} -PciBuildNumber=${{ github.run_id }} \
+            --no-daemon --stacktrace
+          find build/recorder-repo -type f -name '*.aar' -exec sh -c 'ls -l "$1"; unzip -l "$1" | grep -E "jni/|AndroidManifest" | head -20' _ {} \;
+          find build/recorder-repo -type f -name '*.pom' -print -exec grep -c '<dependency>' {} \;
+          cat build/recorder-repo/kz/ploshadki/abp-recorder-capacitor/*/*.pom
+
+      - name: Verify APK (ABI, package, signature) and SHA-256
+        id: verify
+        run: |
+          set -euo pipefail
+          BT="$ANDROID_HOME/build-tools/${BUILD_TOOLS}"
+          SRC=app/build/outputs/apk/debug/app-debug.apk
+          test -f "$SRC"
+          OUT=dist; mkdir -p "$OUT"
+          SHORT=$(git rev-parse --short=8 HEAD)
+          NAME="abp-call-${VERSION_NAME}-${SHORT}-debug.apk"
+          cp "$SRC" "$OUT/$NAME"
+          cd "$OUT"
+          "$BT/aapt2" dump badging "$NAME" > badging.txt
+          "$BT/apksigner" verify --print-certs "$NAME" > signature.txt
+          unzip -l "$NAME" | awk '{print $4}' | grep '^lib/' | cut -d/ -f2 | sort -u > abis.txt || true
+          sha256sum "$NAME" > "$NAME.sha256"
+          # PASS-критерий CV-02: только arm64-v8a.
+          if [ "$(cat abis.txt)" != "arm64-v8a" ]; then
+            echo "::error::ABI не arm64-v8a: $(tr '\n' ' ' < abis.txt)"; exit 1
+          fi
+          {
+            echo "commit=$(git rev-parse HEAD)"
+            echo "run=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            echo "apk=$NAME"
+            echo "sha256=$(cut -d' ' -f1 "$NAME.sha256")"
+            echo "size=$(stat -c %s "$NAME")"
+            grep -m1 '^package:' badging.txt
+          grep -m1 "^application-label:" badging.txt || true
+            echo "abi=$(tr '\n' ' ' < abis.txt)"
+            grep -m1 'SHA-256 digest' signature.txt || true
+          } > build-info.txt
+          cat build-info.txt
+          {
+            echo '### Debug APK (CV-02)'
+            echo '```'
+            cat build-info.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: apk-debug-${{ github.run_number }}
+          path: dist/*
+          retention-days: 30
+          if-no-files-found: error
