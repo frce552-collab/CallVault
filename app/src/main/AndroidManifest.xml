@@ -311,7 +311,7 @@
 
         <provider
             android:name=".server.RecorderBinderProvider"
-            android:authorities="${recorderAuthority}"
+            android:authorities="${applicationId}.recorder"
             android:enabled="true"
             android:exported="true" />
 

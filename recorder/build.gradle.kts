@@ -159,7 +159,7 @@ android {
         // Default provider authority. Only an isolated instrumented build overrides it; every normal
         // build resolves to exactly the string RecorderBinderProvider.AUTHORITY hardcodes, so release
         // output is unchanged.
-        // S5: recorder as a library. The host app supplies recorderAuthority (<host package>.recorder).
+        // S5: recorder as a library. Provider authority = ${applicationId}.recorder (resolved by the host app).
         // A library has no applicationId/version in BuildConfig, so the fields the code reads are declared here.
         buildConfigField("String", "APPLICATION_ID", "\"kz.ploshadki.recorder\"")
         buildConfigField("int", "VERSION_CODE", ciVersionCode.get().toString())
