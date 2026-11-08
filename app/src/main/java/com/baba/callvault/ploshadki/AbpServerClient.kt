@@ -36,9 +36,18 @@ class AbpServerClient(private val context: Context) {
         .readTimeout(90, TimeUnit.SECONDS)
         .writeTimeout(90, TimeUnit.SECONDS)
         .retryOnConnectionFailure(true)
+        // The API never redirects; following one could drop to http:// or send the DPoP proof elsewhere.
+        .followRedirects(false)
+        .followSslRedirects(false)
         .build()
 
-    private fun execute(request: Request): HttpResult = http.newCall(request).execute().use { r: Response ->
+    private fun execute(request: Request): HttpResult {
+        // Second lock after AbpStore.parseLink: nothing leaves the phone over plain HTTP, even from an old connection.
+        if (!request.url.isHttps) throw IOException("сервер должен быть доступен по https://")
+        return send(request)
+    }
+
+    private fun send(request: Request): HttpResult = http.newCall(request).execute().use { r: Response ->
         HttpResult(r.code, r.body?.string().orEmpty(), r.headers.associate { it.first.lowercase() to it.second })
     }
 

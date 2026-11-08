@@ -62,7 +62,8 @@ object AbpStore {
         val j = JSONObject(payload)
         require(j.optInt("v", 1) == 1) { "неизвестная версия ссылки" }
         val server = j.getString("server").trimEnd('/')
-        require(server.startsWith("https://") || server.startsWith("http://")) { "адрес сервера должен начинаться с https://" }
+        // Recordings and the device key travel to this address: HTTPS only, in every build.
+        require(isHttps(server)) { "адрес сервера должен начинаться с https://" }
         val secret = AbpCrypto.b64urlDecode(j.getString("secret"))
         require(secret.size >= 16) { "секрет записи слишком короткий" }
         return Provisioning(
@@ -80,6 +81,8 @@ object AbpStore {
             consentMethod = j.optString("consentMethod", "TENANT_POLICY"),
         )
     }
+
+    internal fun isHttps(url: String): Boolean = url.startsWith("https://", ignoreCase = true) && url.length > "https://".length
 
     fun saveConnection(context: Context, p: Provisioning, deviceId: String) {
         prefs(context).edit()
