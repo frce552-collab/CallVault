@@ -163,13 +163,53 @@ object AbpStore {
         return set.mapNotNull { runCatching { JSONObject(it).let { j -> Triple(j.getString("uri"), j.getString("name"), j.getString("mime")) } }.getOrNull() }
     }
 
+    fun pendingCount(context: Context): Int = prefs(context).getStringSet("pending", emptySet())!!.size
+
+    // ── queue seen by a host app (RecorderEvents) ────────────────────────────────────────────
+    /** A random id for one recording, made once. The file name holds the number, so it is never shown out. */
+    @Synchronized
+    fun recordingId(context: Context, name: String): String {
+        val sp = prefs(context)
+        sp.getString("rid:$name", null)?.let { return it }
+        val id = java.util.UUID.randomUUID().toString()
+        sp.edit().putString("rid:$name", id).apply()
+        return id
+    }
+
+    fun durationMs(context: Context, name: String): Long? =
+        prefs(context).getLong("dur:$name", -1L).takeIf { it >= 0L }
+
+    fun setDurationMs(context: Context, name: String, durationMs: Long) {
+        if (durationMs > 0L) prefs(context).edit().putLong("dur:$name", durationMs).apply()
+    }
+
+    @Synchronized
+    fun setQueued(context: Context, name: String, queued: Boolean) {
+        val sp = prefs(context)
+        val set = sp.getStringSet("queued", emptySet())!!.toMutableSet()
+        if (if (queued) set.add(name) else set.remove(name)) sp.edit().putStringSet("queued", set).apply()
+    }
+
+    fun queuedCount(context: Context): Int = prefs(context).getStringSet("queued", emptySet())!!.size
+
+    /** Last error text (no file name) and when it happened. */
+    fun lastError(context: Context): Pair<String, Long>? {
+        val sp = prefs(context)
+        val text = sp.getString("lastError", null) ?: return null
+        return text to sp.getLong("lastErrorAt", 0L)
+    }
+
     // ── status shown to the manager ──────────────────────────────────────────────────────────
     fun recordResult(context: Context, name: String, ok: Boolean, detail: String) {
         val sp = prefs(context)
+        val now = System.currentTimeMillis()
         sp.edit()
             .putInt(if (ok) "sentCount" else "failedCount", sp.getInt(if (ok) "sentCount" else "failedCount", 0) + 1)
             .putString("lastResult", "${if (ok) "отправлено" else "ошибка"}: $name — $detail")
-            .putLong("lastResultAt", System.currentTimeMillis())
+            .putLong("lastResultAt", now)
+            .apply {
+                if (!ok) putString("lastError", detail).putLong("lastErrorAt", now)
+            }
             .apply()
     }
 

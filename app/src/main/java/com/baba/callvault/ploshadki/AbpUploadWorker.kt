@@ -40,6 +40,8 @@ class AbpUploadWorker(context: Context, params: WorkerParameters) : CoroutineWor
         val conn = AbpStore.connection(applicationContext)
         if (conn == null) {
             AbpStore.addPending(applicationContext, uri.toString(), name, mime.orEmpty())
+            AbpStore.setQueued(applicationContext, name, false)
+            RecorderEvents.emit(applicationContext, name, RecorderEvents.UploadState.WAITING_FOR_SERVER)
             AppLogger.i(TAG, "'$name' kept for later: the phone is not connected to the server yet")
             return@withContext Result.success()
         }
@@ -48,16 +50,15 @@ class AbpUploadWorker(context: Context, params: WorkerParameters) : CoroutineWor
         } catch (e: AbpServerClient.DeviceRevokedException) {
             AbpStore.recordResult(applicationContext, name, false, e.message ?: "устройство отключено")
             AbpStore.addPending(applicationContext, uri.toString(), name, mime.orEmpty())
+            AbpStore.setQueued(applicationContext, name, false)
+            RecorderEvents.emit(applicationContext, name, RecorderEvents.UploadState.WAITING_FOR_SERVER, e.message ?: "устройство отключено")
             Result.failure()
         } catch (e: java.io.FileNotFoundException) {
-            AbpStore.recordResult(applicationContext, name, false, "файл записи не найден")
-            Result.failure()
+            failed(name, "файл записи не найден")
         } catch (e: Exception) {
             AppLogger.w(TAG, "Upload of '$name' will be retried: ${e.message}")
-            if (runAttemptCount >= MAX_ATTEMPTS) {
-                AbpStore.recordResult(applicationContext, name, false, e.message ?: e.javaClass.simpleName)
-                Result.failure()
-            } else Result.retry()
+            if (runAttemptCount >= MAX_ATTEMPTS) failed(name, e.message ?: e.javaClass.simpleName)
+            else Result.retry()
         }
     }
 
@@ -68,6 +69,9 @@ class AbpUploadWorker(context: Context, params: WorkerParameters) : CoroutineWor
             ?: throw java.io.FileNotFoundException(name)
         if (bytes.isEmpty()) return done(name, false, "пустой файл")
         val sha = AbpCrypto.hex(AbpCrypto.sha256(bytes))
+        val format = probe(uri, name)
+        AbpStore.setDurationMs(applicationContext, name, format.durationMs)
+        RecorderEvents.emit(applicationContext, name, RecorderEvents.UploadState.UPLOADING)
         val client = AbpServerClient(applicationContext)
 
         // Resume a started upload first.
@@ -79,7 +83,7 @@ class AbpUploadWorker(context: Context, params: WorkerParameters) : CoroutineWor
             if (h.code == 200) offset = h.headers["upload-offset"]?.toLongOrNull() ?: 0L else uploadId = null
         }
         if (uploadId == null) {
-            val upload = buildUpload(conn, uri, name, kind, bytes.size.toLong(), sha)
+            val upload = buildUpload(conn, format, name, kind, bytes.size.toLong(), sha)
             val signature = AbpCrypto.signCapture(conn.secret, upload, sha)
             val r = client.createUpload(conn, upload, signature)
             when {
@@ -126,11 +130,21 @@ class AbpUploadWorker(context: Context, params: WorkerParameters) : CoroutineWor
 
     private fun done(name: String, ok: Boolean, detail: String): Result {
         AbpStore.recordResult(applicationContext, name, ok, detail)
+        AbpStore.setQueued(applicationContext, name, false)
+        RecorderEvents.emit(
+            applicationContext, name,
+            if (ok) RecorderEvents.UploadState.SENT else RecorderEvents.UploadState.FAILED,
+            if (ok) null else detail,
+        )
         AppLogger.i(TAG, "'$name': $detail")
         return if (ok) Result.success() else Result.failure()
     }
 
-    private suspend fun buildUpload(conn: AbpStore.Connection, uri: Uri, name: String, kind: Pair<String, String>, size: Long, sha: String): Map<String, Any?> {
+    private fun failed(name: String, detail: String): Result = done(name, false, detail)
+
+    private class AudioFormat(val channels: Int, val sampleRate: Int, val durationMs: Long)
+
+    private fun probe(uri: Uri, name: String): AudioFormat {
         var channels = 1
         var sampleRate = 48000
         var durationMs = 0L
@@ -146,9 +160,15 @@ class AbpUploadWorker(context: Context, params: WorkerParameters) : CoroutineWor
                 }
             } finally { ex.release() }
         }.onFailure { AppLogger.w(TAG, "Could not read the audio format of '$name': ${it.message}") }
+        return AudioFormat(channels, sampleRate, durationMs)
+    }
 
+    private suspend fun buildUpload(conn: AbpStore.Connection, format: AudioFormat, name: String, kind: Pair<String, String>, size: Long, sha: String): Map<String, Any?> {
+        val channels = format.channels
+        val sampleRate = format.sampleRate
+        val durationMs = format.durationMs
         val parsed = RecordingsRepository.parseName(name)
-        val isVoip = name.contains("_voip")
+        val isVoip = RecorderEvents.channelOf(name) == RecorderEvents.Channel.WA_BUSINESS
         val started = parsed.startedAtMillis ?: (System.currentTimeMillis() - durationMs)
         val direction = when (parsed.direction) {
             RecordingDirection.INCOMING -> CaptureReport.Direction.INBOUND
@@ -217,6 +237,8 @@ class AbpUploadWorker(context: Context, params: WorkerParameters) : CoroutineWor
                 .addTag(TAG_ALL)
                 .build()
             WorkManager.getInstance(context).enqueueUniqueWork("abp_upload:$name", ExistingWorkPolicy.KEEP, request)
+            AbpStore.setQueued(context, name, true)
+            RecorderEvents.emit(context, name, RecorderEvents.UploadState.QUEUED)
         }
 
         const val TAG_ALL = "abp_upload"
