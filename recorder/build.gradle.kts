@@ -164,7 +164,6 @@ android {
         buildConfigField("String", "APPLICATION_ID", "\"kz.ploshadki.recorder\"")
         buildConfigField("int", "VERSION_CODE", ciVersionCode.get().toString())
         buildConfigField("String", "VERSION_NAME", "\"${ciVersionName.get()}\"")
-        consumerProguardFiles("../app/proguard-rules.pro")
 
         // 16 KB page sizes (Android 15+ devices that run with 16 KB pages). NDK 27 still links with
         // 4 KB LOAD-segment alignment by default, and a 4 KB-aligned .so fails to load on such a phone.
