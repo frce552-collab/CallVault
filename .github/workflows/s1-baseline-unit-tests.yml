@@ -1,0 +1,64 @@
+# S1: копия QA S6 для базового уровня upstream ec6e526c. S6 (независимая QA): ПОЛНЫЙ прогон unit-тестов форка (не только подмножество из ploshadki-debug-apk.yml).
+# Только ветки qa/**, без секретов, права contents: read. Итог печатается в лог (облако не качает артефакты).
+name: S1 upstream baseline unit tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 's1/baseline-*'
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      NDK_VERSION: '27.2.12479018'
+      CMAKE_VERSION: '3.22.1'
+      BUILD_TOOLS: '36.0.0'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+      - uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          validate-wrappers: true
+          cache-provider: basic
+      - name: Install SDK packages
+        run: |
+          SDKM="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKM" --licenses > /dev/null || true
+          "$SDKM" --install "platforms;android-36" "build-tools;${BUILD_TOOLS}" \
+                            "ndk;${NDK_VERSION}" "cmake;${CMAKE_VERSION}" > /dev/null
+      - name: All debug unit tests
+        run: ./gradlew testDebugUnitTest --continue --no-daemon --stacktrace
+      - name: Summary (printed to log)
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import glob, xml.etree.ElementTree as ET
+          t=f=e=s=0; bad=[]
+          for p in glob.glob('**/build/test-results/testDebugUnitTest/*.xml', recursive=True):
+              r=ET.parse(p).getroot()
+              t+=int(r.get('tests',0)); f+=int(r.get('failures',0)); e+=int(r.get('errors',0)); s+=int(r.get('skipped',0))
+              for c in r.iter('testcase'):
+                  x = c.find('failure') if c.find('failure') is not None else c.find('error')
+                  if x is not None:
+                      bad.append(f"{c.get('classname')}.{c.get('name')}")
+                      if len(bad) <= 3: print("QA-S6-TRACE", (x.text or x.get('message') or '')[:1500])
+          print(f"QA-S6-SUMMARY tests={t} failures={f} errors={e} skipped={s}")
+          for b in bad[:100]: print("QA-S6-FAILED", b)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: qa-s6-unit-reports
+          path: '**/build/reports/tests/testDebugUnitTest/'
+          retention-days: 14
