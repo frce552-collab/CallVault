@@ -300,5 +300,6 @@ private val NO_OP_CONNECTION = object : ServiceConnection {
 
 /** Indirection so the args above do not drag a BuildConfig import through every file that reads them. */
 private object BuildConfigPackage {
-    val name: String get() = com.baba.callvault.BuildConfig.APPLICATION_ID
+    // ABP Call: the real (host) package, not the build id — see HostPackage.
+    val name: String get() = com.baba.callvault.ploshadki.HostPackage.name
 }
