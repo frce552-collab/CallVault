@@ -279,7 +279,12 @@ android {
             isReturnDefaultValues = true
             // Some tests read source files (ModeAwareUiTest scans the UI for a cached privileged mode).
             // Declared as inputs so a source-only change re-runs them instead of being "up to date".
-            all { it.inputs.dir("../app/src/main/java/com/baba/callvault/ui") }
+            all {
+                it.inputs.dir("../app/src/main/java/com/baba/callvault/ui")
+                // S1 (run 42454865567): Robolectric installs Conscrypt by default, but conscrypt-android on the
+                // test classpath has no host JNI → 472 UnsatisfiedLinkError upstream too. Tests are not skipped.
+                it.systemProperty("robolectric.conscryptMode", "OFF")
+            }
         }
     }
     // S5: the CRM app consumes :recorder as an AAR from a local maven repo (separate Gradle build, CRM CI).

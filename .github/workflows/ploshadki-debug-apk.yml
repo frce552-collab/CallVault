@@ -78,13 +78,9 @@ jobs:
           --no-daemon --stacktrace
 
       # Unit tests for the fork's own behaviour (fail-closed WhatsApp Business policy, etc.).
-      - name: Fork unit tests
+      - name: Fork unit tests (full :recorder suite)
         run: >
           ./gradlew :recorder:testDebugUnitTest
-          --tests 'com.baba.callvault.data.voip.VoipAppPolicyTest'
-          --tests 'com.baba.callvault.services.recording.VoipLateCallerTest'
-          --tests 'com.baba.callvault.ploshadki.*'
-          --tests 'com.baba.callvault.ui.screens.WizardStepsTest'
           -PversionName="${VERSION_NAME}"
           -PversionCode=${{ github.run_number }}
           -PciBuildNumber=${{ github.run_id }}
