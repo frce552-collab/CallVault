@@ -18,7 +18,7 @@ import java.util.concurrent.CopyOnWriteArraySet
  *  - in-process: [addListener] (called on the recorder's background thread — hop to the UI thread yourself);
  *  - broadcast: action [action] (`<package>.ABP_RECORDING_EVENT`), sent only to this app's own package,
  *    extras [EXTRA_ID], [EXTRA_CHANNEL], [EXTRA_DURATION_MS] (-1 = not known yet), [EXTRA_STATE],
- *    [EXTRA_ERROR] (only for FAILED / WAITING_FOR_SERVER), [EXTRA_AT_MS].
+ *    [EXTRA_ERROR] ([ErrorCode] name, only for FAILED / WAITING_FOR_SERVER), [EXTRA_AT_MS].
  */
 object RecorderEvents {
 
@@ -38,13 +38,32 @@ object RecorderEvents {
         FAILED,
     }
 
+    /**
+     * Why a recording was not sent. Codes only: free text (exception messages, server replies) can name the
+     * file, and the file name holds the phone number or the contact's name, so it never leaves the recorder.
+     */
+    enum class ErrorCode {
+        /** The server no longer accepts this phone; the recording waits for a new connection. */
+        DEVICE_REVOKED,
+        /** The recording file is gone from the phone. */
+        FILE_MISSING,
+        EMPTY_FILE,
+        /** An audio format the server does not take. */
+        UNSUPPORTED_FORMAT,
+        /** The server answered with a refusal (4xx/5xx other than "try again later"). */
+        SERVER_REFUSED,
+        /** Too many attempts over a bad network; the recording stays on the phone. */
+        SENDING_GAVE_UP,
+    }
+
     data class RecordingEvent(
         val id: String,
         val channel: Channel,
         /** Call length; null until the recorder has read the file (the QUEUED event usually has none). */
         val durationMs: Long?,
         val state: UploadState,
-        val error: String?,
+        /** Only for FAILED and WAITING_FOR_SERVER. */
+        val error: ErrorCode?,
         val atMs: Long,
     ) {
         /** Plain map for a bridge (Capacitor `JSObject`, JSON): only strings, numbers and null. */
@@ -53,7 +72,7 @@ object RecorderEvents {
             "channel" to channel.name,
             "durationMs" to durationMs,
             "state" to state.name,
-            "error" to error,
+            "error" to error?.name,
             "atMs" to atMs,
         )
     }
@@ -65,7 +84,7 @@ object RecorderEvents {
         val waitingForServer: Int,
         val sentTotal: Int,
         val failedTotal: Int,
-        /** Last refusal or give-up, without file names; null if none yet. */
+        /** Last refusal or give-up as an [ErrorCode] name; null if none yet. */
         val lastError: String?,
         val lastErrorAtMs: Long?,
         val serverConnected: Boolean,
@@ -120,7 +139,7 @@ object RecorderEvents {
     }
 
     /** Called by the upload code. Never throws: a broken listener must not stop a recording from being sent. */
-    internal fun emit(context: Context, recordingName: String, state: UploadState, error: String? = null) {
+    internal fun emit(context: Context, recordingName: String, state: UploadState, error: ErrorCode? = null) {
         val event = RecordingEvent(
             id = AbpStore.recordingId(context, recordingName),
             channel = channelOf(recordingName),
@@ -138,7 +157,7 @@ object RecorderEvents {
                     .putExtra(EXTRA_CHANNEL, event.channel.name)
                     .putExtra(EXTRA_DURATION_MS, event.durationMs ?: -1L)
                     .putExtra(EXTRA_STATE, event.state.name)
-                    .putExtra(EXTRA_ERROR, event.error)
+                    .putExtra(EXTRA_ERROR, event.error?.name)
                     .putExtra(EXTRA_AT_MS, event.atMs)
             )
         }.onFailure { AppLogger.w(TAG, "Could not broadcast a recording event: ${it.message}") }
