@@ -75,6 +75,16 @@ Modified by Ploshadki.kz since 2026-11-07, based on CallVault v2.4.9
   enrollment link (DPoP, RFC 9449, key in Android Keystore) and automatic, resumable upload of every
   call recording over Wi-Fi or mobile data, using only the open contract `air.wa-capture.upload.v1`.
   Uses OkHttp (Apache-2.0).
+- 2026-11-08: the recorder is also built as an Android library (`recorder/`, artifact
+  `kz.ploshadki:abp-recorder`) so it can be embedded in another app; `app/` became a thin host
+  (`app/host/`); provider authority is now `${applicationId}.recorder`.
+- 2026-11-08: Capacitor plugin `AbpRecorder` (`capacitor-abp-recorder/`, artifact
+  `kz.ploshadki:abp-recorder-capacitor`): status, upload queue, setup screen and connection
+  link for a host app; host can hide the recorder's launcher icon (`abp_show_launcher_icon`).
+- 2026-11-08: the `abpcall://enroll` link handler can be switched off by the host
+  (`abp_enroll_deeplink_enabled`); the connection screen is no longer exported.
+- 2026-11-08: recordings and login are sent to the company server over HTTPS only;
+  plain-HTTP links are rejected and redirects are not followed.
 
 ABP Call remains licensed under GPL-3.0-or-later with the Section 7 terms in LICENSE.
 Source: https://github.com/frce552-collab/CallVault
