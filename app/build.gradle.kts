@@ -33,8 +33,8 @@ android {
         versionCode = ciVersionCode.get()
         versionName = ciVersionName.get()
         ndk { abiFilters += "arm64-v8a" }
-        // Must be "<applicationId>.recorder" (RecorderBinderProvider / HostPackage, s1/recorder-lib).
-        manifestPlaceholders["recorderAuthority"] = "kz.ploshadki.recorder.recorder"
+        // Recorder provider authority is "${'$'}{applicationId}.recorder" straight in the library manifest
+        // (HostPackage.recorderAuthority), so every host — ABP Call, CRM, the .instrtest build — gets its own.
     }
 
     sourceSets {
@@ -90,7 +90,6 @@ android {
         debug {
             if (isolateTestApp) {
                 applicationIdSuffix = ".instrtest"
-                manifestPlaceholders["recorderAuthority"] = "kz.ploshadki.recorder.instrtest.recorder"
             }
         }
     }
