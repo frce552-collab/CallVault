@@ -3,13 +3,13 @@
  *
  * Capacitor bridge "AbpRecorder" (S5, docs/callvault/S5-INTERFACES.md I11): lets the web UI of a host app
  * (the CRM APK) see and drive the embedded recorder. Only status and navigation cross the bridge:
- * no phone numbers, contact names, file names or audio ever go to JavaScript.
+ * no phone numbers, contact names, file names, error texts or audio ever go to JavaScript.
  */
 package kz.ploshadki.recorder.capacitor
 
 import android.content.Context
-import com.baba.callvault.ploshadki.AbpStore
 import com.baba.callvault.ploshadki.RecorderEntry
+import com.baba.callvault.ploshadki.RecorderEvents
 import com.getcapacitor.JSObject
 import com.getcapacitor.Plugin
 import com.getcapacitor.PluginCall
@@ -19,6 +19,18 @@ import com.getcapacitor.annotation.CapacitorPlugin
 @CapacitorPlugin(name = "AbpRecorder")
 class AbpRecorderPlugin : Plugin() {
 
+    /** Recorder events → JS event "recordingSaved" (called on a background thread; Capacitor posts to the WebView). */
+    private val listener = RecorderEvents.Listener { event -> notifyListeners(EVENT_RECORDING, toJs(event)) }
+
+    override fun load() {
+        RecorderEntry.addRecordingListener(listener)
+    }
+
+    override fun handleOnDestroy() {
+        RecorderEntry.removeRecordingListener(listener)
+        super.handleOnDestroy()
+    }
+
     /** Present only in a build that embeds the recorder; the JS side falls back when the plugin is missing. */
     @PluginMethod
     fun isAvailable(call: PluginCall) {
@@ -26,25 +38,21 @@ class AbpRecorderPlugin : Plugin() {
     }
 
     /**
-     * serverConnected — the phone is enrolled with the company server (recordings are being sent).
-     * sent / failed — upload counters; lastResultAt — epoch ms of the last attempt, lastOk — its outcome.
-     * The free-text last result is NOT passed: it carries a file name, which may hold a number or a name.
+     * serverConnected — the phone is enrolled with the company server.
+     * queue — pending (to send), waitingForServer (kept until connected), sent / failed totals,
+     * hasError + lastErrorAt (epoch ms). The error text is NOT passed: it may carry a file name.
      */
     @PluginMethod
     fun status(call: PluginCall) {
-        val ctx = context
-        val st = AbpStore.status(ctx)
-        val last = st.last
+        val q = RecorderEntry.queueStatus(context)
         val queue = JSObject()
-            .put("sent", st.sent)
-            .put("failed", st.failed)
-            .put("lastResultAt", if (st.lastAt > 0) st.lastAt else null)
-            .put("lastOk", last?.startsWith("отправлено"))
-        call.resolve(
-            JSObject()
-                .put("serverConnected", RecorderEntry.isServerConnected(ctx))
-                .put("queue", queue)
-        )
+            .put("pending", q.waiting)
+            .put("waitingForServer", q.waitingForServer)
+            .put("sent", q.sentTotal)
+            .put("failed", q.failedTotal)
+            .put("hasError", q.lastError != null)
+            .put("lastErrorAt", q.lastErrorAtMs)
+        call.resolve(JSObject().put("serverConnected", q.serverConnected).put("queue", queue))
     }
 
     /** Recorder home: setup wizard on first run (permissions, Wireless debugging), then recordings. */
@@ -75,6 +83,21 @@ class AbpRecorderPlugin : Plugin() {
     private fun hostContext(): Context = activity ?: context
 
     companion object {
-        const val BRIDGE_VERSION = 1
+        const val BRIDGE_VERSION = 2
+        const val EVENT_RECORDING = "recordingSaved"
+
+        /** Contract channel names (#492): mobile_gsm / whatsapp; upload states: queued|uploading|uploaded|failed. */
+        fun toJs(e: RecorderEvents.RecordingEvent): JSObject = JSObject()
+            .put("id", e.id)
+            .put("channel", if (e.channel == RecorderEvents.Channel.GSM) "mobile_gsm" else "whatsapp")
+            .put("durationSec", e.durationMs?.let { (it + 500) / 1000 })
+            .put("uploadState", when (e.state) {
+                RecorderEvents.UploadState.QUEUED, RecorderEvents.UploadState.WAITING_FOR_SERVER -> "queued"
+                RecorderEvents.UploadState.UPLOADING -> "uploading"
+                RecorderEvents.UploadState.SENT -> "uploaded"
+                RecorderEvents.UploadState.FAILED -> "failed"
+            })
+            .put("waitingForServer", e.state == RecorderEvents.UploadState.WAITING_FOR_SERVER)
+            .put("at", e.atMs)
     }
 }
