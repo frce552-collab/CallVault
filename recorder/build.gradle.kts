@@ -455,6 +455,9 @@ dependencies {
     androidTestImplementation(libs.androidx.room.testing)
 }
 
+group = "kz.ploshadki"
+version = providers.gradleProperty("recorderVersion").getOrElse("0.1.0-local")
+
 // S5: `./gradlew :recorder:publishReleasePublicationToRecorderRepoRepository -PrecorderRepo=<dir>`
 // → <dir>/kz/ploshadki/abp-recorder/<version>/ (AAR + POM with the runtime dependencies).
 afterEvaluate {

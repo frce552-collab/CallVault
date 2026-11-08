@@ -93,12 +93,13 @@ jobs:
       # S5: the same recorder as an AAR for the CRM app (kz.ploshadki:abp-recorder). Listed only, not uploaded.
       - name: Recorder AAR (library publish check)
         run: |
-          ./gradlew :recorder:publishReleasePublicationToRecorderRepoRepository \
+          ./gradlew :recorder:publishReleasePublicationToRecorderRepoRepository :capacitor-abp-recorder:publishReleasePublicationToRecorderRepoRepository \
             -PrecorderRepo="$GITHUB_WORKSPACE/build/recorder-repo" -PrecorderVersion=0.1.0-local \
             -PversionName="${VERSION_NAME}" -PversionCode=${{ github.run_number }} -PciBuildNumber=${{ github.run_id }} \
             --no-daemon --stacktrace
           find build/recorder-repo -type f -name '*.aar' -exec sh -c 'ls -l "$1"; unzip -l "$1" | grep -E "jni/|AndroidManifest" | head -20' _ {} \;
-          find build/recorder-repo -type f -name '*.pom' -exec grep -c '<dependency>' {} \;
+          find build/recorder-repo -type f -name '*.pom' -print -exec grep -c '<dependency>' {} \;
+          cat build/recorder-repo/kz/ploshadki/abp-recorder-capacitor/*/*.pom
 
       - name: Verify APK (ABI, package, signature) and SHA-256
         id: verify
