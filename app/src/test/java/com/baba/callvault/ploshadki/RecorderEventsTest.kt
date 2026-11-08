@@ -35,8 +35,16 @@ class RecorderEventsTest {
 
     @Test
     fun `queue status has the counters the CRM shows`() {
-        val m = RecorderEvents.QueueStatus(2, 1, 10, 3, "сервер отказал: HTTP 403", 5L, true).toMap()
+        val m = RecorderEvents.QueueStatus(2, 1, 10, 3, "SERVER_REFUSED", 5L, true).toMap()
         assertEquals(listOf("waiting", "waitingForServer", "sentTotal", "failedTotal", "lastError", "lastErrorAtMs", "serverConnected"), m.keys.toList())
         assertEquals(2, m["waiting"])
+    }
+
+    @Test
+    fun `an error reaches the host as a code, never as text`() {
+        val e = RecorderEvents.RecordingEvent("x", RecorderEvents.Channel.WA_BUSINESS, null,
+            RecorderEvents.UploadState.FAILED, RecorderEvents.ErrorCode.FILE_MISSING, 1L)
+        assertEquals("FILE_MISSING", e.toMap()["error"])
+        assertEquals(null, e.toMap()["durationMs"])
     }
 }

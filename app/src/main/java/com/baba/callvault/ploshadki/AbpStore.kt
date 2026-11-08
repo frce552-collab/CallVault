@@ -192,7 +192,7 @@ object AbpStore {
 
     fun queuedCount(context: Context): Int = prefs(context).getStringSet("queued", emptySet())!!.size
 
-    /** Last error text (no file name) and when it happened. */
+    /** Last error code ([RecorderEvents.ErrorCode] name, never free text) and when it happened. */
     fun lastError(context: Context): Pair<String, Long>? {
         val sp = prefs(context)
         val text = sp.getString("lastError", null) ?: return null
@@ -200,7 +200,7 @@ object AbpStore {
     }
 
     // ── status shown to the manager ──────────────────────────────────────────────────────────
-    fun recordResult(context: Context, name: String, ok: Boolean, detail: String) {
+    fun recordResult(context: Context, name: String, ok: Boolean, detail: String, code: RecorderEvents.ErrorCode? = null) {
         val sp = prefs(context)
         val now = System.currentTimeMillis()
         sp.edit()
@@ -208,7 +208,7 @@ object AbpStore {
             .putString("lastResult", "${if (ok) "отправлено" else "ошибка"}: $name — $detail")
             .putLong("lastResultAt", now)
             .apply {
-                if (!ok) putString("lastError", detail).putLong("lastErrorAt", now)
+                if (!ok) putString("lastError", (code ?: RecorderEvents.ErrorCode.SERVER_REFUSED).name).putLong("lastErrorAt", now)
             }
             .apply()
     }

@@ -48,26 +48,26 @@ class AbpUploadWorker(context: Context, params: WorkerParameters) : CoroutineWor
         try {
             upload(conn, uri, name, mime)
         } catch (e: AbpServerClient.DeviceRevokedException) {
-            AbpStore.recordResult(applicationContext, name, false, e.message ?: "устройство отключено")
+            AbpStore.recordResult(applicationContext, name, false, e.message ?: "устройство отключено", RecorderEvents.ErrorCode.DEVICE_REVOKED)
             AbpStore.addPending(applicationContext, uri.toString(), name, mime.orEmpty())
             AbpStore.setQueued(applicationContext, name, false)
-            RecorderEvents.emit(applicationContext, name, RecorderEvents.UploadState.WAITING_FOR_SERVER, e.message ?: "устройство отключено")
+            RecorderEvents.emit(applicationContext, name, RecorderEvents.UploadState.WAITING_FOR_SERVER, RecorderEvents.ErrorCode.DEVICE_REVOKED)
             Result.failure()
         } catch (e: java.io.FileNotFoundException) {
-            failed(name, "файл записи не найден")
+            done(name, false, "файл записи не найден", RecorderEvents.ErrorCode.FILE_MISSING)
         } catch (e: Exception) {
             AppLogger.w(TAG, "Upload of '$name' will be retried: ${e.message}")
-            if (runAttemptCount >= MAX_ATTEMPTS) failed(name, e.message ?: e.javaClass.simpleName)
+            if (runAttemptCount >= MAX_ATTEMPTS) done(name, false, e.message ?: e.javaClass.simpleName, RecorderEvents.ErrorCode.SENDING_GAVE_UP)
             else Result.retry()
         }
     }
 
     private suspend fun upload(conn: AbpStore.Connection, uri: Uri, name: String, mime: String?): Result {
         val kind = CaptureReport.mediaKind(mime, name)
-            ?: return done(name, false, "формат не поддерживается сервером ($mime)")
+            ?: return done(name, false, "формат не поддерживается сервером ($mime)", RecorderEvents.ErrorCode.UNSUPPORTED_FORMAT)
         val bytes = applicationContext.contentResolver.openInputStream(uri)?.use { it.readBytes() }
             ?: throw java.io.FileNotFoundException(name)
-        if (bytes.isEmpty()) return done(name, false, "пустой файл")
+        if (bytes.isEmpty()) return done(name, false, "пустой файл", RecorderEvents.ErrorCode.EMPTY_FILE)
         val sha = AbpCrypto.hex(AbpCrypto.sha256(bytes))
         val format = probe(uri, name)
         AbpStore.setDurationMs(applicationContext, name, format.durationMs)
@@ -96,7 +96,7 @@ class AbpUploadWorker(context: Context, params: WorkerParameters) : CoroutineWor
                     chunkMax = j.optInt("maxChunkBytes", DEFAULT_CHUNK).coerceIn(64 * 1024, 8 * 1024 * 1024)
                     AbpStore.setUploadId(applicationContext, name, uploadId)
                 }
-                r.code in 400..499 -> return done(name, false, "сервер отказал: HTTP ${r.code} ${r.reason()}")
+                r.code in 400..499 -> return done(name, false, "сервер отказал: HTTP ${r.code} ${r.reason()}", RecorderEvents.ErrorCode.SERVER_REFUSED)
                 else -> throw java.io.IOException("HTTP ${r.code}")
             }
         }
@@ -118,29 +118,28 @@ class AbpUploadWorker(context: Context, params: WorkerParameters) : CoroutineWor
                     // The envelope was signed > 5 min ago (slow network): start again with a fresh signature.
                     AbpStore.setUploadId(applicationContext, name, null)
                     if (r.reason() == "SIGNATURE_STALE") return Result.retry()
-                    return done(name, false, "сервер отказал: HTTP 401 ${r.reason()}")
+                    return done(name, false, "сервер отказал: HTTP 401 ${r.reason()}", RecorderEvents.ErrorCode.SERVER_REFUSED)
                 }
                 else -> {
                     AbpStore.setUploadId(applicationContext, name, null)
-                    return done(name, false, "сервер отказал: HTTP ${r.code} ${r.reason()}")
+                    return done(name, false, "сервер отказал: HTTP ${r.code} ${r.reason()}", RecorderEvents.ErrorCode.SERVER_REFUSED)
                 }
             }
         }
     }
 
-    private fun done(name: String, ok: Boolean, detail: String): Result {
-        AbpStore.recordResult(applicationContext, name, ok, detail)
+    /** [detail] is for the phone's own status screen and the log; a host only ever sees [code]. */
+    private fun done(name: String, ok: Boolean, detail: String, code: RecorderEvents.ErrorCode? = null): Result {
+        AbpStore.recordResult(applicationContext, name, ok, detail, code)
         AbpStore.setQueued(applicationContext, name, false)
         RecorderEvents.emit(
             applicationContext, name,
             if (ok) RecorderEvents.UploadState.SENT else RecorderEvents.UploadState.FAILED,
-            if (ok) null else detail,
+            if (ok) null else (code ?: RecorderEvents.ErrorCode.SERVER_REFUSED),
         )
         AppLogger.i(TAG, "'$name': $detail")
         return if (ok) Result.success() else Result.failure()
     }
-
-    private fun failed(name: String, detail: String): Result = done(name, false, detail)
 
     private class AudioFormat(val channels: Int, val sampleRate: Int, val durationMs: Long)
 
