@@ -3,7 +3,7 @@
  *
  * Capacitor bridge "AbpRecorder" (S5, docs/callvault/S5-INTERFACES.md I11): lets the web UI of a host app
  * (the CRM APK) see and drive the embedded recorder. Only status and navigation cross the bridge:
- * no phone numbers, contact names, file names, error texts or audio ever go to JavaScript.
+ * no phone numbers, contact names, file names, free-text errors or audio ever go to JavaScript.
  */
 package kz.ploshadki.recorder.capacitor
 
@@ -40,7 +40,7 @@ class AbpRecorderPlugin : Plugin() {
     /**
      * serverConnected — the phone is enrolled with the company server.
      * queue — pending (to send), waitingForServer (kept until connected), sent / failed totals,
-     * hasError + lastErrorAt (epoch ms). The error text is NOT passed: it may carry a file name.
+     * hasError, lastErrorCode (RecorderEvents.ErrorCode name, no free text) and lastErrorAt (epoch ms).
      */
     @PluginMethod
     fun status(call: PluginCall) {
@@ -51,6 +51,7 @@ class AbpRecorderPlugin : Plugin() {
             .put("sent", q.sentTotal)
             .put("failed", q.failedTotal)
             .put("hasError", q.lastError != null)
+            .put("lastErrorCode", q.lastError)
             .put("lastErrorAt", q.lastErrorAtMs)
         call.resolve(JSObject().put("serverConnected", q.serverConnected).put("queue", queue))
     }
@@ -83,7 +84,7 @@ class AbpRecorderPlugin : Plugin() {
     private fun hostContext(): Context = activity ?: context
 
     companion object {
-        const val BRIDGE_VERSION = 2
+        const val BRIDGE_VERSION = 2 // v2: queue status, recordingSaved, error codes
         const val EVENT_RECORDING = "recordingSaved"
 
         /** Contract channel names (#492): mobile_gsm / whatsapp; upload states: queued|uploading|uploaded|failed. */
@@ -98,6 +99,7 @@ class AbpRecorderPlugin : Plugin() {
                 RecorderEvents.UploadState.FAILED -> "failed"
             })
             .put("waitingForServer", e.state == RecorderEvents.UploadState.WAITING_FOR_SERVER)
+            .put("errorCode", e.error?.name)
             .put("at", e.atMs)
     }
 }
