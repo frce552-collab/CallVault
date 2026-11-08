@@ -304,7 +304,12 @@ android {
             isReturnDefaultValues = true
             // Some tests read source files (ModeAwareUiTest scans the UI for a cached privileged mode).
             // Declared as inputs so a source-only change re-runs them instead of being "up to date".
-            all { it.inputs.dir("src/main/java/com/baba/callvault/ui") }
+            all {
+                it.inputs.dir("src/main/java/com/baba/callvault/ui")
+                // S1 diagnostic: conscrypt-android on the test classpath has no host JNI, so Robolectric's
+                // default Conscrypt install fails with "no conscrypt_jni". Tests do not need Conscrypt.
+                it.systemProperty("robolectric.conscryptMode", "OFF")
+            }
         }
     }
     lint {
