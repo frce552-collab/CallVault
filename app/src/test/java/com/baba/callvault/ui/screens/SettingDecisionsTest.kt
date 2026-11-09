@@ -109,7 +109,7 @@ class SettingDecisionsTest {
         // Updates
         // ABP Call turns the upstream self-update off (PloshadkiFork), and the wizard drops its step with it.
         "update_check_enabled" to Decision(
-            if (com.baba.callvault.ploshadki.PloshadkiFork.UPSTREAM_UPDATES_ENABLED) Wizard(WizardStep.UPDATES)
+            if (com.baba.callvault.ploshadki.PloshadkiFork.UPDATES_ENABLED) Wizard(WizardStep.UPDATES)
             else SettingsOnly("ABP Call: upstream self-update is off, so there is no updates step to offer it on")
         ),
         // Device-only gated switches (not exported), by their GatedSwitch id

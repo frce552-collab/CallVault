@@ -21,13 +21,14 @@ import java.net.URL
 object GitHubReleases {
 
     private const val TAG = "CV:GitHubReleases"
+    // ABP Call: our fork's releases, never madkongo's (other package id and signing key).
     private const val LATEST_RELEASE_URL =
-        "https://api.github.com/repos/madkongo/CallVault/releases/latest"
+        "https://api.github.com/repos/${com.baba.callvault.ploshadki.PloshadkiFork.UPDATE_REPO}/releases/latest"
 
     /** The release page users can open when an automatic path fails. */
-    const val RELEASES_PAGE_URL = "https://github.com/madkongo/CallVault/releases/latest"
+    const val RELEASES_PAGE_URL = "https://github.com/${com.baba.callvault.ploshadki.PloshadkiFork.UPDATE_REPO}/releases/latest"
 
-    private const val APK_ASSET_NAME = "CallVault.apk"
+    private const val APK_ASSET_NAME = com.baba.callvault.ploshadki.PloshadkiFork.UPDATE_APK_ASSET
     private const val CONNECT_TIMEOUT_MS = 15_000
     private const val READ_TIMEOUT_MS = 30_000
 
@@ -49,7 +50,7 @@ object GitHubReleases {
      *                    prerelease/draft target. Null in normal use.
      * @return The release info, or null on any failure (network, parse, no APK asset).
      */
-    fun fetchLatestRelease(overrideUrl: String? = null): ReleaseInfo? = if (!com.baba.callvault.ploshadki.PloshadkiFork.UPSTREAM_UPDATES_ENABLED) null else runCatching {
+    fun fetchLatestRelease(overrideUrl: String? = null): ReleaseInfo? = if (!com.baba.callvault.ploshadki.PloshadkiFork.UPDATES_ENABLED) null else runCatching {
         val connection = (URL(overrideUrl ?: LATEST_RELEASE_URL).openConnection() as HttpURLConnection).apply {
             connectTimeout = CONNECT_TIMEOUT_MS
             readTimeout = READ_TIMEOUT_MS

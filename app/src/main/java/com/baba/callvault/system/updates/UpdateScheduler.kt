@@ -47,7 +47,7 @@ object UpdateScheduler {
 
     fun apply(context: Context) {
         val workManager = WorkManager.getInstance(context)
-        if (!PloshadkiFork.UPSTREAM_UPDATES_ENABLED || !AppPreferences(context).isUpdateCheckEnabled()) {
+        if (!PloshadkiFork.UPDATES_ENABLED || !AppPreferences(context).isUpdateCheckEnabled()) {
             workManager.cancelUniqueWork(WORK_NAME)
             AppLogger.d(TAG, "Update checks disabled; periodic work cancelled")
             return
@@ -69,7 +69,7 @@ object UpdateScheduler {
      * the GitHub API. No-op when checks are disabled.
      */
     fun checkNowIfDue(context: Context) {
-        if (!PloshadkiFork.UPSTREAM_UPDATES_ENABLED) return
+        if (!PloshadkiFork.UPDATES_ENABLED) return
         val preferences = AppPreferences(context)
         if (!preferences.isUpdateCheckEnabled()) return
         val elapsed = System.currentTimeMillis() - preferences.getLastUpdateCheckMillis()
@@ -89,7 +89,7 @@ object UpdateScheduler {
      * taps don't stack; requires a network connection. Runs in WorkManager so it outlives the UI.
      */
     fun enqueueInstallNow(context: Context) {
-        if (!PloshadkiFork.UPSTREAM_UPDATES_ENABLED) return
+        if (!PloshadkiFork.UPDATES_ENABLED) return
         val request = OneTimeWorkRequestBuilder<UpdateInstallWorker>()
             .setConstraints(
                 Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()

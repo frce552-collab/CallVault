@@ -6,7 +6,7 @@ package com.baba.callvault.ploshadki
 import com.baba.callvault.system.updates.GitHubReleases
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class PloshadkiForkTest {
@@ -23,8 +23,10 @@ class PloshadkiForkTest {
     }
 
     @Test
-    fun `release lookup never reaches GitHub`() {
-        // Returns before any network call: an unreachable override URL would otherwise throw/timeout.
-        assertNull(GitHubReleases.fetchLatestRelease("http://127.0.0.1:9/never"))
+    fun `self-update comes from our fork, never from madkongo`() {
+        assertTrue(PloshadkiFork.UPDATES_ENABLED)
+        assertEquals("frce552-collab/CallVault", PloshadkiFork.UPDATE_REPO)
+        assertEquals("ABP-Call.apk", PloshadkiFork.UPDATE_APK_ASSET)
+        assertEquals("https://github.com/frce552-collab/CallVault/releases/latest", GitHubReleases.RELEASES_PAGE_URL)
     }
 }

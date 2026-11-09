@@ -289,7 +289,7 @@ internal fun wizardSteps(usesDrive: Boolean, usesEmbeddedAdb: Boolean): List<Wiz
     // would otherwise never hear about, since the What's New dialog only fires after an *update*.
     add(WizardStep.TRANSCRIPTION)
     // ABP Call: no upstream self-update, so no step asking about it.
-    if (com.baba.callvault.ploshadki.PloshadkiFork.UPSTREAM_UPDATES_ENABLED) add(WizardStep.UPDATES)
+    if (com.baba.callvault.ploshadki.PloshadkiFork.UPDATES_ENABLED) add(WizardStep.UPDATES)
 }
 
 /**

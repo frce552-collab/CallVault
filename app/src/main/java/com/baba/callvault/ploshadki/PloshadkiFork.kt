@@ -11,10 +11,23 @@ package com.baba.callvault.ploshadki
 object PloshadkiFork {
     /**
      * Upstream self-update from GitHub (madkongo/CallVault releases) is off: it would offer a
-     * different app (other package id, brand and signing key) to our managers. ABP Call is
-     * distributed by the company (MDM / direct APK).
+     * different app (other package id, brand and signing key) to our managers.
      */
     const val UPSTREAM_UPDATES_ENABLED = false
+
+    /**
+     * ABP Call updates itself from OUR fork's GitHub Releases (owner decision 2026-11-09):
+     * upstream release → fork sync → owner merge → ploshadki-release.yml publishes a signed
+     * [UPDATE_APK_ASSET] → phones pick it up (daily check, silent install over ADB).
+     * The update must be signed with the same key as the installed app (see ApkVerifier).
+     */
+    const val UPDATES_ENABLED = true
+
+    /** GitHub "owner/repo" whose latest (non-prerelease) release is the update source. */
+    const val UPDATE_REPO = "frce552-collab/CallVault"
+
+    /** Release asset name the updater downloads. ploshadki-release.yml uploads exactly this. */
+    const val UPDATE_APK_ASSET = "ABP-Call.apk"
 
     /** Upstream donation (Ko-fi/PayPal) and community (Telegram) links are not shown. */
     const val UPSTREAM_SUPPORT_LINKS_ENABLED = false
