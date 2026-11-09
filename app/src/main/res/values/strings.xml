@@ -380,8 +380,6 @@
     <string name="settings_view_licenses">View Licenses</string>
     <string name="settings_scrcpy_server" translatable="false">Scrcpy-Server: %1$s</string>
     <string name="settings_fork_attribution" translatable="false">This software is a fork of ShizuCallRecorder</string>
-    <string name="settings_fork_attribution_callvault" translatable="false">ABP Call is a FORK of CallVault, not affiliated with its authors</string>
-    <string name="settings_fork_attribution_callvault_supporting" translatable="false">github.com/madkongo/CallVault</string>
     <string name="settings_fork_attribution_supporting" translatable="false">github.com/kitsumed/ShizuCallRecorder</string>
     <string name="settings_support_label">Support development</string>
     <string name="settings_support_value">Buy me a coffee on Ko-fi</string>
@@ -995,9 +993,6 @@
     <string name="settings_wd_enforce_label">Keep Wireless debugging on for recording</string>
     <string name="settings_wd_enforce_description">If you switch Wireless debugging off while nothing else lets ABP Call in, it turns it back on so calls keep recording. When this is off, your switch stays off and the notification says recording is paused.</string>
     <string name="settings_wd_auto_approve_label">Approve new Wi-Fi networks automatically</string>
-<<<<<<< HEAD
-    <string name="settings_wd_auto_approve_description">When the phone joins a Wi-Fi network, ABP Call answers Android\'s \"Allow wireless debugging on this network?\" itself, so recording does not wait for your tap. Works while the recorder is running. Only devices already paired with this phone can connect.</string>
-=======
     <string name="settings_wd_auto_approve_description">When the phone joins a Wi-Fi network, ABP Call answers Android\'s \"Allow wireless debugging on this network?\" itself, so recording does not wait for your tap. Works while the recorder is running. Only devices already paired with this phone can connect.</string>
     <string name="settings_wd_mode_label">Wireless debugging</string>
     <string name="settings_wd_mode_when_needed">Only when needed</string>
@@ -1006,7 +1001,6 @@
     <string name="settings_wd_mode_when_needed_desc">ABP Call turns it on for recording and off again when it is not needed. If you switch it off, it stays off.</string>
     <string name="settings_wd_mode_keep_on_desc">ABP Call never switches it off, so the debugging port stays open on your Wi-Fi. If you switch it off, it stays off.</string>
     <string name="settings_wd_mode_keep_on_always_desc">ABP Call never switches it off and turns it back on if you switch it off, so calls keep recording. The debugging port stays open on your Wi-Fi.</string>
->>>>>>> upstream/main
     <string name="settings_wd_never_off_label">Never turn Wireless debugging off</string>
     <string name="settings_wd_never_off_description">ABP Call won\'t switch Wireless debugging off, so the debugging port stays open on your Wi-Fi network. ABP Call may still switch it on when the recorder needs it. Built-in mode only.</string>
     <string name="settings_wd_left_on_by_setting">Wireless debugging is on. ABP Call is leaving it on because of this setting.</string>
@@ -1055,15 +1049,9 @@
     <string name="home_status_pairing_lost_title">Pairing expired</string>
     <string name="home_status_pairing_lost_suggestion">Android forgot ABP Call\'s Wireless debugging pairing, so the recorder can\'t restart. Tap here to pair again — your recordings and settings stay as they are.</string>
     <string name="settings_pair_again_label">Pair again</string>
-<<<<<<< HEAD
-    <string name="settings_pair_again_value">Pair ABP Call with Wireless debugging</string>
-    <string name="settings_pair_again_hint">Use this if Android forgot ABP Call\'s pairing. Your recordings and settings stay as they are. Turning on Offline recording keeps the pairing from expiring.</string>
-    <string name="notif_readiness_pairing_lost_text">Android forgot ABP Call\'s pairing, so calls can\'t be recorded. Open ABP Call and tap the status card to pair again.</string>
-=======
     <string name="settings_pair_again_value">Pair ABP Call with Wireless debugging</string>
     <string name="settings_pair_again_hint">Use this if Android forgot ABP Call\'s pairing. Your recordings and settings stay as they are. Turning on \"Keep recording off Wi-Fi\" keeps the pairing from expiring.</string>
     <string name="notif_readiness_pairing_lost_text">Android forgot ABP Call\'s pairing, so calls can\'t be recorded. Open ABP Call and tap the status card to pair again.</string>
->>>>>>> upstream/main
     <string name="notif_cut_off_saved_title">A call was cut off</string>
     <string name="notif_cut_off_saved_text">Your phone closed ABP Call during a call. What was recorded before that was saved as %1$s.</string>
     <string name="home_health_failed_cut_off">Your last call was cut off when the phone closed ABP Call — the part recorded before that was saved.</string>
@@ -1127,4 +1115,7 @@
     <string name="transcribe_again_running">Transcribing again… %1$d%%</string>
     <string name="transcribe_again_running_plain">Transcribing again…</string>
     <string name="transcribe_again_waiting">Waiting to transcribe again…</string>
+    <!-- ABP Call: строки форка, которых нет у upstream -->
+    <string name="settings_fork_attribution_callvault" translatable="false">ABP Call is a FORK of CallVault, not affiliated with its authors</string>
+    <string name="settings_fork_attribution_callvault_supporting" translatable="false">github.com/madkongo/CallVault</string>
 </resources>
