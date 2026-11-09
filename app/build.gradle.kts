@@ -16,8 +16,8 @@ plugins {
     alias(libs.plugins.android.application)
 }
 
-val ciVersionCode = providers.gradleProperty("versionCode").map { it.toIntOrNull() }.orElse(20490)
-val ciVersionName = providers.gradleProperty("versionName").orElse("2.4.9")
+val ciVersionCode = providers.gradleProperty("versionCode").map { it.toIntOrNull() }.orElse(20500)
+val ciVersionName = providers.gradleProperty("versionName").orElse("2.5.0")
 val isEnvironmentGithubCI = providers.environmentVariable("GITHUB_ACTIONS").isPresent
 // Library tasks (:recorder, :capacitor-abp-recorder release AAR publish) do not sign anything.
 val isReleaseBuildRequested = gradle.startParameter.taskNames.any { it.contains("release", ignoreCase = true) && !it.startsWith(":recorder:") && !it.startsWith(":capacitor-abp-recorder:") }
