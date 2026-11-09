@@ -1,0 +1,144 @@
+# Площадки: автоматический приём обновлений madkongo/CallVault в ABP Call.
+#
+# Каждый день (и по кнопке) смотрит, вышел ли у upstream новый релиз vX.Y.Z, которого ещё нет в ploshadki/main.
+# Если вышел:
+#   1. ветка s1/upstream-X.Y.Z от ploshadki/main, merge тега upstream;
+#   2. конфликты строк (15 локалей) решает сам: строки upstream + scripts/ploshadki/rebrand_strings.py;
+#   3. app/build.gradle.kts: если upstream поменял там только версию — берёт нашу версию файла с новым номером;
+#   4. нет других конфликтов → push ветки, запуск «Ploshadki Debug APK» (тесты + APK), черновой PR в ploshadki/main;
+#      остались конфликты → ветка не создаётся, открывается Issue со списком файлов (переносит человек/Claude).
+# В ploshadki/main сам ничего не вливает: merge — только после QA и GO владельца.
+# Секретов не использует: только GITHUB_TOKEN этого репозитория.
+
+name: Ploshadki Upstream Sync
+
+on:
+  schedule:
+    - cron: '17 3 * * *'   # 03:17 UTC = 08:17 Алматы
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Тег upstream (например v2.5.0). Пусто — последний релиз.'
+        required: false
+        type: string
+
+concurrency:
+  group: ploshadki-upstream-sync
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  actions: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+      UPSTREAM: https://github.com/madkongo/CallVault
+      BASE: ploshadki/main
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ploshadki/main
+          fetch-depth: 0
+
+      - name: Find new upstream release
+        id: find
+        run: |
+          set -euo pipefail
+          git config user.name "abp-call-sync[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add upstream "$UPSTREAM"
+          git fetch --quiet --tags upstream
+          TAG="${{ inputs.tag }}"
+          if [ -z "$TAG" ]; then
+            TAG=$(git tag -l 'v*' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          if git merge-base --is-ancestor "$TAG" HEAD; then
+            echo "Уже в $BASE: $TAG"; echo "action=none" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          BR="s1/upstream-${TAG#v}"
+          echo "branch=$BR" >> "$GITHUB_OUTPUT"
+          if git ls-remote --exit-code --heads origin "$BR" >/dev/null; then
+            echo "Ветка $BR уже есть — обновление уже предложено"; echo "action=none" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          PREV=$(git describe --tags --abbrev=0 --match 'v[0-9]*.[0-9]*.[0-9]*' HEAD)
+          echo "prev=$PREV" >> "$GITHUB_OUTPUT"
+          echo "action=merge" >> "$GITHUB_OUTPUT"
+
+      - name: Merge and auto-resolve
+        id: merge
+        if: steps.find.outputs.action == 'merge'
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.find.outputs.tag }}"; PREV="${{ steps.find.outputs.prev }}"; BR="${{ steps.find.outputs.branch }}"
+          git checkout -b "$BR"
+          git merge --no-ff --no-commit "$TAG" || true
+          # 1) строки локалей: берём upstream, ребрендинг применяется ниже ко всем файлам
+          for f in $(git diff --name-only --diff-filter=U | grep -E '^app/src/main/res/values-[^/]+/strings[^/]*\.xml$' || true); do
+            git checkout --theirs -- "$f"; git add -- "$f"
+          done
+          python3 -I scripts/ploshadki/rebrand_strings.py .
+          git add app/src/main/res
+          # 2) версия: upstream в app/build.gradle.kts менял только номер версии → наша версия файла + новый номер
+          NEW_CODE=$(git show "$TAG:app/build.gradle.kts" | sed -n 's/.*gradleProperty("versionCode").*orElse(\([0-9]*\)).*/\1/p')
+          NEW_NAME=$(git show "$TAG:app/build.gradle.kts" | sed -n 's/.*gradleProperty("versionName").orElse("\([^"]*\)").*/\1/p')
+          ONLY_VERSION=$(git diff "$PREV" "$TAG" -- app/build.gradle.kts | grep -E '^[-+][^-+]' | grep -vE 'ciVersionCode|ciVersionName' || true)
+          if git diff --name-only --diff-filter=U | grep -qx 'app/build.gradle.kts' && [ -z "$ONLY_VERSION" ]; then
+            git checkout --ours -- app/build.gradle.kts; git add app/build.gradle.kts
+          fi
+          for g in app/build.gradle.kts recorder/build.gradle.kts; do
+            if ! git diff --name-only --diff-filter=U | grep -qx "$g"; then
+              sed -i "s/\(gradleProperty(\"versionCode\").*orElse(\)[0-9]*)/\1$NEW_CODE)/; s/\(gradleProperty(\"versionName\").orElse(\"\)[^\"]*\")/\1$NEW_NAME\")/" "$g"
+              git add "$g"
+            fi
+          done
+          sed -i "s/[0-9][0-9.]*-abpcall/$NEW_NAME-abpcall/g" .github/workflows/ploshadki-debug-apk.yml
+          git add .github/workflows/ploshadki-debug-apk.yml
+          LEFT=$(git diff --name-only --diff-filter=U || true)
+          {
+            echo "left<<EOF"; echo "$LEFT"; echo "EOF"
+            echo "commits=$(git rev-list --count HEAD.."$TAG")"
+            echo "version=$NEW_NAME ($NEW_CODE)"
+          } >> "$GITHUB_OUTPUT"
+          if [ -n "$LEFT" ]; then git merge --abort; exit 0; fi
+          git commit -q -m "merge upstream CallVault $TAG в $BASE (автосинхронизация)" \
+            -m "Строки локалей: upstream + scripts/ploshadki/rebrand_strings.py. Версия $NEW_NAME ($NEW_CODE)."
+          git push -u origin "$BR"
+
+      - name: Build, then draft PR
+        if: steps.find.outputs.action == 'merge' && steps.merge.outputs.left == ''
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.find.outputs.tag }}"; BR="${{ steps.find.outputs.branch }}"
+          # push от GITHUB_TOKEN не запускает другие workflow — запускаем сборку явно
+          gh workflow run ploshadki-debug-apk.yml --ref "$BR" -f version="${{ steps.merge.outputs.version }}" || true
+          BODY="Новый релиз upstream: $TAG (${{ steps.merge.outputs.commits }} коммитов). Конфликты решены автоматически.
+
+          - Что изменилось: https://github.com/madkongo/CallVault/blob/$TAG/CHANGELOG.md
+          - Сборка и тесты: Actions → «Ploshadki Debug APK» по ветке \`$BR\`.
+          - Перед merge: QA, проверка новых функций на корпоративные правила (удаление записей, личный WhatsApp), GO владельца."
+          gh pr create --draft --base "$BASE" --head "$BR" --title "Обновление CallVault $TAG" --body "$BODY" \
+            || gh issue create --title "Обновление CallVault $TAG готово в $BR (PR не создан)" --body "$BODY
+
+          PR не создан: включите Settings → Actions → General → «Allow GitHub Actions to create and approve pull requests»."
+
+      - name: Conflicts need a person
+        if: steps.find.outputs.action == 'merge' && steps.merge.outputs.left != ''
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.find.outputs.tag }}"
+          TITLE="Обновление CallVault $TAG: нужен ручной перенос"
+          if gh issue list --state open --search "$TITLE in:title" --json number --jq '.[0].number' | grep -q .; then exit 0; fi
+          gh issue create --title "$TITLE" --body "Вышел $TAG (${{ steps.merge.outputs.commits }} коммитов). Строки и номер версии решаются сами; остались конфликты в файлах:
+
+          \`\`\`
+          ${{ steps.merge.outputs.left }}
+          \`\`\`
+
+          Перенос: ветка s1/upstream-${TAG#v} от ploshadki/main, merge $TAG, строки — scripts/ploshadki/rebrand_strings.py, остальное руками (наш код старта — RecorderRuntime.init, библиотека — recorder/build.gradle.kts)."
