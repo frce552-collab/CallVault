@@ -104,6 +104,8 @@ jobs:
           {
             echo "left<<EOF"; echo "$LEFT"; echo "EOF"
             echo "commits=$(git rev-list --count HEAD.."$TAG")"
+            # Авторы кода, кроме madkongo/kfir: их части не покрывает разрешение madkongo (CLA у upstream нет).
+            echo "authors=$(git log --format='%an <%ae>' "$PREV".."$TAG" | sort -u | grep -viE 'madkongo|^kfir ' | paste -sd ',' - || true)"
             echo "version=$NEW_NAME ($NEW_CODE)"
           } >> "$GITHUB_OUTPUT"
           if [ -n "$LEFT" ]; then git merge --abort; exit 0; fi
@@ -122,7 +124,8 @@ jobs:
 
           - Что изменилось: https://github.com/madkongo/CallVault/blob/$TAG/CHANGELOG.md
           - Сборка и тесты: Actions → «Ploshadki Debug APK» по ветке \`$BR\`.
-          - Перед merge: QA, проверка новых функций на корпоративные правила (удаление записей, личный WhatsApp), GO владельца."
+          - Перед merge: QA, проверка новых функций на корпоративные правила (удаление записей, личный WhatsApp), GO владельца.
+          - 🔴 Сторонние авторы в этом релизе (их код не покрыт разрешением madkongo): ${{ steps.merge.outputs.authors || 'нет' }}"
           gh pr create --draft --base "$BASE" --head "$BR" --title "Обновление CallVault $TAG" --body "$BODY" \
             || gh issue create --title "Обновление CallVault $TAG готово в $BR (PR не создан)" --body "$BODY
 
@@ -140,5 +143,7 @@ jobs:
           \`\`\`
           ${{ steps.merge.outputs.left }}
           \`\`\`
+
+          Сторонние авторы в релизе (нужно их разрешение или исключение их кода): ${{ steps.merge.outputs.authors || 'нет' }}
 
           Перенос: ветка s1/upstream-${TAG#v} от ploshadki/main, merge $TAG, строки — scripts/ploshadki/rebrand_strings.py, остальное руками (наш код старта — RecorderRuntime.init, библиотека — recorder/build.gradle.kts)."
