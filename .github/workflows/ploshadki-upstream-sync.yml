@@ -79,12 +79,19 @@ jobs:
           TAG="${{ steps.find.outputs.tag }}"; PREV="${{ steps.find.outputs.prev }}"; BR="${{ steps.find.outputs.branch }}"
           git checkout -b "$BR"
           git merge --no-ff --no-commit "$TAG" || true
-          # 1) строки локалей: берём upstream, ребрендинг применяется ниже ко всем файлам
-          for f in $(git diff --name-only --diff-filter=U | grep -E '^app/src/main/res/values-[^/]+/strings[^/]*\.xml$' || true); do
-            git checkout --theirs -- "$f"; git add -- "$f"
+          # 1) строки (все локали, включая базовую values/): upstream + ребрендинг + наши PRESERVE и добавления
+          MB=$(git merge-base HEAD "$TAG"); T=$(mktemp -d)
+          for f in $(git diff --name-only --diff-filter=U | grep -E '^app/src/main/res/values(-[^/]+)?/strings[^/]*\.xml$' || true); do
+            git show "HEAD:$f" > "$T/ours"; git show "$TAG:$f" > "$T/theirs"; git show "$MB:$f" > "$T/base" 2>/dev/null || : > "$T/base"
+            python3 -I scripts/ploshadki/rebrand_strings.py --merge "$T/ours" "$T/theirs" "$f" "$T/base"
+            git add -- "$f"
           done
           python3 -I scripts/ploshadki/rebrand_strings.py .
-          git add app/src/main/res
+          # добавлять только файлы без конфликта: иначе git add запишет маркеры как «решено»
+          for f in $(git diff --name-only -- app/src/main/res); do
+            git diff --name-only --diff-filter=U | grep -qx "$f" || git add -- "$f"
+          done
+          if git grep -lE '^(<<<<<<<|>>>>>>>) ' -- app/src/main/res >/dev/null; then echo "маркеры конфликта в res"; fi
           # 2) версия: upstream в app/build.gradle.kts менял только номер версии → наша версия файла + новый номер
           NEW_CODE=$(git show "$TAG:app/build.gradle.kts" | sed -n 's/.*gradleProperty("versionCode").*orElse(\([0-9]*\)).*/\1/p')
           NEW_NAME=$(git show "$TAG:app/build.gradle.kts" | sed -n 's/.*gradleProperty("versionName").orElse("\([^"]*\)").*/\1/p')
@@ -100,7 +107,7 @@ jobs:
           done
           sed -i "s/[0-9][0-9.]*-abpcall/$NEW_NAME-abpcall/g" .github/workflows/ploshadki-debug-apk.yml
           git add .github/workflows/ploshadki-debug-apk.yml
-          LEFT=$(git diff --name-only --diff-filter=U || true)
+          LEFT=$( { git diff --name-only --diff-filter=U; git diff --cached --name-only -G '^(<<<<<<<|>>>>>>>) ' ; } | sort -u || true)
           {
             echo "left<<EOF"; echo "$LEFT"; echo "EOF"
             echo "commits=$(git rev-list --count HEAD.."$TAG")"
