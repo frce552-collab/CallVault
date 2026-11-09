@@ -288,8 +288,9 @@ internal fun wizardSteps(usesDrive: Boolean, usesEmbeddedAdb: Boolean): List<Wiz
     // because transcription needs nothing from ADB — it is the one flagship feature a fresh install
     // would otherwise never hear about, since the What's New dialog only fires after an *update*.
     add(WizardStep.TRANSCRIPTION)
-    // ABP Call: no upstream self-update, so no step asking about it.
-    if (com.baba.callvault.ploshadki.PloshadkiFork.UPDATES_ENABLED) add(WizardStep.UPDATES)
+    // ABP Call: updates come from our fork and are always on by default (corporate app), so the
+    // wizard does not ask the manager about them. The step only exists for upstream's self-update.
+    if (com.baba.callvault.ploshadki.PloshadkiFork.UPSTREAM_UPDATES_ENABLED) add(WizardStep.UPDATES)
 }
 
 /**

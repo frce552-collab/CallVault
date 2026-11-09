@@ -119,7 +119,7 @@ class WizardStepsTest {
 
     @Test
     fun `starts on storage and ends on transcription whatever is excluded`() {
-        // ABP Call: no upstream self-update, so the updates step is gone and transcription is last.
+        // ABP Call: updates are on by default (no question), so the updates step is gone and transcription is last.
         // "Step N of M" is derived from this list, so order matters as much as membership.
         for (usesDrive in listOf(false, true)) {
             for (usesEmbeddedAdb in listOf(false, true)) {

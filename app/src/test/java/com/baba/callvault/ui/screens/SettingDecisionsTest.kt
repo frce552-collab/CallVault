@@ -107,10 +107,10 @@ class SettingDecisionsTest {
         "voip_auto_start" to Decision(Wizard(WizardStep.AUTO_RECORD), ModeCapability.VOIP_RECORDING),
         "voip_excluded_packages" to Decision(SettingsOnly("per-app choice, once app calls are on")),
         // Updates
-        // ABP Call turns the upstream self-update off (PloshadkiFork), and the wizard drops its step with it.
+        // ABP Call: updates from our fork are on by default; the wizard does not ask about them.
         "update_check_enabled" to Decision(
-            if (com.baba.callvault.ploshadki.PloshadkiFork.UPDATES_ENABLED) Wizard(WizardStep.UPDATES)
-            else SettingsOnly("ABP Call: upstream self-update is off, so there is no updates step to offer it on")
+            if (com.baba.callvault.ploshadki.PloshadkiFork.UPSTREAM_UPDATES_ENABLED) Wizard(WizardStep.UPDATES)
+            else SettingsOnly("ABP Call: company updates are on by default, so the wizard has no updates step")
         ),
         // Device-only gated switches (not exported), by their GatedSwitch id
         "handoff_persist" to Decision(Wizard(WizardStep.EXPERIMENTAL), ModeCapability.RESILIENT_RECORDING),
