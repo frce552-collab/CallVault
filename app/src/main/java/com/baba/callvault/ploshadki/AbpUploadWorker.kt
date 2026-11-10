@@ -46,7 +46,10 @@ class AbpUploadWorker(context: Context, params: WorkerParameters) : CoroutineWor
             return@withContext Result.success()
         }
         try {
-            upload(conn, uri, name, mime)
+            upload(conn, uri, name, mime).also { result ->
+                // The transcript may have finished while the audio was still waiting for a network: send it now.
+                if (result is Result.Success) AbpTranscriptWorker.enqueueIfTranscribed(applicationContext, name)
+            }
         } catch (e: AbpServerClient.DeviceRevokedException) {
             AbpStore.recordResult(applicationContext, name, false, e.message ?: "устройство отключено", RecorderEvents.ErrorCode.DEVICE_REVOKED)
             AbpStore.addPending(applicationContext, uri.toString(), name, mime.orEmpty())
@@ -69,6 +72,10 @@ class AbpUploadWorker(context: Context, params: WorkerParameters) : CoroutineWor
             ?: throw java.io.FileNotFoundException(name)
         if (bytes.isEmpty()) return done(name, false, "пустой файл", RecorderEvents.ErrorCode.EMPTY_FILE)
         val sha = AbpCrypto.hex(AbpCrypto.sha256(bytes))
+        val reportId = CaptureReport.reportIdFor(conn.enrollmentRef, name, sha)
+        // Remembered before the first request: the transcript (AbpTranscriptWorker) is sent under this same
+        // reportId and hash, and only for recordings marked here. Cleared again if the upload is given up.
+        AbpStore.markUploaded(applicationContext, name, AbpStore.UploadedRef(conn.enrollmentRef, reportId, sha))
         val format = probe(uri, name)
         AbpStore.setDurationMs(applicationContext, name, format.durationMs)
         RecorderEvents.emit(applicationContext, name, RecorderEvents.UploadState.UPLOADING)
@@ -83,7 +90,7 @@ class AbpUploadWorker(context: Context, params: WorkerParameters) : CoroutineWor
             if (h.code == 200) offset = h.headers["upload-offset"]?.toLongOrNull() ?: 0L else uploadId = null
         }
         if (uploadId == null) {
-            val upload = buildUpload(conn, format, name, kind, bytes.size.toLong(), sha)
+            val upload = buildUpload(conn, format, name, kind, bytes.size.toLong(), sha, reportId)
             val signature = AbpCrypto.signCapture(conn.secret, upload, sha)
             val r = client.createUpload(conn, upload, signature)
             when {
@@ -131,6 +138,8 @@ class AbpUploadWorker(context: Context, params: WorkerParameters) : CoroutineWor
     /** [detail] is for the phone's own status screen and the log; a host only ever sees [code]. */
     private fun done(name: String, ok: Boolean, detail: String, code: RecorderEvents.ErrorCode? = null): Result {
         AbpStore.recordResult(applicationContext, name, ok, detail, code)
+        // Not on the server, so its transcript must never be sent (it could only ever be refused).
+        if (!ok) AbpStore.forgetUploaded(applicationContext, name)
         AbpStore.setQueued(applicationContext, name, false)
         RecorderEvents.emit(
             applicationContext, name,
@@ -162,7 +171,7 @@ class AbpUploadWorker(context: Context, params: WorkerParameters) : CoroutineWor
         return AudioFormat(channels, sampleRate, durationMs)
     }
 
-    private suspend fun buildUpload(conn: AbpStore.Connection, format: AudioFormat, name: String, kind: Pair<String, String>, size: Long, sha: String): Map<String, Any?> {
+    private suspend fun buildUpload(conn: AbpStore.Connection, format: AudioFormat, name: String, kind: Pair<String, String>, size: Long, sha: String, reportId: String): Map<String, Any?> {
         val channels = format.channels
         val sampleRate = format.sampleRate
         val durationMs = format.durationMs
@@ -174,9 +183,7 @@ class AbpUploadWorker(context: Context, params: WorkerParameters) : CoroutineWor
             RecordingDirection.OUTGOING -> CaptureReport.Direction.OUTBOUND
             else -> CaptureReport.Direction.UNKNOWN
         }
-        // App calls: the near party is on the left by construction (see VoipRecordingCoordinator).
-        // Carrier calls: the channel order is an OEM detail, so it is only claimed when CallVault has learned it.
-        val near = if (isVoip) CaptureReport.NearChannel.FIRST else nearForCarrier()
+        val near = nearChannelFor(applicationContext, name)
         val autoTime = runCatching { Settings.Global.getInt(applicationContext.contentResolver, Settings.Global.AUTO_TIME) == 1 }.getOrDefault(false)
         val source = if (isVoip) CaptureReport.Source.WHATSAPP_BUSINESS else CaptureReport.Source.GSM
         val sourceVersion = if (isVoip) packageVersion(CaptureReport.WA_BUSINESS_APP_ID) else "Android ${Build.VERSION.RELEASE}"
@@ -194,7 +201,7 @@ class AbpUploadWorker(context: Context, params: WorkerParameters) : CoroutineWor
             ),
             policy = CaptureReport.Policy(conn.retentionPolicyId, conn.retentionDays, conn.consentRef, conn.consentMethod),
             call = CaptureReport.Call(
-                reportId = CaptureReport.reportIdFor(conn.enrollmentRef, name, sha),
+                reportId = reportId,
                 source = source, direction = direction,
                 startedAtMs = started, endedAtMs = started + durationMs,
                 sourceAppVersion = sourceVersion, near = near,
@@ -206,14 +213,6 @@ class AbpUploadWorker(context: Context, params: WorkerParameters) : CoroutineWor
             captureToolVersion = BuildConfig.VERSION_NAME,
         )
     }
-
-    private suspend fun nearForCarrier(): CaptureReport.NearChannel = runCatching {
-        when (com.baba.callvault.data.transcripts.SpeakerTurnsRepository.trustedMap(applicationContext).nearChannelKey()) {
-            "A" -> CaptureReport.NearChannel.FIRST
-            "B" -> CaptureReport.NearChannel.SECOND
-            else -> CaptureReport.NearChannel.UNKNOWN
-        }
-    }.getOrDefault(CaptureReport.NearChannel.UNKNOWN)
 
     @Suppress("DEPRECATION")
     private fun packageVersion(pkg: String): String = runCatching {
@@ -247,6 +246,23 @@ class AbpUploadWorker(context: Context, params: WorkerParameters) : CoroutineWor
         }
 
         const val TAG_ALL = "abp_upload"
+
+        /**
+         * Which channel carries the manager (near party) for [name] — shared by the upload's channel map and the
+         * transcript's speakers, so both say the same thing. App calls: the near party is on the left by
+         * construction (see VoipRecordingCoordinator). Carrier calls: the channel order is an OEM detail, so it is
+         * only claimed when CallVault has learned and trusts it.
+         */
+        suspend fun nearChannelFor(context: Context, name: String): CaptureReport.NearChannel {
+            if (RecorderEvents.channelOf(name) == RecorderEvents.Channel.WA_BUSINESS) return CaptureReport.NearChannel.FIRST
+            return runCatching {
+                when (com.baba.callvault.data.transcripts.SpeakerTurnsRepository.trustedMap(context).nearChannelKey()) {
+                    "A" -> CaptureReport.NearChannel.FIRST
+                    "B" -> CaptureReport.NearChannel.SECOND
+                    else -> CaptureReport.NearChannel.UNKNOWN
+                }
+            }.getOrDefault(CaptureReport.NearChannel.UNKNOWN)
+        }
 
         /** Sends everything recorded while the phone was not connected. */
         fun flushPending(context: Context) {

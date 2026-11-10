@@ -735,6 +735,7 @@
     <string name="transcription_language_russian">Orosz</string>
     <string name="transcription_language_spanish">Spanyol</string>
     <string name="transcription_language_ukrainian">Ukrán</string>
+    <string name="transcription_language_kazakh">Kazah</string>
     <string name="transcription_language_vietnamese">Vietnami</string>
     <string name="transcription_minute_label">Perc</string>
     <string name="transcription_mode_after_each_call">Minden hívás után</string>

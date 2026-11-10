@@ -23,6 +23,8 @@ object LanguageScript {
         "ar" to Character.UnicodeScript.ARABIC,
         "ru" to Character.UnicodeScript.CYRILLIC,
         "uk" to Character.UnicodeScript.CYRILLIC,
+        // Kazakh (ABP Call, Kazakhstan) is written in Cyrillic today.
+        "kk" to Character.UnicodeScript.CYRILLIC,
         "zh" to Character.UnicodeScript.HAN,
         "el" to Character.UnicodeScript.GREEK,
         // Persian is written in the Arabic script, so a Latin transcript under a Persian pin is caught

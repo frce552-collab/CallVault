@@ -45,6 +45,7 @@ object SummaryPrompt {
         "he" to "Hebrew",
         "hu" to "Hungarian",
         "it" to "Italian",
+        "kk" to "Kazakh",
         "pl" to "Polish",
         "pt" to "Portuguese",
         "ru" to "Russian",

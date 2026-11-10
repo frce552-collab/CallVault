@@ -745,6 +745,7 @@
     <string name="transcription_language_russian">Російська</string>
     <string name="transcription_language_spanish">Іспанська</string>
     <string name="transcription_language_ukrainian">Українська</string>
+    <string name="transcription_language_kazakh">Казахська</string>
     <string name="transcription_language_vietnamese">Вʼєтнамська</string>
     <string name="transcription_minute_label">Хвилина</string>
     <string name="transcription_mode_after_each_call">Після кожного дзвінка</string>

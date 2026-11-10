@@ -889,6 +889,7 @@
     <string name="transcription_language_russian">Ρωσικά</string>
     <string name="transcription_language_spanish">Ισπανικά</string>
     <string name="transcription_language_ukrainian">Ουκρανικά</string>
+    <string name="transcription_language_kazakh">Καζακικά</string>
     <string name="transcription_language_vietnamese">Βιετναμέζικα</string>
     <string name="transcription_minute_label">Λεπτό</string>
     <string name="transcription_mode_after_each_call">Μετά από κάθε κλήση</string>

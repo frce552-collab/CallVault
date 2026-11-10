@@ -3,7 +3,8 @@
  *
  * HTTP client for the company server's OPEN contract only:
  *  - device login: POST /api/v1/worker-auth/enroll, POST /oauth/token (DPoP, RFC 9449);
- *  - recordings:   POST /air/capture/v1/uploads, HEAD|PATCH /air/capture/v1/uploads/:id (resumable).
+ *  - recordings:   POST /air/capture/v1/uploads, HEAD|PATCH /air/capture/v1/uploads/:id (resumable);
+ *  - transcripts:  POST /air/capture/v1/transcripts (on-device whisper text of an uploaded recording).
  */
 package com.baba.callvault.ploshadki
 
@@ -138,6 +139,10 @@ class AbpServerClient(private val context: Context) {
     fun appendChunk(conn: AbpStore.Connection, uploadId: String, offset: Long, chunk: ByteArray): HttpResult =
         authed(conn, "PATCH", "/air/capture/v1/uploads/$uploadId", chunk.toRequestBody(OFFSET_OCTETS),
             mapOf("Upload-Offset" to offset.toString()))
+
+    /** [body] is [TranscriptReport.body]: the signed envelope. Same DPoP device auth as the uploads. */
+    fun postTranscript(conn: AbpStore.Connection, body: String): HttpResult =
+        authed(conn, "POST", "/air/capture/v1/transcripts", body.toRequestBody(JSON), emptyMap())
 
     companion object {
         private val JSON = "application/json; charset=utf-8".toMediaType()
