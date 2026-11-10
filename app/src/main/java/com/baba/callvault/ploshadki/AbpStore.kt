@@ -195,6 +195,33 @@ object AbpStore {
 
     fun queuedCount(context: Context): Int = prefs(context).getStringSet("queued", emptySet())!!.size
 
+    // ── Drive «только в облаке»: не удалять файл на телефоне, пока он не ушёл на сервер ─────────
+    /**
+     * Нужен ли ещё файл [name] на телефоне для отправки на сервер компании: стоит в очереди, ждёт подключения
+     * или уже начат (есть uploadId). Пока да — копия в Google Drive НЕ удаляет файл на устройстве
+     * (режим «Только в Google Drive»), иначе отправка находит пустое место и запись не доходит до CRM.
+     */
+    fun holdsLocal(context: Context, name: String): Boolean {
+        val sp = prefs(context)
+        if (sp.getStringSet("queued", emptySet())!!.contains(name)) return true
+        if (sp.getString("up:$name", null) != null) return true
+        return sp.getStringSet("pending", emptySet())!!.any { runCatching { JSONObject(it).getString("name") == name }.getOrDefault(false) }
+    }
+
+    /** Копия в Drive сделана, но удаление файла на телефоне отложено до конца отправки: запомнить его адрес. */
+    fun deferLocalDelete(context: Context, name: String, localUri: String) {
+        prefs(context).edit().putString("dd:$name", localUri).apply()
+    }
+
+    /** Забрать отложенное удаление (один раз): адрес файла на телефоне или null. */
+    @Synchronized
+    fun takeDeferredLocalDelete(context: Context, name: String): String? {
+        val sp = prefs(context)
+        val uri = sp.getString("dd:$name", null) ?: return null
+        sp.edit().remove("dd:$name").apply()
+        return uri
+    }
+
     /** Last error code ([RecorderEvents.ErrorCode] name, never free text) and when it happened. */
     fun lastError(context: Context): Pair<String, Long>? {
         val sp = prefs(context)
