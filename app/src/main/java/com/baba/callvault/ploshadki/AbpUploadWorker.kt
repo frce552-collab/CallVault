@@ -180,6 +180,11 @@ class AbpUploadWorker(context: Context, params: WorkerParameters) : CoroutineWor
         val autoTime = runCatching { Settings.Global.getInt(applicationContext.contentResolver, Settings.Global.AUTO_TIME) == 1 }.getOrDefault(false)
         val source = if (isVoip) CaptureReport.Source.WHATSAPP_BUSINESS else CaptureReport.Source.GSM
         val sourceVersion = if (isVoip) packageVersion(CaptureReport.WA_BUSINESS_APP_ID) else "Android ${Build.VERSION.RELEASE}"
+        // The other party's number, for linking the recording to the CRM client and deal. It comes from the file
+        // name (CallVault writes the number there): carrier calls carry it in the number slot; a WhatsApp Business
+        // call carries the caller as shown by the app, which is used only if it is itself a phone number.
+        // CaptureReport drops anything that is not a valid E.164. Never logged, never put in RecorderEvents.
+        val counterparty = if (isVoip) parsed.contactName else parsed.number
 
         return CaptureReport.build(
             identity = CaptureReport.Identity(
@@ -194,6 +199,7 @@ class AbpUploadWorker(context: Context, params: WorkerParameters) : CoroutineWor
                 startedAtMs = started, endedAtMs = started + durationMs,
                 sourceAppVersion = sourceVersion, near = near,
                 clockSource = if (autoTime) "NETWORK" else "DEVICE_UNSYNCED",
+                counterpartyPhone = counterparty,
             ),
             media = CaptureReport.Media(kind.first, kind.second, sampleRate, channels, durationMs, size, sha),
             signedAtMs = System.currentTimeMillis(),

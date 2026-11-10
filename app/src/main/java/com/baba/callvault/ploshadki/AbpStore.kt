@@ -169,7 +169,11 @@ object AbpStore {
     fun pendingCount(context: Context): Int = prefs(context).getStringSet("pending", emptySet())!!.size
 
     // ── queue seen by a host app (RecorderEvents) ────────────────────────────────────────────
-    /** A random id for one recording, made once. The file name holds the number, so it is never shown out. */
+    /**
+     * A random id for one recording, made once. The file name holds the number, so it is never shown out: the only
+     * place the number leaves the phone is the counterparty phone in E.164 inside the signed, TLS-only upload, for
+     * CRM linking (see CaptureReport) — never in events, logs or status screens.
+     */
     @Synchronized
     fun recordingId(context: Context, name: String): String {
         val sp = prefs(context)

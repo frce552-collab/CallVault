@@ -2,8 +2,12 @@
  * ABP Call — Ploshadki.kz fork of CallVault. GPL-3.0-or-later with the Section 7 terms in LICENSE.
  *
  * Builds the upload envelope of the OPEN data contract (#139 `air.wa-capture.source.v1` report inside the
- * #140 `air.wa-capture.upload.v1` envelope). Pure Kotlin: no Android, no server code. Phone numbers and contact
- * names are never put in the report (the contract has no field for them).
+ * #140 `air.wa-capture.upload.v1` envelope). Pure Kotlin: no Android, no server code.
+ *
+ * Phone numbers: the ONLY number that leaves the phone is the other party's, in E.164, in the optional top-level
+ * `counterparty.phoneE164` of the signed envelope (sent over TLS only), so the server can link the recording to the
+ * CRM client and deal. It is omitted when the number is hidden, unknown or not a valid E.164. Contact names are
+ * never sent. The number never goes into RecorderEvents, logs or status screens.
  */
 package com.baba.callvault.ploshadki
 
@@ -62,7 +66,30 @@ object CaptureReport {
         val sourceAppVersion: String,
         val near: NearChannel,
         val clockSource: String,
+        /** The other party's number as the recording knows it (raw); see [counterpartyPhoneE164]. Never logged. */
+        val counterpartyPhone: String? = null,
     )
+
+    private val E164 = Regex("^\\+[1-9][0-9]{6,14}$")
+    /** Characters a written phone number may hold besides digits; anything else (a name, "private", a JID) is refused. */
+    private const val PHONE_PUNCTUATION = "+-() ."
+    private val WA_USER_JID = Regex("^([0-9]{7,15})@s\\.whatsapp\\.net$")
+
+    /**
+     * The other party's number in E.164, or null when it is hidden, unknown or not a phone number.
+     * Digits only; Kazakhstan/Russia: 11 digits starting with 8 → leading 7; 10 digits starting with 7 → prefixed 7.
+     * A WhatsApp user JID ("77011234567@s.whatsapp.net") is read as its number. Any other value with letters or
+     * symbols (a contact name, "private", a group or lid JID) is refused, never mined for digits.
+     */
+    fun counterpartyPhoneE164(raw: String?): String? {
+        val s = raw?.trim().orEmpty().let { WA_USER_JID.matchEntire(it)?.groupValues?.get(1) ?: it }
+        if (s.isEmpty() || s.any { !it.isDigit() && it !in PHONE_PUNCTUATION }) return null
+        var digits = s.filter { it in '0'..'9' }
+        if (digits.length == 11 && digits.startsWith("8")) digits = "7" + digits.substring(1)
+        else if (digits.length == 10 && digits.startsWith("7")) digits = "7$digits"
+        val e164 = "+$digits"
+        return if (E164.matches(e164)) e164 else null
+    }
 
     /** Container/codec pair the server admits, from a MIME type or file name. Null = not uploadable. */
     fun mediaKind(mime: String?, fileName: String): Pair<String, String>? {
@@ -147,7 +174,7 @@ object CaptureReport {
             "captureConfidence" to null,
             "consent" to mapOf("consentRef" to policy.consentRef, "method" to policy.consentMethod, "noticeAt" to null),
         )
-        return linkedMapOf(
+        val upload = linkedMapOf<String, Any?>(
             "contractVersion" to UPLOAD_VERSION,
             "report" to report,
             "retention" to mapOf(
@@ -156,5 +183,8 @@ object CaptureReport {
             ),
             "signedAt" to isoUtc(signedAtMs),
         )
+        // Optional, for CRM linking; the whole field is omitted (never empty or partial) when there is no valid number.
+        counterpartyPhoneE164(call.counterpartyPhone)?.let { upload["counterparty"] = mapOf("phoneE164" to it) }
+        return upload
     }
 }
