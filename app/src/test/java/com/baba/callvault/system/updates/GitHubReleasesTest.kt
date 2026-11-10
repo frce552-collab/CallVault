@@ -44,6 +44,18 @@ class GitHubReleasesTest {
     }
 
     @Test
+    fun private_repo_payload_uses_the_api_asset_url() {
+        val json = goodJson.replace(
+            "{\"name\": \"ABP-Call.apk\",",
+            "{\"name\": \"ABP-Call.apk\", \"url\": \"https://api.github.com/repos/frce552-collab/abp-call-releases/releases/assets/42\","
+        )
+        assertEquals(
+            "https://api.github.com/repos/frce552-collab/abp-call-releases/releases/assets/42",
+            GitHubReleases.parseLatestRelease(json)?.apkUrl
+        )
+    }
+
+    @Test
     fun prerelease_and_draft_are_ignored() {
         val prerelease = goodJson.replace("\"prerelease\": false", "\"prerelease\": true")
         val draft = goodJson.replace("\"draft\": false", "\"draft\": true")

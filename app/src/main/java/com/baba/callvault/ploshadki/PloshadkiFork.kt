@@ -16,15 +16,19 @@ object PloshadkiFork {
     const val UPSTREAM_UPDATES_ENABLED = false
 
     /**
-     * ABP Call updates itself from OUR fork's GitHub Releases (owner decision 2026-11-09):
+     * ABP Call updates itself from OUR GitHub Releases (owner decisions 2026-11-09/10):
      * upstream release → fork sync → owner merge → ploshadki-release.yml publishes a signed
      * [UPDATE_APK_ASSET] → phones pick it up (daily check, silent install over ADB).
      * The update must be signed with the same key as the installed app (see ApkVerifier).
      */
     const val UPDATES_ENABLED = true
 
-    /** GitHub "owner/repo" whose latest (non-prerelease) release is the update source. */
-    const val UPDATE_REPO = "frce552-collab/CallVault"
+    /**
+     * GitHub "owner/repo" whose latest (non-prerelease) release is the update source. PRIVATE repo
+     * (owner decision 2026-11-10): the APK is not public; phones read it with the read-only token
+     * BuildConfig.UPDATE_READ_TOKEN that only ploshadki-release.yml bakes in.
+     */
+    const val UPDATE_REPO = "frce552-collab/abp-call-releases"
 
     /** Release asset name the updater downloads. ploshadki-release.yml uploads exactly this. */
     const val UPDATE_APK_ASSET = "ABP-Call.apk"

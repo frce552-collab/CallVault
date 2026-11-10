@@ -25,8 +25,8 @@ class PloshadkiForkTest {
     @Test
     fun `self-update comes from our fork, never from madkongo`() {
         assertTrue(PloshadkiFork.UPDATES_ENABLED)
-        assertEquals("frce552-collab/CallVault", PloshadkiFork.UPDATE_REPO)
+        assertEquals("frce552-collab/abp-call-releases", PloshadkiFork.UPDATE_REPO)
         assertEquals("ABP-Call.apk", PloshadkiFork.UPDATE_APK_ASSET)
-        assertEquals("https://github.com/frce552-collab/CallVault/releases/latest", GitHubReleases.RELEASES_PAGE_URL)
+        assertEquals("https://github.com/frce552-collab/abp-call-releases/releases/latest", GitHubReleases.RELEASES_PAGE_URL)
     }
 }

@@ -175,6 +175,12 @@ android {
 
         buildConfigField("String", "CI_BUILD_NUMBER", "\"${ciBuildNumber.get()}\"")
 
+        // ABP Call self-update: read-only token for the PRIVATE releases repo (PloshadkiFork.UPDATE_REPO).
+        // Comes only from the release workflow's secret; empty in every other build (updates then stay off).
+        val updateReadToken = providers.environmentVariable("ABP_UPDATE_READ_TOKEN").orElse("").get()
+            .filter { it.isLetterOrDigit() || it == '_' }
+        buildConfigField("String", "UPDATE_READ_TOKEN", "\"$updateReadToken\"")
+
         buildConfigField("String", "SCRCPY_VERSION", "\"$scrcpyVersion\"")
         buildConfigField("String", "SCRCPY_SERVER_SHA256", "\"$scrcpyServerSha256\"")
         buildConfigField("String", "SCRCPY_SERVER_ASSET_NAME", "\"$scrcpyServerAssetName\"")

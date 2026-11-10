@@ -2,18 +2,21 @@
 #
 # Цепочка: madkongo/CallVault → ploshadki-upstream-sync.yml (ветка s1/upstream-X.Y.Z + PR) →
 # владелец вливает PR в ploshadki/main → ЭТОТ workflow собирает release-APK, подписывает постоянным
-# ключом из секретов и публикует GitHub Release с файлом ABP-Call.apk →
-# телефоны раз в сутки смотрят /releases/latest (PloshadkiFork.UPDATE_REPO) и ставят обновление
-# сами (тихо через ADB, подпись сверяется с подписью установленного приложения).
+# ключом из секретов и публикует релиз с файлом ABP-Call.apk в ПРИВАТНОМ репозитории
+# frce552-collab/abp-call-releases (решение владельца 10.11: приложение не публичное) →
+# телефоны раз в сутки смотрят там /releases/latest (PloshadkiFork.UPDATE_REPO) по токену «только чтение»,
+# зашитому в сборку, и ставят обновление сами (тихо через ADB, подпись сверяется с установленной).
 #
 # Секреты форка (Settings → Secrets and variables → Actions), те же имена, что у upstream build-app.yml:
 #   SIGNING_KEYSTORE           — keystore в base64
 #   SIGNING_KEYSTORE_PASSWORD  — пароль keystore
 #   SIGNING_KEY_ALIAS          — alias ключа
 #   SIGNING_KEY_PASSWORD       — пароль ключа
-# Ключ менять нельзя: APK другой подписью не встанет поверх установленного.
+#   RELEASES_PUBLISH_TOKEN     — fine-grained токен: abp-call-releases, Contents: Read and write
+#   RELEASES_READ_TOKEN        — fine-grained токен: abp-call-releases, Contents: Read-only (уходит в APK)
+# Ключ подписи менять нельзя: APK другой подписью не встанет поверх установленного.
 #
-# Форк публичный → Actions бесплатные. Release публичный, скачивание APK без входа в GitHub.
+# Форк публичный → Actions бесплатные. В самом форке релизы не публикуются.
 
 name: Ploshadki Release (ABP Call)
 
@@ -37,7 +40,7 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   release:
@@ -49,6 +52,7 @@ jobs:
       CMAKE_VERSION: '3.22.1'
       BUILD_TOOLS: '36.0.0'
       CHANNEL: ${{ inputs.channel || 'latest' }}
+      RELEASES_REPO: frce552-collab/abp-call-releases
     steps:
       - name: Check signing secrets
         env:
@@ -56,11 +60,22 @@ jobs:
           P: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
           A: ${{ secrets.SIGNING_KEY_ALIAS }}
           KP: ${{ secrets.SIGNING_KEY_PASSWORD }}
+          W: ${{ secrets.RELEASES_PUBLISH_TOKEN }}
+          R: ${{ secrets.RELEASES_READ_TOKEN }}
         run: |
           if [ -z "$K" ] || [ -z "$P" ] || [ -z "$A" ] || [ -z "$KP" ]; then
             echo "::error::Нет секретов подписи SIGNING_KEYSTORE / SIGNING_KEYSTORE_PASSWORD / SIGNING_KEY_ALIAS / SIGNING_KEY_PASSWORD. Добавьте их в Settings → Secrets and variables → Actions."
             exit 1
           fi
+          if [ -z "$W" ] || [ -z "$R" ]; then
+            echo "::error::Нет секретов RELEASES_PUBLISH_TOKEN / RELEASES_READ_TOKEN (токены приватного репозитория abp-call-releases)."
+            exit 1
+          fi
+          # Токен для телефонов должен читать релизы, но не писать.
+          code=$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $R" "https://api.github.com/repos/${RELEASES_REPO}")
+          [ "$code" = "200" ] || { echo "::error::RELEASES_READ_TOKEN не видит ${RELEASES_REPO} (HTTP $code)"; exit 1; }
+          push=$(curl -s -H "Authorization: Bearer $R" "https://api.github.com/repos/${RELEASES_REPO}" | jq -r '.permissions.push // false')
+          [ "$push" = "false" ] || { echo "::error::RELEASES_READ_TOKEN может писать в ${RELEASES_REPO} — нужен Read-only"; exit 1; }
 
       - name: Checkout (with submodules)
         uses: actions/checkout@v6
@@ -107,6 +122,7 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+          ABP_UPDATE_READ_TOKEN: ${{ secrets.RELEASES_READ_TOKEN }}
         run: >
           ./gradlew assembleRelease
           -PversionName="${{ steps.ver.outputs.name }}"
@@ -138,22 +154,27 @@ jobs:
             grep -m1 'SHA-256 digest' signature.txt
           } | tee build-info.txt >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Publish GitHub Release
+      - name: Publish release to the private repo
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.RELEASES_PUBLISH_TOKEN }}
         run: |
+          set -euo pipefail
           TAG="v${{ steps.ver.outputs.name }}"
+          # Пустой репозиторий: релизу нужна хотя бы одна ветка — создаём README.
+          if ! gh api "repos/${RELEASES_REPO}/commits?per_page=1" >/dev/null 2>&1; then
+            gh api -X PUT "repos/${RELEASES_REPO}/contents/README.md" -f message="init" \
+              -f content="$(printf '# ABP Call — релизы (приватно)\n\nСобирается ploshadki-release.yml в frce552-collab/CallVault.\n' | base64 -w0)"
+          fi
           FLAGS="--latest"
           [ "$CHANNEL" = "pilot" ] && FLAGS="--prerelease --latest=false"
           {
             echo "ABP Call ${{ steps.ver.outputs.name }} — сборка Площадки.kz на основе CallVault (GPLv3)."
             echo
-            echo "Установка: скачать ABP-Call.apk на телефон и открыть. Дальше приложение обновляется само."
+            echo "Установка: передать ABP-Call.apk на телефон и открыть. Дальше приложение обновляется само."
             echo
             echo '```'; cat dist/build-info.txt; echo '```'
             echo
             echo "Исходный код: ${{ github.server_url }}/${{ github.repository }}/tree/$(git rev-parse HEAD)"
           } > notes.md
-          gh release create "$TAG" dist/ABP-Call.apk dist/ABP-Call.apk.sha256 \
-            --target "$(git rev-parse HEAD)" --title "ABP Call ${{ steps.ver.outputs.name }}" \
-            --notes-file notes.md $FLAGS
+          gh release create "$TAG" dist/ABP-Call.apk dist/ABP-Call.apk.sha256 -R "${RELEASES_REPO}" \
+            --title "ABP Call ${{ steps.ver.outputs.name }}" --notes-file notes.md $FLAGS
