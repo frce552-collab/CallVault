@@ -87,6 +87,11 @@ Modified by Ploshadki.kz since 2026-11-07, based on CallVault v2.4.9
   plain-HTTP links are rejected and redirects are not followed.
 - 2026-11-08: a host app can protect the recorder screens from screenshots and screen
   recording (`abp_secure_screens`, sets FLAG_SECURE on the recorder's activities).
+- 2026-11-10: the on-device whisper transcript (and the on-device summary, when one exists) of a
+  recording ABP Call uploaded is sent to the company server under the open contract
+  `air.wa-capture.transcript.v1` (`ploshadki/TranscriptReport.kt`, `ploshadki/AbpTranscriptWorker.kt`,
+  hook in `transcription/TranscriptionRunner.kt`); an enrolled phone defaults to transcribing after
+  each call (`data/AppPreferences.kt`); Kazakh (`kk`) added to the transcription languages.
 
 ABP Call remains licensed under GPL-3.0-or-later with the Section 7 terms in LICENSE.
 Source: https://github.com/frce552-collab/CallVault

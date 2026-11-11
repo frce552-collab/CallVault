@@ -571,6 +571,9 @@ class AppPreferences(context: Context) {
 
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
+    /** Kept only to ask ABP Call whether this phone is enrolled; see [defaultTranscriptionMode]. */
+    private val appContext = context
+
     /**
      * Registers a change listener so callers can react the instant a preference is written from
      * another component (e.g. a background worker setting [AVAILABLE_UPDATE_TAG_KEY]). Callers MUST
@@ -830,7 +833,19 @@ class AppPreferences(context: Context) {
 
     /** Gets when calls are transcribed (Manual / Automatic). */
     fun getTranscriptionMode(): TranscriptionMode =
-        TranscriptionMode.fromKey(getString(Key.TRANSCRIPTION_MODE, DefaultsValue.TRANSCRIPTION_MODE))
+        TranscriptionMode.fromKey(getString(Key.TRANSCRIPTION_MODE, defaultTranscriptionMode()))
+
+    /**
+     * ABP Call: a phone enrolled with the company server transcribes each call as it ends, on the device, so the
+     * transcript can follow the recording to the server (AbpTranscriptWorker). Only the DEFAULT changes: a mode
+     * the user picked is stored and always wins. Not enrolled → upstream's Manual.
+     */
+    private fun defaultTranscriptionMode(): String =
+        if (runCatching { com.baba.callvault.ploshadki.AbpStore.isEnrolled(appContext) }.getOrDefault(false)) {
+            TranscriptionMode.AFTER_EACH_CALL.key
+        } else {
+            DefaultsValue.TRANSCRIPTION_MODE
+        }
 
     /** Sets when calls are transcribed. */
     fun setTranscriptionMode(mode: TranscriptionMode) = setString(Key.TRANSCRIPTION_MODE, mode.key)

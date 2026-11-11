@@ -772,6 +772,7 @@
     <string name="transcription_language_urdu">Urdu</string>
     <string name="transcription_language_bengali">Bengali</string>
     <string name="transcription_language_ukrainian">Ukrainian</string>
+    <string name="transcription_language_kazakh">Kazakh</string>
     <string name="transcription_language_auto">Detect automatically</string>
     <string name="language_search_placeholder">Search languages</string>
     <string name="language_search_clear">Clear search</string>

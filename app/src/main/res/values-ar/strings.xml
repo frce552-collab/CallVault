@@ -803,6 +803,7 @@
     <string name="transcription_language_russian">الروسية</string>
     <string name="transcription_language_spanish">الإسبانية</string>
     <string name="transcription_language_ukrainian">الأوكرانية</string>
+    <string name="transcription_language_kazakh">الكازاخية</string>
     <string name="transcription_language_vietnamese">الفيتنامية</string>
     <string name="transcription_minute_label">دقيقة</string>
     <string name="transcription_mode_after_each_call">بعد كل مكالمة</string>

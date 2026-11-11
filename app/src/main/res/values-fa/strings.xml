@@ -856,6 +856,7 @@
     <string name="transcription_language_russian">روسی</string>
     <string name="transcription_language_spanish">اسپانیایی</string>
     <string name="transcription_language_ukrainian">اوکراینی</string>
+    <string name="transcription_language_kazakh">قزاقی</string>
     <string name="transcription_language_vietnamese">ویتنامی</string>
     <string name="transcription_minute_label">دقیقه</string>
     <string name="transcription_mode_after_each_call">پس از هر تماس</string>

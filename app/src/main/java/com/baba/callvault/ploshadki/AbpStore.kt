@@ -151,6 +151,30 @@ object AbpStore {
         prefs(context).edit().apply { if (uploadId == null) remove("up:$name") else putString("up:$name", uploadId) }.apply()
     }
 
+    /**
+     * What ABP Call sent for one recording, kept so its transcript can be sent later under the SAME reportId and
+     * audio hash even if the audio is gone by then. Its presence is also the proof the recording is "ours": a
+     * transcript is only ever sent for a recording that has this record. Holds no phone number.
+     */
+    data class UploadedRef(val enrollmentRef: String, val reportId: String, val mediaSha256: String)
+
+    fun markUploaded(context: Context, name: String, ref: UploadedRef) {
+        val j = JSONObject().put("e", ref.enrollmentRef).put("r", ref.reportId).put("s", ref.mediaSha256)
+        prefs(context).edit().putString("tr:$name", j.toString()).apply()
+    }
+
+    fun uploadedRef(context: Context, name: String): UploadedRef? =
+        prefs(context).getString("tr:$name", null)?.let {
+            runCatching { JSONObject(it).let { j -> UploadedRef(j.getString("e"), j.getString("r"), j.getString("s")) } }.getOrNull()
+        }
+
+    fun forgetUploaded(context: Context, name: String) {
+        prefs(context).edit().remove("tr:$name").apply()
+    }
+
+    /** Whether this phone is enrolled with a company server (cheap: no secret is decoded). */
+    fun isEnrolled(context: Context): Boolean = prefs(context).contains("deviceId")
+
     /** Recordings made before the phone was connected: sent once it is. */
     fun addPending(context: Context, uri: String, name: String, mime: String) {
         val sp = prefs(context)
@@ -169,7 +193,11 @@ object AbpStore {
     fun pendingCount(context: Context): Int = prefs(context).getStringSet("pending", emptySet())!!.size
 
     // ── queue seen by a host app (RecorderEvents) ────────────────────────────────────────────
-    /** A random id for one recording, made once. The file name holds the number, so it is never shown out. */
+    /**
+     * A random id for one recording, made once. The file name holds the number, so it is never shown out: the only
+     * place the number leaves the phone is the counterparty phone in E.164 inside the signed, TLS-only upload, for
+     * CRM linking (see CaptureReport) — never in events, logs or status screens.
+     */
     @Synchronized
     fun recordingId(context: Context, name: String): String {
         val sp = prefs(context)
@@ -194,6 +222,33 @@ object AbpStore {
     }
 
     fun queuedCount(context: Context): Int = prefs(context).getStringSet("queued", emptySet())!!.size
+
+    // ── Drive «только в облаке»: не удалять файл на телефоне, пока он не ушёл на сервер ─────────
+    /**
+     * Нужен ли ещё файл [name] на телефоне для отправки на сервер компании: стоит в очереди, ждёт подключения
+     * или уже начат (есть uploadId). Пока да — копия в Google Drive НЕ удаляет файл на устройстве
+     * (режим «Только в Google Drive»), иначе отправка находит пустое место и запись не доходит до CRM.
+     */
+    fun holdsLocal(context: Context, name: String): Boolean {
+        val sp = prefs(context)
+        if (sp.getStringSet("queued", emptySet())!!.contains(name)) return true
+        if (sp.getString("up:$name", null) != null) return true
+        return sp.getStringSet("pending", emptySet())!!.any { runCatching { JSONObject(it).getString("name") == name }.getOrDefault(false) }
+    }
+
+    /** Копия в Drive сделана, но удаление файла на телефоне отложено до конца отправки: запомнить его адрес. */
+    fun deferLocalDelete(context: Context, name: String, localUri: String) {
+        prefs(context).edit().putString("dd:$name", localUri).apply()
+    }
+
+    /** Забрать отложенное удаление (один раз): адрес файла на телефоне или null. */
+    @Synchronized
+    fun takeDeferredLocalDelete(context: Context, name: String): String? {
+        val sp = prefs(context)
+        val uri = sp.getString("dd:$name", null) ?: return null
+        sp.edit().remove("dd:$name").apply()
+        return uri
+    }
 
     /** Last error code ([RecorderEvents.ErrorCode] name, never free text) and when it happened. */
     fun lastError(context: Context): Pair<String, Long>? {
