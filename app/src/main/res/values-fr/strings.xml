@@ -735,6 +735,7 @@
     <string name="transcription_language_russian">Russe</string>
     <string name="transcription_language_spanish">Espagnol</string>
     <string name="transcription_language_ukrainian">Ukrainien</string>
+    <string name="transcription_language_kazakh">Kazakh</string>
     <string name="transcription_language_vietnamese">Vietnamien</string>
     <string name="transcription_minute_label">Minute</string>
     <string name="transcription_mode_after_each_call">Après chaque appel</string>

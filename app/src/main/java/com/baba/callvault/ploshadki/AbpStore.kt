@@ -151,6 +151,30 @@ object AbpStore {
         prefs(context).edit().apply { if (uploadId == null) remove("up:$name") else putString("up:$name", uploadId) }.apply()
     }
 
+    /**
+     * What ABP Call sent for one recording, kept so its transcript can be sent later under the SAME reportId and
+     * audio hash even if the audio is gone by then. Its presence is also the proof the recording is "ours": a
+     * transcript is only ever sent for a recording that has this record. Holds no phone number.
+     */
+    data class UploadedRef(val enrollmentRef: String, val reportId: String, val mediaSha256: String)
+
+    fun markUploaded(context: Context, name: String, ref: UploadedRef) {
+        val j = JSONObject().put("e", ref.enrollmentRef).put("r", ref.reportId).put("s", ref.mediaSha256)
+        prefs(context).edit().putString("tr:$name", j.toString()).apply()
+    }
+
+    fun uploadedRef(context: Context, name: String): UploadedRef? =
+        prefs(context).getString("tr:$name", null)?.let {
+            runCatching { JSONObject(it).let { j -> UploadedRef(j.getString("e"), j.getString("r"), j.getString("s")) } }.getOrNull()
+        }
+
+    fun forgetUploaded(context: Context, name: String) {
+        prefs(context).edit().remove("tr:$name").apply()
+    }
+
+    /** Whether this phone is enrolled with a company server (cheap: no secret is decoded). */
+    fun isEnrolled(context: Context): Boolean = prefs(context).contains("deviceId")
+
     /** Recordings made before the phone was connected: sent once it is. */
     fun addPending(context: Context, uri: String, name: String, mime: String) {
         val sp = prefs(context)

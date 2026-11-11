@@ -43,6 +43,7 @@ object LanguageNames {
         "he" to "עברית",
         "hu" to "Magyar",
         "it" to "Italiano",
+        "kk" to "Қазақша",
         "pl" to "Polski",
         "pt" to "Português",
         "ru" to "Русский",
