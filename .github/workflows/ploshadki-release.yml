@@ -1,0 +1,180 @@
+# Площадки: релиз ABP Call (kz.ploshadki.recorder) для автообновления на телефонах.
+#
+# Цепочка: madkongo/CallVault → ploshadki-upstream-sync.yml (ветка s1/upstream-X.Y.Z + PR) →
+# владелец вливает PR в ploshadki/main → ЭТОТ workflow собирает release-APK, подписывает постоянным
+# ключом из секретов и публикует релиз с файлом ABP-Call.apk в ПРИВАТНОМ репозитории
+# frce552-collab/abp-call-releases (решение владельца 10.11: приложение не публичное) →
+# телефоны раз в сутки смотрят там /releases/latest (PloshadkiFork.UPDATE_REPO) по токену «только чтение»,
+# зашитому в сборку, и ставят обновление сами (тихо через ADB, подпись сверяется с установленной).
+#
+# Секреты форка (Settings → Secrets and variables → Actions), те же имена, что у upstream build-app.yml:
+#   SIGNING_KEYSTORE           — keystore в base64
+#   SIGNING_KEYSTORE_PASSWORD  — пароль keystore
+#   SIGNING_KEY_ALIAS          — alias ключа
+#   SIGNING_KEY_PASSWORD       — пароль ключа
+#   RELEASES_PUBLISH_TOKEN     — fine-grained токен: abp-call-releases, Contents: Read and write
+#   RELEASES_READ_TOKEN        — fine-grained токен: abp-call-releases, Contents: Read-only (уходит в APK)
+# Ключ подписи менять нельзя: APK другой подписью не встанет поверх установленного.
+#
+# Форк публичный → Actions бесплатные. В самом форке релизы не публикуются.
+
+name: Ploshadki Release (ABP Call)
+
+on:
+  push:
+    branches:
+      - 'ploshadki/main'
+      # Первый релиз до вливания в ploshadki/main (решение владельца 09.11: «ускорить»).
+      - 's1/self-update'
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: 'latest — получат все телефоны; pilot — только ссылка, автообновление не увидит'
+        required: true
+        default: 'latest'
+        type: choice
+        options: [latest, pilot]
+
+concurrency:
+  group: ploshadki-release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: Build signed APK and publish release
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      NDK_VERSION: '27.2.12479018'
+      CMAKE_VERSION: '3.22.1'
+      BUILD_TOOLS: '36.0.0'
+      CHANNEL: ${{ inputs.channel || 'latest' }}
+      RELEASES_REPO: frce552-collab/abp-call-releases
+    steps:
+      - name: Check signing secrets
+        env:
+          K: ${{ secrets.SIGNING_KEYSTORE }}
+          P: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
+          A: ${{ secrets.SIGNING_KEY_ALIAS }}
+          KP: ${{ secrets.SIGNING_KEY_PASSWORD }}
+          W: ${{ secrets.RELEASES_PUBLISH_TOKEN }}
+          R: ${{ secrets.RELEASES_READ_TOKEN }}
+        run: |
+          if [ -z "$K" ] || [ -z "$P" ] || [ -z "$A" ] || [ -z "$KP" ]; then
+            echo "::error::Нет секретов подписи SIGNING_KEYSTORE / SIGNING_KEYSTORE_PASSWORD / SIGNING_KEY_ALIAS / SIGNING_KEY_PASSWORD. Добавьте их в Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+          if [ -z "$W" ] || [ -z "$R" ]; then
+            echo "::error::Нет секретов RELEASES_PUBLISH_TOKEN / RELEASES_READ_TOKEN (токены приватного репозитория abp-call-releases)."
+            exit 1
+          fi
+          # Токен для телефонов должен читать релизы, но не писать.
+          code=$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $R" "https://api.github.com/repos/${RELEASES_REPO}")
+          [ "$code" = "200" ] || { echo "::error::RELEASES_READ_TOKEN не видит ${RELEASES_REPO} (HTTP $code)"; exit 1; }
+          push=$(curl -s -H "Authorization: Bearer $R" "https://api.github.com/repos/${RELEASES_REPO}" | jq -r '.permissions.push // false')
+          [ "$push" = "false" ] || { echo "::error::RELEASES_READ_TOKEN может писать в ${RELEASES_REPO} — нужен Read-only"; exit 1; }
+
+      - name: Checkout (with submodules)
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          validate-wrappers: true
+          cache-provider: basic
+
+      - name: Install SDK packages
+        run: |
+          SDKM="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKM" --licenses > /dev/null || true
+          "$SDKM" --install "platforms;android-36" "build-tools;${BUILD_TOOLS}" \
+                            "ndk;${NDK_VERSION}" "cmake;${CMAKE_VERSION}" > /dev/null
+
+      # Версия: <версия upstream из app/build.gradle.kts>.<номер запуска>, например 2.5.0.7.
+      # UpdateVersion сравнивает числа по частям, поэтому каждый новый релиз «новее» прошлого.
+      # versionCode = 100000 + номер запуска: всегда растёт, больше любых прежних debug-сборок.
+      - name: Version
+        id: ver
+        run: |
+          BASE=$(sed -n 's/.*gradleProperty("versionName").orElse("\([0-9.]*\)").*/\1/p' app/build.gradle.kts | head -1)
+          test -n "$BASE"
+          echo "name=${BASE}.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+          echo "code=$((100000 + ${{ github.run_number }}))" >> "$GITHUB_OUTPUT"
+          echo "Версия: ${BASE}.${{ github.run_number }}"
+
+      - name: Decode keystore
+        run: echo "${{ secrets.SIGNING_KEYSTORE }}" | base64 -d > "$RUNNER_TEMP/release.jks"
+
+      - name: Build release APK
+        env:
+          KEYSTORE_FILE: ${{ runner.temp }}/release.jks
+          KEYSTORE_PASSWORD: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+          ABP_UPDATE_READ_TOKEN: ${{ secrets.RELEASES_READ_TOKEN }}
+        run: >
+          ./gradlew assembleRelease
+          -PversionName="${{ steps.ver.outputs.name }}"
+          -PversionCode=${{ steps.ver.outputs.code }}
+          -PciBuildNumber=${{ github.run_id }}
+          --no-daemon --stacktrace
+
+      - name: Remove keystore
+        if: always()
+        run: rm -f "$RUNNER_TEMP/release.jks"
+
+      - name: Verify APK (package, ABI, signature)
+        run: |
+          set -euo pipefail
+          BT="$ANDROID_HOME/build-tools/${BUILD_TOOLS}"
+          mkdir -p dist
+          cp app/build/outputs/apk/release/app-release.apk dist/ABP-Call.apk
+          cd dist
+          "$BT/aapt2" dump badging ABP-Call.apk > badging.txt
+          grep -q "^package: name='kz.ploshadki.recorder'" badging.txt || { echo "::error::не тот пакет"; exit 1; }
+          "$BT/apksigner" verify --print-certs ABP-Call.apk > signature.txt
+          ABIS=$(unzip -l ABP-Call.apk | awk '{print $4}' | grep '^lib/' | cut -d/ -f2 | sort -u | tr '\n' ' ')
+          [ "$ABIS" = "arm64-v8a " ] || { echo "::error::ABI: $ABIS"; exit 1; }
+          sha256sum ABP-Call.apk > ABP-Call.apk.sha256
+          {
+            echo "version=${{ steps.ver.outputs.name }} (${{ steps.ver.outputs.code }})"
+            echo "commit=$(git rev-parse HEAD)"
+            echo "sha256=$(cut -d' ' -f1 ABP-Call.apk.sha256)"
+            grep -m1 'SHA-256 digest' signature.txt
+          } | tee build-info.txt >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish release to the private repo
+        env:
+          GH_TOKEN: ${{ secrets.RELEASES_PUBLISH_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAG="v${{ steps.ver.outputs.name }}"
+          # Пустой репозиторий: релизу нужна хотя бы одна ветка — создаём README.
+          if ! gh api "repos/${RELEASES_REPO}/commits?per_page=1" >/dev/null 2>&1; then
+            gh api -X PUT "repos/${RELEASES_REPO}/contents/README.md" -f message="init" \
+              -f content="$(printf '# ABP Call — релизы (приватно)\n\nСобирается ploshadki-release.yml в frce552-collab/CallVault.\n' | base64 -w0)"
+          fi
+          FLAGS="--latest"
+          [ "$CHANNEL" = "pilot" ] && FLAGS="--prerelease --latest=false"
+          {
+            echo "ABP Call ${{ steps.ver.outputs.name }} — сборка Площадки.kz на основе CallVault (GPLv3)."
+            echo
+            echo "Установка: передать ABP-Call.apk на телефон и открыть. Дальше приложение обновляется само."
+            echo
+            echo '```'; cat dist/build-info.txt; echo '```'
+            echo
+            echo "Исходный код: ${{ github.server_url }}/${{ github.repository }}/tree/$(git rev-parse HEAD)"
+          } > notes.md
+          gh release create "$TAG" dist/ABP-Call.apk dist/ABP-Call.apk.sha256 -R "${RELEASES_REPO}" \
+            --title "ABP Call ${{ steps.ver.outputs.name }}" --notes-file notes.md $FLAGS

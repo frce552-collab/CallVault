@@ -126,8 +126,8 @@ val extractLibphonenumberMetadata = tasks.register<ExtractMetadataTask>("extract
 // Android refuses to install a lower versionCode over a higher one, and uninstalling to get around
 // that would destroy the device's ADB pairing — so a versionCode that goes backwards is not a
 // cosmetic mistake, it strands that device on the old build.
-val ciVersionCode = providers.gradleProperty("versionCode").map { it.toIntOrNull() }.orElse(20490)
-val ciVersionName = providers.gradleProperty("versionName").orElse("2.4.9")
+val ciVersionCode = providers.gradleProperty("versionCode").map { it.toIntOrNull() }.orElse(20500)
+val ciVersionName = providers.gradleProperty("versionName").orElse("2.5.0")
 val ciBuildNumber = providers.gradleProperty("ciBuildNumber").orElse("Local")
 
 // -PisolateTestApp builds the debug variant under its own applicationId so instrumented tests can be
@@ -174,6 +174,12 @@ android {
         }
 
         buildConfigField("String", "CI_BUILD_NUMBER", "\"${ciBuildNumber.get()}\"")
+
+        // ABP Call self-update: read-only token for the PRIVATE releases repo (PloshadkiFork.UPDATE_REPO).
+        // Comes only from the release workflow's secret; empty in every other build (updates then stay off).
+        val updateReadToken = providers.environmentVariable("ABP_UPDATE_READ_TOKEN").orElse("").get()
+            .filter { it.isLetterOrDigit() || it == '_' }
+        buildConfigField("String", "UPDATE_READ_TOKEN", "\"$updateReadToken\"")
 
         buildConfigField("String", "SCRCPY_VERSION", "\"$scrcpyVersion\"")
         buildConfigField("String", "SCRCPY_SERVER_SHA256", "\"$scrcpyServerSha256\"")

@@ -21,13 +21,14 @@ import java.net.URL
 object GitHubReleases {
 
     private const val TAG = "CV:GitHubReleases"
+    // ABP Call: our fork's releases, never madkongo's (other package id and signing key).
     private const val LATEST_RELEASE_URL =
-        "https://api.github.com/repos/madkongo/CallVault/releases/latest"
+        "https://api.github.com/repos/${com.baba.callvault.ploshadki.PloshadkiFork.UPDATE_REPO}/releases/latest"
 
     /** The release page users can open when an automatic path fails. */
-    const val RELEASES_PAGE_URL = "https://github.com/madkongo/CallVault/releases/latest"
+    const val RELEASES_PAGE_URL = "https://github.com/${com.baba.callvault.ploshadki.PloshadkiFork.UPDATE_REPO}/releases/latest"
 
-    private const val APK_ASSET_NAME = "CallVault.apk"
+    private const val APK_ASSET_NAME = com.baba.callvault.ploshadki.PloshadkiFork.UPDATE_APK_ASSET
     private const val CONNECT_TIMEOUT_MS = 15_000
     private const val READ_TIMEOUT_MS = 30_000
 
@@ -43,17 +44,28 @@ object GitHubReleases {
      */
     data class ReleaseInfo(val tag: String, val apkUrl: String, val apkSizeBytes: Long)
 
+    /** ABP Call: read-only token for the private releases repo; blank in builds without it. */
+    private val readToken: String get() = com.baba.callvault.BuildConfig.UPDATE_READ_TOKEN
+
+    /** Adds the token, but only to api.github.com: never to the signed storage URL a download redirects to. */
+    private fun authorize(connection: HttpURLConnection) {
+        if (readToken.isNotBlank() && connection.url.host == "api.github.com") {
+            connection.setRequestProperty("Authorization", "Bearer $readToken")
+        }
+    }
+
     /**
      * Fetches and parses the latest release. Blocking network I/O — call from a worker thread.
      * @param overrideUrl TEST-ONLY: fetch this release API URL instead of `/latest`, and accept a
      *                    prerelease/draft target. Null in normal use.
      * @return The release info, or null on any failure (network, parse, no APK asset).
      */
-    fun fetchLatestRelease(overrideUrl: String? = null): ReleaseInfo? = if (!com.baba.callvault.ploshadki.PloshadkiFork.UPSTREAM_UPDATES_ENABLED) null else runCatching {
+    fun fetchLatestRelease(overrideUrl: String? = null): ReleaseInfo? = if (!com.baba.callvault.ploshadki.PloshadkiFork.UPDATES_ENABLED) null else runCatching {
         val connection = (URL(overrideUrl ?: LATEST_RELEASE_URL).openConnection() as HttpURLConnection).apply {
             connectTimeout = CONNECT_TIMEOUT_MS
             readTimeout = READ_TIMEOUT_MS
             setRequestProperty("Accept", "application/vnd.github+json")
+            authorize(this)
         }
         try {
             if (connection.responseCode != HttpURLConnection.HTTP_OK) {
@@ -83,7 +95,10 @@ object GitHubReleases {
         for (i in 0 until assets.length()) {
             val asset = assets.getJSONObject(i)
             if (asset.optString("name") == APK_ASSET_NAME) {
-                val url = asset.optString("browser_download_url").ifBlank { return null }
+                // The API asset URL (api.github.com/.../assets/N) works for a PRIVATE repo with the
+                // token; browser_download_url does not. Fall back to it for a public payload.
+                val url = asset.optString("url").takeIf { it.startsWith("https://api.github.com/") }
+                    ?: asset.optString("browser_download_url").ifBlank { return null }
                 // Refuse a cleartext download URL — the pinned-cert check is the integrity gate, but
                 // the transport must still be TLS so the bytes can't be tampered in flight.
                 if (!url.startsWith("https://")) return null
@@ -154,12 +169,7 @@ object GitHubReleases {
         total: Long,
         onProgress: (Int) -> Unit
     ): Boolean {
-        val connection = (URL(release.apkUrl).openConnection() as HttpURLConnection).apply {
-            connectTimeout = CONNECT_TIMEOUT_MS
-            readTimeout = READ_TIMEOUT_MS
-            instanceFollowRedirects = true
-            if (alreadyHave > 0L) setRequestProperty("Range", "bytes=$alreadyHave-")
-        }
+        val connection = openDownload(release.apkUrl, alreadyHave)
         try {
             val code = connection.responseCode
             // 206 = server honoured the Range (append); 200 = full body (must restart from 0).
@@ -194,5 +204,32 @@ object GitHubReleases {
             connection.disconnect()
         }
         return destination.length() == total
+    }
+
+    /**
+     * Opens the APK download. An API asset URL answers 302 to a signed storage URL; redirects are
+     * followed by hand so the token goes ONLY to api.github.com (the storage host rejects a request
+     * that carries it). HTTPS only, at most 5 hops.
+     */
+    private fun openDownload(startUrl: String, alreadyHave: Long): HttpURLConnection {
+        var url = URL(startUrl)
+        repeat(5) {
+            require(url.protocol == "https") { "APK download must be HTTPS" }
+            val connection = (url.openConnection() as HttpURLConnection).apply {
+                connectTimeout = CONNECT_TIMEOUT_MS
+                readTimeout = READ_TIMEOUT_MS
+                instanceFollowRedirects = false
+                if (url.host == "api.github.com") setRequestProperty("Accept", "application/octet-stream")
+                authorize(this)
+                if (alreadyHave > 0L) setRequestProperty("Range", "bytes=$alreadyHave-")
+            }
+            val code = connection.responseCode
+            if (code !in 300..399) return connection
+            val location = connection.getHeaderField("Location")
+            connection.disconnect()
+            requireNotNull(location) { "Redirect without Location" }
+            url = URL(url, location)
+        }
+        error("Too many redirects")
     }
 }

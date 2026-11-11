@@ -34,6 +34,7 @@ class LanguageScriptTest {
         "kk" to UnicodeScript.CYRILLIC,
         "zh" to UnicodeScript.HAN,
         "el" to UnicodeScript.GREEK,
+        "bn" to UnicodeScript.BENGALI,
     )
 
     @Test

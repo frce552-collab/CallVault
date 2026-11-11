@@ -62,7 +62,7 @@ object UpdateManager {
      */
     fun checkForUpdate(context: Context, reconcile: Boolean = true): GitHubReleases.ReleaseInfo? {
         // ABP Call: never contact api.github.com for upstream CallVault releases.
-        if (!com.baba.callvault.ploshadki.PloshadkiFork.UPSTREAM_UPDATES_ENABLED) return null
+        if (!com.baba.callvault.ploshadki.PloshadkiFork.UPDATES_ENABLED) return null
         val preferences = AppPreferences(context)
         if (reconcile) reconcilePendingState(context, preferences)
 
