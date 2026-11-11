@@ -85,17 +85,26 @@ class RecordingCopyWorker(ctx: Context, params: WorkerParameters) : CoroutineWor
         // SAF providers can refuse deletion. Do not remove the local catalog
         // reference unless deletion actually completed; otherwise the UI loses
         // track of a recording that still exists on the phone.
-        val localDocument = if (deleteLocal) {
+        // ABP Call: в режиме «Только в Google Drive» файл на телефоне — ещё и источник отправки на сервер
+        // компании. Пока он не отправлен, не удаляем: удаление откладывается и выполняется после отправки
+        // (AbpUploadWorker). Иначе запись есть в Drive, но не доходит до CRM.
+        val heldForServer = deleteLocal && !isSidecar && com.baba.callvault.ploshadki.AbpStore.holdsLocal(applicationContext, name)
+        if (heldForServer) {
+            com.baba.callvault.ploshadki.AbpStore.deferLocalDelete(applicationContext, name, src.toString())
+            AppLogger.i(TAG, "'$name' is in Drive; the device copy stays until it is sent to the ABP server")
+        }
+        val effectiveDelete = deleteLocal && !heldForServer
+        val localDocument = if (effectiveDelete) {
             DocumentFile.fromSingleUri(applicationContext, src)
         } else null
-        val deletedLocally = deleteLocal && localDocument != null &&
+        val deletedLocally = effectiveDelete && localDocument != null &&
             SafHelper.deleteDocument(localDocument, "the device copy of '$name'")
         // A sidecar (.json/.md) has no catalog row of its own — it belongs to its recording, which was
         // stamped when the audio uploaded — so there is nothing to mark. Only the audio copy updates the
         // catalog, so the Home list reflects where the file now lives without re-scanning the Drive folder.
         if (!isSidecar) {
             RecordingCatalog.markDrive(applicationContext, name, driveUri, sizeBytes.takeIf { it > 0L },
-                deleteLocalAfter = CloudCopyPolicy.shouldClearLocalReference(deleteLocal, deletedLocally))
+                deleteLocalAfter = CloudCopyPolicy.shouldClearLocalReference(effectiveDelete, deletedLocally))
         }
         return Result.success()
     }

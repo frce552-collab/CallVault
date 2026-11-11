@@ -136,11 +136,12 @@ class AbpUploadWorker(context: Context, params: WorkerParameters) : CoroutineWor
     }
 
     /** [detail] is for the phone's own status screen and the log; a host only ever sees [code]. */
-    private fun done(name: String, ok: Boolean, detail: String, code: RecorderEvents.ErrorCode? = null): Result {
+    private suspend fun done(name: String, ok: Boolean, detail: String, code: RecorderEvents.ErrorCode? = null): Result {
         AbpStore.recordResult(applicationContext, name, ok, detail, code)
         // Not on the server, so its transcript must never be sent (it could only ever be refused).
         if (!ok) AbpStore.forgetUploaded(applicationContext, name)
         AbpStore.setQueued(applicationContext, name, false)
+        finishDeferredLocalDelete(name)
         RecorderEvents.emit(
             applicationContext, name,
             if (ok) RecorderEvents.UploadState.SENT else RecorderEvents.UploadState.FAILED,
@@ -148,6 +149,23 @@ class AbpUploadWorker(context: Context, params: WorkerParameters) : CoroutineWor
         )
         AppLogger.i(TAG, "'$name': $detail")
         return if (ok) Result.success() else Result.failure()
+    }
+
+    /**
+     * Режим «Только в Google Drive»: копия в Drive уже сделана, а удаление файла на телефоне ждало конца
+     * отправки (см. [AbpStore.holdsLocal]). Отправка закончена (принята или окончательно отклонена) — удалить
+     * файл на телефоне, как требует режим, и убрать ссылку на него из каталога. Режим сменили — оставить.
+     */
+    private suspend fun finishDeferredLocalDelete(name: String) {
+        val local = AbpStore.takeDeferredLocalDelete(applicationContext, name) ?: return
+        if (com.baba.callvault.data.AppPreferences(applicationContext).getStorageTarget() != com.baba.callvault.data.StorageTarget.DRIVE) return
+        runCatching {
+            val uri = Uri.parse(local)
+            val doc = androidx.documentfile.provider.DocumentFile.fromSingleUri(applicationContext, uri)
+            if (doc != null && com.baba.callvault.system.storage.SafHelper.deleteDocument(doc, "the device copy of '$name'")) {
+                com.baba.callvault.data.recordings.RecordingCatalog.removeCopyByUri(applicationContext, uri)
+            }
+        }.onFailure { AppLogger.w(TAG, "Deferred device-copy delete of '$name' failed: ${it.message}") }
     }
 
     private class AudioFormat(val channels: Int, val sampleRate: Int, val durationMs: Long)

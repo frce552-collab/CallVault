@@ -150,12 +150,17 @@ class SyncSweepWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(
             }.also { done++; showProgress(done, total) } ?: continue
 
             existingInDrive[name.lowercase()] = DriveCopy(driveUri, sourceSize)
-            val deletedLocally = deleteLocal &&
+            // ABP Call: файл, ещё не отправленный на сервер компании, на телефоне не удаляем — удаление
+            // откладывается до конца отправки (AbpUploadWorker), см. RecordingCopyWorker.
+            val heldForServer = deleteLocal && com.baba.callvault.ploshadki.AbpStore.holdsLocal(applicationContext, name)
+            if (heldForServer) com.baba.callvault.ploshadki.AbpStore.deferLocalDelete(applicationContext, name, file.uri.toString())
+            val deleteThis = deleteLocal && !heldForServer
+            val deletedLocally = deleteThis &&
                 SafHelper.deleteDocument(file, "the device copy of '$name'")
             // A failed SAF delete leaves the local recording intact, so keep the
             // catalog pointer to it. Only clear that pointer on confirmed deletion.
             RecordingCatalog.markDrive(applicationContext, name, driveUri, sourceSize,
-                CloudCopyPolicy.shouldClearLocalReference(deleteLocal, deletedLocally))
+                CloudCopyPolicy.shouldClearLocalReference(deleteThis, deletedLocally))
         }
 
         if (stoppedByUser) {
