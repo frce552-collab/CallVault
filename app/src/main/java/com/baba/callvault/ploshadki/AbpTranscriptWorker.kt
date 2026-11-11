@@ -3,6 +3,7 @@
  */
 package com.baba.callvault.ploshadki
 
+import android.app.ActivityManager
 import android.content.Context
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
@@ -16,6 +17,10 @@ import androidx.work.WorkerParameters
 import com.baba.callvault.data.transcripts.db.TranscriptDatabase
 import com.baba.callvault.data.transcripts.db.TranscriptState
 import com.baba.callvault.summary.CallSummary
+import com.baba.callvault.summary.SummaryModel
+import com.baba.callvault.summary.SummaryScheduler
+import com.baba.callvault.transcription.model.ModelDownloadWorker
+import com.baba.callvault.transcription.model.ModelRepository
 import com.baba.callvault.transcription.cloud.CloudEndpoint
 import com.baba.callvault.utils.AppLogger
 import kotlinx.coroutines.Dispatchers
@@ -113,12 +118,13 @@ class AbpTranscriptWorker(context: Context, params: WorkerParameters) : Coroutin
          * (or uploading — the server answers 404 until the audio is in, and this retries), and not a cloud
          * transcript. Called right after the transcript is marked DONE. Cheap; never throws.
          */
-        fun enqueue(context: Context, name: String, modelId: String?) {
+        fun enqueue(context: Context, name: String, modelId: String?, delayMinutes: Long = 0) {
             runCatching {
                 if (CloudEndpoint.isCloudEngineId(modelId)) return
                 if (!AbpStore.isEnrolled(context) || AbpStore.uploadedRef(context, name) == null) return
                 val request = OneTimeWorkRequestBuilder<AbpTranscriptWorker>()
                     .setInputData(Data.Builder().putString(KEY_NAME, name).build())
+                    .setInitialDelay(delayMinutes.coerceAtLeast(0), TimeUnit.MINUTES)
                     .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
                     .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 60, TimeUnit.SECONDS)
                     .addTag(TAG_ALL)
@@ -133,8 +139,64 @@ class AbpTranscriptWorker(context: Context, params: WorkerParameters) : Coroutin
             runCatching {
                 if (!TranscriptDatabase.exists(context)) return
                 val t = TranscriptDatabase.get(context).transcriptDao().findTranscript(name) ?: return
-                if (t.state == TranscriptState.DONE) enqueue(context, name, t.modelId)
+                if (t.state == TranscriptState.DONE) onTranscribed(context, name, t.modelId)
             }.onFailure { AppLogger.w(TAG, "Could not check for a finished transcript: ${it.javaClass.simpleName}") }
         }
+
+        /**
+         * Called when an on-device transcript is DONE (and after an upload that found one DONE). Applies the
+         * automatic summary ([PloshadkiFork.AUTO_SUMMARY_ENABLED], [AutoSummaryPlan]) and queues the send:
+         * with a summary to come, the send is queued with a [PloshadkiFork.AUTO_SUMMARY_WAIT_MINUTES] delay
+         * as a safety net, and [onSummaryFinished] replaces it with an immediate one when the summary ends.
+         * Only for recordings that are ours to send. Never throws.
+         */
+        suspend fun onTranscribed(context: Context, name: String, modelId: String?) {
+            runCatching {
+                if (CloudEndpoint.isCloudEngineId(modelId)) return
+                if (!AbpStore.isEnrolled(context) || AbpStore.uploadedRef(context, name) == null) return
+                val model = SummaryModel.DEFAULT
+                val summaryExists = TranscriptDatabase.exists(context) &&
+                    runCatching { TranscriptDatabase.get(context).summaryDao().summary(name) }.getOrNull() != null
+                val step = AutoSummaryPlan.decide(
+                    enabled = PloshadkiFork.AUTO_SUMMARY_ENABLED,
+                    summaryExists = summaryExists,
+                    modelInstalled = ModelRepository.isInstalled(context, model),
+                    totalRamBytes = totalRam(context),
+                )
+                AppLogger.i(TAG, "Auto summary: $step")
+                when (step) {
+                    AutoSummaryPlan.Step.SEND_NOW -> enqueue(context, name, modelId)
+                    AutoSummaryPlan.Step.DOWNLOAD_MODEL_AND_SEND_NOW -> {
+                        ModelDownloadWorker.enqueue(context, model) // Wi-Fi only, KEEP: idempotent
+                        enqueue(context, name, modelId)
+                    }
+                    AutoSummaryPlan.Step.SUMMARISE_THEN_SEND -> {
+                        enqueue(context, name, modelId, PloshadkiFork.AUTO_SUMMARY_WAIT_MINUTES)
+                        SummaryScheduler.runNow(context, name, model)
+                    }
+                }
+            }.onFailure {
+                AppLogger.w(TAG, "Auto summary skipped: ${it.javaClass.simpleName}")
+                enqueue(context, name, modelId)
+            }
+        }
+
+        /**
+         * Called by the summary job when it ends, whatever the outcome: the transcript goes now (with the
+         * summary if one was stored). For a call that is not ours [enqueue] does nothing; for one already
+         * sent the server answers DUPLICATE. Never throws.
+         */
+        suspend fun onSummaryFinished(context: Context, name: String) {
+            runCatching {
+                if (!TranscriptDatabase.exists(context)) return
+                val t = TranscriptDatabase.get(context).transcriptDao().findTranscript(name) ?: return
+                if (t.state == TranscriptState.DONE) enqueue(context, name, t.modelId)
+            }.onFailure { AppLogger.w(TAG, "Could not queue a transcript after its summary: ${it.javaClass.simpleName}") }
+        }
+
+        private fun totalRam(context: Context): Long = runCatching {
+            val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+            ActivityManager.MemoryInfo().also { am.getMemoryInfo(it) }.totalMem
+        }.getOrDefault(0L)
     }
 }

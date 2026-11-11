@@ -269,8 +269,8 @@ class TranscriptionRunner(
                 // ABP Call: send the finished on-device transcript to the company server, only for a recording
                 // ABP Call uploaded (checked inside). Right after DONE and before the audio may be deleted below,
                 // because the job reads the DONE row and the hash remembered at upload, never the audio. A
-                // summary is user-requested and may never come, so it is not waited for. Never throws.
-                com.baba.callvault.ploshadki.AbpTranscriptWorker.enqueue(context, displayName, modelId)
+                // summary is started automatically when PloshadkiFork.AUTO_SUMMARY_ENABLED (see AutoSummaryPlan). Never throws.
+                com.baba.callvault.ploshadki.AbpTranscriptWorker.onTranscribed(context, displayName, modelId)
                 // Mirror the finished transcript (+ notes/summary) to a file beside the audio, when the
                 // user has turned on sidecar backups. Guarded inside; NonCancellable so a stopping worker
                 // still writes it.

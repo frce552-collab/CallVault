@@ -86,6 +86,18 @@ jobs:
           -PciBuildNumber=${{ github.run_id }}
           --no-daemon --stacktrace
 
+      # ABP-слой приложения (:app): отправка на сервер, расшифровка, автоматический итог, языки (kk).
+      - name: App unit tests (ploshadki, summary, transcription)
+        run: >
+          ./gradlew :app:testDebugUnitTest
+          --tests 'com.baba.callvault.ploshadki.*'
+          --tests 'com.baba.callvault.summary.*'
+          --tests 'com.baba.callvault.transcription.*'
+          -PversionName="${VERSION_NAME}"
+          -PversionCode=${{ github.run_number }}
+          -PciBuildNumber=${{ github.run_id }}
+          --no-daemon --stacktrace
+
       # S5: the same recorder as an AAR for the CRM app (kz.ploshadki:abp-recorder). Listed only, not uploaded.
       - name: Recorder AAR (library publish check)
         run: |
