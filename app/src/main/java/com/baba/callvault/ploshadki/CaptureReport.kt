@@ -77,7 +77,8 @@ object CaptureReport {
 
     /**
      * The other party's number in E.164, or null when it is hidden, unknown or not a phone number.
-     * Digits only; Kazakhstan/Russia: 11 digits starting with 8 → leading 7; 10 digits starting with 7 → prefixed 7.
+     * Digits only; a national number (no '+') of Kazakhstan/Russia: 11 digits starting with 8 → leading 7;
+     * 10 digits starting with 7 → prefixed 7. A number written with '+' is kept as it is.
      * A WhatsApp user JID ("77011234567@s.whatsapp.net") is read as its number. Any other value with letters or
      * symbols (a contact name, "private", a group or lid JID) is refused, never mined for digits.
      */
@@ -85,8 +86,11 @@ object CaptureReport {
         val s = raw?.trim().orEmpty().let { WA_USER_JID.matchEntire(it)?.groupValues?.get(1) ?: it }
         if (s.isEmpty() || s.any { !it.isDigit() && it !in PHONE_PUNCTUATION }) return null
         var digits = s.filter { it in '0'..'9' }
-        if (digits.length == 11 && digits.startsWith("8")) digits = "7" + digits.substring(1)
-        else if (digits.length == 10 && digits.startsWith("7")) digits = "7$digits"
+        // Only a national (no '+') number is rewritten: "+84 912 345 678" (Vietnam) is already E.164 and must
+        // not become a Kazakh "+7…" number.
+        val international = s.startsWith("+")
+        if (!international && digits.length == 11 && digits.startsWith("8")) digits = "7" + digits.substring(1)
+        else if (!international && digits.length == 10 && digits.startsWith("7")) digits = "7$digits"
         val e164 = "+$digits"
         return if (E164.matches(e164)) e164 else null
     }

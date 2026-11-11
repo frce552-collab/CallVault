@@ -122,6 +122,8 @@ class CaptureReportTest {
         assertEquals("+77011234567", CaptureReport.counterpartyPhoneE164("7011234567"))
         assertEquals("+79161234567", CaptureReport.counterpartyPhoneE164("89161234567"))
         assertEquals("+442079460958", CaptureReport.counterpartyPhoneE164("+44 20 7946 0958"))
+        // An international number that happens to have 11 digits starting with 8 is not a Kazakh one.
+        assertEquals("+84912345678", CaptureReport.counterpartyPhoneE164("+84 912 345 678"))
         assertNull(CaptureReport.counterpartyPhoneE164("701123"))
         assertNull(CaptureReport.counterpartyPhoneE164("Аноним"))
         for (ok in listOf("87011234567", "7011234567", "+77011234567")) {
