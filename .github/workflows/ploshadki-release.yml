@@ -74,8 +74,16 @@ jobs:
           # Токен для телефонов должен читать релизы, но не писать.
           code=$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $R" "https://api.github.com/repos/${RELEASES_REPO}")
           [ "$code" = "200" ] || { echo "::error::RELEASES_READ_TOKEN не видит ${RELEASES_REPO} (HTTP $code)"; exit 1; }
-          push=$(curl -s -H "Authorization: Bearer $R" "https://api.github.com/repos/${RELEASES_REPO}" | jq -r '.permissions.push // false')
-          [ "$push" = "false" ] || { echo "::error::RELEASES_READ_TOKEN может писать в ${RELEASES_REPO} — нужен Read-only"; exit 1; }
+          # Права ТОКЕНА (не аккаунта: .permissions в ответе API — это роль владельца, у fine-grained токена
+          # она всегда push=true). Пробная запись заведомо невозможной ссылки ничего не меняет:
+          # токен без записи → 403, токен с записью → 422 (неверный sha).
+          probe() { curl -s -o /dev/null -w '%{http_code}' -X POST -H "Authorization: Bearer $1" \
+            -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${RELEASES_REPO}/git/refs" \
+            -d '{"ref":"refs/heads/abp-token-probe","sha":"0000000000000000000000000000000000000000"}'; }
+          rc=$(probe "$R"); echo "read-token write probe: HTTP $rc"
+          [ "$rc" = "403" ] || [ "$rc" = "404" ] || { echo "::error::RELEASES_READ_TOKEN может писать в ${RELEASES_REPO} (HTTP $rc) — нужен Read-only"; exit 1; }
+          wc=$(probe "$W"); echo "publish-token write probe: HTTP $wc"
+          [ "$wc" = "422" ] || { echo "::error::RELEASES_PUBLISH_TOKEN не может писать в ${RELEASES_REPO} (HTTP $wc) — нужен Contents: Read and write"; exit 1; }
 
       - name: Checkout (with submodules)
         uses: actions/checkout@v6
