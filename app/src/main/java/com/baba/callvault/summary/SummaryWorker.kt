@@ -158,6 +158,10 @@ class SummaryWorker(
 
         ticker.cancel()
 
+        // ABP Call: the transcript of an ABP call waits for its automatic summary; send it now, with the
+        // summary if one was stored. Does nothing for a call that is not ABP's. Never throws.
+        com.baba.callvault.ploshadki.AbpTranscriptWorker.onSummaryFinished(applicationContext, displayName)
+
         when {
             summary != null -> Result.success()
             // Stopped on purpose. Not a failure, and retrying would restart work the user cancelled.

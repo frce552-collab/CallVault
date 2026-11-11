@@ -42,4 +42,19 @@ object PloshadkiFork {
      * are never recorded (fail-closed).
      */
     val RECORDABLE_VOIP_PACKAGES: Set<String> = setOf("com.whatsapp.w4b")
+
+    /**
+     * Automatic short summary of every ABP call on the phone (owner decision 11.11.2026: «включить»).
+     * After the on-device transcript is DONE, the on-device summariser runs once and its text travels
+     * with the transcript to the server (air.wa-capture.transcript.v1 `summary`). The summary model
+     * (about 2.6 GB) is downloaded on Wi-Fi only, once. Phones with too little memory send the
+     * transcript without a summary. See [AutoSummaryPlan].
+     */
+    const val AUTO_SUMMARY_ENABLED = true
+
+    /** Phones below this total RAM never summarise in the background (the model needs about 3.5 GB). */
+    const val AUTO_SUMMARY_MIN_TOTAL_RAM_BYTES = 5_000_000_000L
+
+    /** How long the transcript waits for its summary before it is sent without one. */
+    const val AUTO_SUMMARY_WAIT_MINUTES = 40L
 }
