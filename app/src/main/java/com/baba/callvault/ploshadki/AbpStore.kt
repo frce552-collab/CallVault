@@ -175,7 +175,11 @@ object AbpStore {
     /** Whether this phone is enrolled with a company server (cheap: no secret is decoded). */
     fun isEnrolled(context: Context): Boolean = prefs(context).contains("deviceId")
 
-    /** Recordings made before the phone was connected: sent once it is. */
+    /**
+     * Recordings made before the phone was connected: sent once it is. Synchronized like [setQueued]: upload
+     * workers run in parallel, and an unsynchronized read-modify-write of the set loses entries.
+     */
+    @Synchronized
     fun addPending(context: Context, uri: String, name: String, mime: String) {
         val sp = prefs(context)
         val set = sp.getStringSet("pending", emptySet())!!.toMutableSet()
@@ -183,6 +187,7 @@ object AbpStore {
         sp.edit().putStringSet("pending", set).apply()
     }
 
+    @Synchronized
     fun takePending(context: Context): List<Triple<String, String, String>> {
         val sp = prefs(context)
         val set = sp.getStringSet("pending", emptySet())!!
