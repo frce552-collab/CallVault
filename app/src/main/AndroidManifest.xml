@@ -12,6 +12,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- ABP Call: liveness check in Doze holds a short partial wake lock (AbpLivenessAlarm). -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <!-- Optional: only meaningful when the user has chosen Shizuku mode. Absent Shizuku, this
          permission simply never gets granted and nothing in the app asks for it. -->
@@ -437,6 +439,11 @@
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="On-device transcription and summarisation of the user's own call recordings, and copying a speech or summary model file the user picked into or out of the app." />
         </service>
+
+        <!-- ABP Call: liveness check that also fires in Doze (AbpLivenessAlarm). Not exported. -->
+        <receiver
+            android:name=".ploshadki.AbpLivenessAlarm"
+            android:exported="false" />
 
     </application>
 

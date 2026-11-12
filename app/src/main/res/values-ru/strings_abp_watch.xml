@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abp_recorder_down_channel">Запись остановлена</string>
+    <string name="abp_recorder_down_title">Запись остановлена — нажмите</string>
+    <string name="abp_recorder_down_text">Звонки сейчас не записываются. ABP Call не смог сам перезапустить запись. Нажмите, чтобы исправить.</string>
+    <string name="abp_recorder_down_action">Исправить</string>
+</resources>

@@ -57,4 +57,21 @@ object PloshadkiFork {
 
     /** How long the transcript waits for its summary before it is sent without one. */
     const val AUTO_SUMMARY_WAIT_MINUTES = 40L
+
+    /**
+     * Self-healing recorder (owner request 12.11.2026, field report CallVault 2.4.9 on Xiaomi HyperOS: the helper
+     * died after a day idle and the app waited for a tap and Wi-Fi).
+     *
+     * Off-Wi-Fi recording (the loopback listener inside adbd) is ON by default: once armed — needs Wi-Fi and
+     * Wireless debugging once per boot — the helper can be relaunched over 127.0.0.1 with no Wi-Fi at all, as
+     * long as USB debugging stays on. Upstream keeps it opt-in; for company phones it is the only way to
+     * recover without a person. The listener is RSA-gated (only this app's paired key is accepted).
+     */
+    const val OFFLINE_RECORDING_BY_DEFAULT = true
+
+    /** Liveness check from an alarm that fires in Doze (the 60 s watchdog stops in deep sleep). */
+    const val LIVENESS_ALARM_MINUTES = 5L
+
+    /** After this long down with recovery failing, a loud ongoing notification asks the manager to tap. */
+    const val RECORDER_DOWN_ALERT_MINUTES = 10L
 }

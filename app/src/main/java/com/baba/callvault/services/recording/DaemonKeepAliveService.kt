@@ -107,6 +107,7 @@ class DaemonKeepAliveService : Service() {
                 // rather than leave "starting up" on screen for a recovery that cannot happen (#39).
                 updateNotification(false)
             }
+            trackDownForAlert(alive)
             if (alive) {
                 downStreak = 0
                 // A live daemon ends any failure streak, however it came back. The streak used to clear only
@@ -456,6 +457,12 @@ class DaemonKeepAliveService : Service() {
         lastWifiLostAtMs != 0L && SystemClock.elapsedRealtime() - lastWifiLostAtMs < WIFI_LOST_WINDOW_MS
 
     private val approveJoinedWifi = Runnable {
+        // ABP Call: a Wi-Fi just came up (after a reboot, a hand-over, or the phone leaving 4G) — the moment the
+        // relaunch path that needs Wi-Fi can work again. Do not wait for the next watchdog tick.
+        if (!isDaemonAlive()) {
+            TransportTimeline.event(applicationContext, "Wi-Fi joined, recorder down → relaunching")
+            maybeRewarm(force = true)
+        }
         if (!AppPreferences(applicationContext).isWifiNetworkAutoApproveEnabled()) return@Runnable
         Thread {
             runCatching {
@@ -482,6 +489,9 @@ class DaemonKeepAliveService : Service() {
     override fun onCreate() {
         super.onCreate()
         AppPauseWatch.start(applicationContext)
+        // ABP Call: liveness check that also runs in Doze (the watchdog below does not tick in deep sleep).
+        instance = this
+        com.baba.callvault.ploshadki.AbpLivenessAlarm.schedule(applicationContext, 60_000L)
         getSystemService(NotificationManager::class.java).createNotificationChannel(
             NotificationChannel(CHANNEL_ID, getString(R.string.notif_readiness_channel), NotificationManager.IMPORTANCE_MIN).apply {
                 setShowBadge(false)
@@ -650,6 +660,43 @@ class DaemonKeepAliveService : Service() {
      * Debugging) relaunch path requires Wi-Fi. When the daemon is already connected the [watchdog] never
      * calls this, so an active recording is implicitly skipped and never churned.
      */
+    /** ABP Call: when the recorder went down (elapsedRealtime), for the loud alert; null while up. */
+    private var downSinceMs: Long? = null
+    private var downAlertShown = false
+
+    /** ABP Call: loud "Recording stopped — tap" after a long outage; cleared the moment the recorder is back. */
+    private fun trackDownForAlert(alive: Boolean) {
+        val now = SystemClock.elapsedRealtime()
+        if (alive) {
+            if (downAlertShown) TransportTimeline.event(applicationContext, "recorder back: down alert cleared")
+            downSinceMs = null
+            downAlertShown = false
+            com.baba.callvault.ploshadki.AbpRecorderDownAlert.cancel(applicationContext)
+            return
+        }
+        if (downSinceMs == null) downSinceMs = now
+        if (!downAlertShown && com.baba.callvault.ploshadki.AbpRecorderWatch.shouldAlert(downSinceMs, now)) {
+            downAlertShown = true
+            TransportTimeline.event(applicationContext, "recorder down ${(now - downSinceMs!!) / 60_000} min, recovery failed → alert shown")
+            com.baba.callvault.ploshadki.AbpRecorderDownAlert.show(applicationContext)
+        }
+    }
+
+    /** ABP Call: one liveness check from [com.baba.callvault.ploshadki.AbpLivenessAlarm] (works in Doze). Main thread. */
+    private fun livenessTick() {
+        val alive = isDaemonAlive()
+        TransportTimeline.event(applicationContext, "liveness alarm: recorder ${if (alive) "up" else "down"}")
+        trackDownForAlert(alive)
+        if (alive != (lastReady == true)) {
+            lastReady = alive
+            updateNotification(alive)
+        }
+        if (!alive) maybeRewarm(force = true)
+        com.baba.callvault.ploshadki.AbpLivenessAlarm.schedule(
+            applicationContext, com.baba.callvault.ploshadki.AbpRecorderWatch.nextCheckDelayMs(alive)
+        )
+    }
+
     private fun maybeRewarm(force: Boolean = false) {
         if (!usesAdb()) {
             rebindShizuku(force)
@@ -904,6 +951,10 @@ class DaemonKeepAliveService : Service() {
     }
 
     override fun onDestroy() {
+        if (instance === this) instance = null
+        // Stopped on purpose (recording turned off / mode switch): no more checks. A process the system killed
+        // never gets here, so its alarm stays and brings the keep-alive back.
+        com.baba.callvault.ploshadki.AbpLivenessAlarm.cancel(applicationContext)
         AppPauseWatch.stop()
         runCatching { unregisterReceiver(screenReceiver) }
         runCatching { contentResolver.unregisterContentObserver(usbDebuggingObserver) }
@@ -932,6 +983,17 @@ class DaemonKeepAliveService : Service() {
     }
 
     companion object {
+        /** ABP Call: the running keep-alive, for [livenessCheckFromAlarm]. */
+        @Volatile
+        private var instance: DaemonKeepAliveService? = null
+
+        /** ABP Call: runs one liveness check on the running keep-alive. False when it is not running. */
+        fun livenessCheckFromAlarm(context: Context): Boolean {
+            val s = instance ?: return false
+            s.watchdogHandler.post { runCatching { s.livenessTick() } }
+            return true
+        }
+
         /** How long adbd may take to stop after USB debugging goes off before the off is believed. */
         private const val USB_OFF_SETTLE_MS = 5_000L
         private const val USB_OFF_POLL_MS = 200L
