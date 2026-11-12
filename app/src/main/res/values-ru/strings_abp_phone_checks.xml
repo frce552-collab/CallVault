@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ABP Call: setup wizard step "Phone check" (PloshadkiFork.WIZARD_PHONE_CHECKS). -->
+<resources>
+    <string name="abp_phone_checks_title">Проверка телефона</string>
+    <string name="abp_phone_checks_line">Настройки телефона, без которых звонки не записываются.</string>
+    <string name="abp_phone_checks_subtitle">ABP Call сам проверяет всё, что может прочитать. Где телефон не сообщает состояние, нажмите на пункт — откроется нужный экран; измените настройку, вернитесь и нажмите «Сделал». Продолжить можно и без этого, но тогда звонки могут не записаться.</string>
+    <string name="abp_phone_check_done">Готово</string>
+    <string name="abp_phone_check_open">Открыть</string>
+    <string name="abp_phone_check_turn_on">Включить</string>
+    <string name="abp_phone_check_mark_done">Сделал</string>
+    <string name="abp_phone_check_unmark">Ещё не сделал</string>
+    <string name="abp_phone_check_usb_debugging">Отладка по USB</string>
+    <string name="abp_phone_check_usb_debugging_how">Настройки &gt; О телефоне &gt; 7 раз нажмите на версию ОС (номер сборки), чтобы открыть «Для разработчиков». Затем «Для разработчиков» (на Xiaomi: Расширенные настройки &gt; Для разработчиков) &gt; включите «Отладка по USB». Это нужно, чтобы запись работала без Wi-Fi.</string>
+    <string name="abp_phone_check_xiaomi_security">Отладка по USB (настройки безопасности)</string>
+    <string name="abp_phone_check_xiaomi_security_how">Xiaomi, Redmi, POCO: Расширенные настройки &gt; Для разработчиков &gt; включите «Отладка по USB (настройки безопасности)». Это отдельный переключатель, нужны SIM-карта и вход в Mi-аккаунт. Без него телефон не даёт ABP Call нужные разрешения.</string>
+    <string name="abp_phone_check_xiaomi_autostart">Автозапуск</string>
+    <string name="abp_phone_check_xiaomi_autostart_how">Xiaomi, Redmi, POCO: приложение «Безопасность» &gt; Разрешения &gt; Автозапуск (на HyperOS также Настройки &gt; Приложения &gt; ABP Call &gt; Автозапуск) &gt; разрешите ABP Call. Без этого после перезагрузки или очистки памяти телефон не даёт ABP Call запуститься. Телефон не сообщает приложениям эту настройку — нажмите «Сделал», когда включите.</string>
+    <string name="abp_phone_check_keep_wd_how">ABP Call сам включает беспроводную отладку обратно, если её выключили, чтобы звонки продолжали записываться. Также в Настройках &gt; Подключение.</string>
+    <string name="abp_phone_check_battery">Батарея: без ограничений</string>
+    <string name="abp_phone_check_battery_how">О приложении &gt; Батарея (на Xiaomi: Контроль активности) &gt; Нет ограничений. Иначе телефон останавливает ABP Call в фоне, и звонки не записываются.</string>
+    <string name="abp_phone_check_system_updates">Автообновление системы выключено</string>
+    <string name="abp_phone_check_system_updates_how">Обновление системы может выключить отладку и перезагрузить телефон ночью. Xiaomi: Настройки &gt; О телефоне &gt; версия HyperOS &gt; меню &gt; Настройки &gt; выключите автоматическую загрузку и установку. Другие телефоны: Для разработчиков &gt; Автоматические обновления системы — выкл.; Samsung: Обновление ПО &gt; Автозагрузка по Wi-Fi — выкл. Телефон не сообщает приложениям эту настройку — нажмите «Сделал», когда выключите.</string>
+</resources>

@@ -231,6 +231,7 @@ fun WizardScreen(
                         onAskAfterCallChange = viewModel::setAfterCallAsk,
                     )
                     WizardStep.RELIABILITY -> ReliabilityStep()
+                    WizardStep.PHONE_CHECKS -> com.baba.callvault.ploshadki.WizardPhoneChecksStep(usesEmbeddedAdb)
                     WizardStep.EXPERIMENTAL -> ExperimentalStep()
                     WizardStep.UPDATES -> UpdatesStep()
                     WizardStep.AUDIO -> AudioStep(
@@ -260,7 +261,7 @@ fun WizardScreen(
 }
 
 /** The logical steps of the wizard (two of them are conditionally included — see [wizardSteps]). */
-internal enum class WizardStep { STORAGE, SCHEDULE, AUTO_RECORD, RELIABILITY, EXPERIMENTAL, AUDIO, FILE_NAME, TRANSCRIPTION, UPDATES }
+internal enum class WizardStep { STORAGE, SCHEDULE, AUTO_RECORD, RELIABILITY, PHONE_CHECKS, EXPERIMENTAL, AUDIO, FILE_NAME, TRANSCRIPTION, UPDATES }
 
 /**
  * The visible step list, in order. Kept a pure function so the two exclusions are testable and stay
@@ -281,6 +282,8 @@ internal fun wizardSteps(usesDrive: Boolean, usesEmbeddedAdb: Boolean): List<Wiz
     if (usesDrive) add(WizardStep.SCHEDULE)
     add(WizardStep.AUTO_RECORD)
     if (usesEmbeddedAdb) add(WizardStep.RELIABILITY)
+    // ABP Call: the phone settings recording depends on, checked in both modes (see PloshadkiFork.WIZARD_PHONE_CHECKS).
+    if (com.baba.callvault.ploshadki.PloshadkiFork.WIZARD_PHONE_CHECKS) add(WizardStep.PHONE_CHECKS)
     add(WizardStep.EXPERIMENTAL)
     add(WizardStep.AUDIO)
     add(WizardStep.FILE_NAME)
@@ -447,6 +450,7 @@ private fun stepTitleRes(step: WizardStep): Int = when (step) {
     WizardStep.SCHEDULE -> R.string.wizard_schedule_title
     WizardStep.AUTO_RECORD -> R.string.wizard_auto_record_title
     WizardStep.RELIABILITY -> R.string.wizard_reliability_title
+    WizardStep.PHONE_CHECKS -> R.string.abp_phone_checks_title
     WizardStep.EXPERIMENTAL -> R.string.wizard_experimental_title
     WizardStep.UPDATES -> R.string.wizard_updates_title
     WizardStep.AUDIO -> R.string.wizard_audio_title
@@ -459,6 +463,7 @@ private fun stepSubtitleRes(step: WizardStep): Int = when (step) {
     WizardStep.SCHEDULE -> R.string.wizard_schedule_subtitle
     WizardStep.AUTO_RECORD -> R.string.wizard_auto_record_subtitle
     WizardStep.RELIABILITY -> R.string.wizard_reliability_subtitle
+    WizardStep.PHONE_CHECKS -> R.string.abp_phone_checks_subtitle
     WizardStep.EXPERIMENTAL -> R.string.wizard_experimental_subtitle
     WizardStep.UPDATES -> R.string.wizard_updates_subtitle
     WizardStep.AUDIO -> R.string.wizard_audio_subtitle
@@ -471,6 +476,7 @@ private fun stepLineRes(step: WizardStep): Int = when (step) {
     WizardStep.SCHEDULE -> R.string.wizard_schedule_line
     WizardStep.AUTO_RECORD -> R.string.wizard_auto_record_line
     WizardStep.RELIABILITY -> R.string.wizard_reliability_line
+    WizardStep.PHONE_CHECKS -> R.string.abp_phone_checks_line
     WizardStep.EXPERIMENTAL -> R.string.wizard_experimental_line
     WizardStep.UPDATES -> R.string.wizard_updates_line
     WizardStep.AUDIO -> R.string.wizard_audio_line

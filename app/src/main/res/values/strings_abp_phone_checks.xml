@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ABP Call: setup wizard step "Phone check" (PloshadkiFork.WIZARD_PHONE_CHECKS). -->
+<resources>
+    <string name="abp_phone_checks_title">Phone check</string>
+    <string name="abp_phone_checks_line">Settings the phone needs for calls to be recorded.</string>
+    <string name="abp_phone_checks_subtitle">ABP Call checks each setting it can read. Where the phone does not tell, tap the item to open the right screen, change it, and come back and tap Done. You can continue without finishing, but calls may then be missed.</string>
+    <string name="abp_phone_check_done">Done</string>
+    <string name="abp_phone_check_open">Open</string>
+    <string name="abp_phone_check_turn_on">Turn on</string>
+    <string name="abp_phone_check_mark_done">I did it</string>
+    <string name="abp_phone_check_unmark">Not done yet</string>
+    <string name="abp_phone_check_usb_debugging">USB debugging</string>
+    <string name="abp_phone_check_usb_debugging_how">Settings &gt; About phone &gt; tap the OS version (Build number) 7 times to unlock Developer options. Then Developer options (on Xiaomi: Additional settings &gt; Developer options) &gt; turn on USB debugging. It keeps recording working without Wi-Fi.</string>
+    <string name="abp_phone_check_xiaomi_security">USB debugging (Security settings)</string>
+    <string name="abp_phone_check_xiaomi_security_how">Xiaomi, Redmi, POCO: Additional settings &gt; Developer options &gt; turn on \"USB debugging (Security settings)\". It is separate from USB debugging and needs a SIM card and a signed-in Mi account. Without it the phone refuses ABP Call the permissions it needs.</string>
+    <string name="abp_phone_check_xiaomi_autostart">Autostart</string>
+    <string name="abp_phone_check_xiaomi_autostart_how">Xiaomi, Redmi, POCO: Security app &gt; Permissions &gt; Autostart (on HyperOS also Settings &gt; Apps &gt; ABP Call &gt; Autostart) &gt; allow ABP Call. Without it the phone does not let ABP Call start again after a reboot or after it is cleared from memory. The phone does not tell apps this setting, so tap \"I did it\" when it is on.</string>
+    <string name="abp_phone_check_keep_wd_how">ABP Call turns Wireless debugging back on if it is switched off, so calls keep being recorded. Also in Settings &gt; Connection.</string>
+    <string name="abp_phone_check_battery">Battery: No restrictions</string>
+    <string name="abp_phone_check_battery_how">App info &gt; Battery (on Xiaomi: Battery saver) &gt; No restrictions. Otherwise the phone stops ABP Call in the background and calls are not recorded.</string>
+    <string name="abp_phone_check_system_updates">Automatic system updates off</string>
+    <string name="abp_phone_check_system_updates_how">A system update can switch the debugging settings off and restart the phone at night. Xiaomi: Settings &gt; About phone &gt; HyperOS version &gt; menu &gt; Settings &gt; turn off automatic download and install. Other phones: Developer options &gt; Automatic system updates, off; Samsung: Software update &gt; Auto download over Wi-Fi, off. The phone does not tell apps this setting, so tap \"I did it\" when it is off.</string>
+</resources>
