@@ -31,7 +31,7 @@ on:
       channel:
         description: 'latest — получат все телефоны; pilot — только ссылка, автообновление не увидит'
         required: true
-        default: 'latest'
+        default: 'pilot'
         type: choice
         options: [latest, pilot]
 
@@ -51,7 +51,9 @@ jobs:
       NDK_VERSION: '27.2.12479018'
       CMAKE_VERSION: '3.22.1'
       BUILD_TOOLS: '36.0.0'
-      CHANNEL: ${{ inputs.channel || 'latest' }}
+      # Owner decision 12.11: a new build is a PILOT (pre-release, phones do not see it) until it has passed the
+      # one-phone checklist; then a person marks it «Set as the latest release» on GitHub (docs: RELEASE-PROCESS).
+      CHANNEL: ${{ inputs.channel || 'pilot' }}
       RELEASES_REPO: frce552-collab/abp-call-releases
     steps:
       - name: Check signing secrets
