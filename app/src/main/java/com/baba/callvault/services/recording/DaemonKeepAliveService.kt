@@ -692,6 +692,11 @@ class DaemonKeepAliveService : Service() {
 
     /** ABP Call: loud "Recording stopped — tap" after a long outage; cleared the moment the recorder is back. */
     private fun trackDownForAlert(alive: Boolean) {
+        // ABP Call: the CRM status file in Drive (every 10 min and on every change; AbpStatusFile gates it).
+        runCatching {
+            val reason = com.baba.callvault.ploshadki.AbpStatusReport.reasonFor(ReadinessNoticeText.current(applicationContext, alive))
+            com.baba.callvault.ploshadki.AbpStatusFile.note(applicationContext, alive, reason)
+        }
         val now = SystemClock.elapsedRealtime()
         if (alive) {
             if (downAlertShown) TransportTimeline.event(applicationContext, "recorder back: down alert cleared")

@@ -69,6 +69,7 @@ class AbpLivenessAlarm : BroadcastReceiver() {
             if (DaemonKeepAliveService.livenessCheckFromAlarm(context, onDone)) return
             if (!DaemonKeepAliveService.shouldRun(context)) {
                 runCatching { TransportTimeline.event(context, "liveness alarm: keep-alive not wanted (recording off or mode) — alarm cancelled") }
+                AbpStatusFile.note(context, running = false, reason = AbpStatusReport.REASON_RECORDING_OFF)
                 cancel(context)
                 onDone(false)
                 return
