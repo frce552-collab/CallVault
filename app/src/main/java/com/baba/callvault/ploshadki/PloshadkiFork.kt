@@ -122,4 +122,14 @@ object PloshadkiFork {
     const val AUTO_INSTALL_FROM_HOUR = 20
     const val AUTO_INSTALL_UNTIL_HOUR = 8
     const val AUTO_INSTALL_ZONE = "Asia/Almaty"
+
+    /**
+     * CRM status file (owner decision 12.11.2026, variant "A": through Google Drive, no HTTP). The phone overwrites ONE
+     * `abp-call-status.json` in the Drive folder the recordings go to — every [STATUS_FILE_INTERVAL_MINUTES] and on
+     * every change of recorder state — with the recorder state, its reason and the last 24 h of calls that have no
+     * recording. If Drive will not overwrite, one `abp-call-status-YYYYMMDD-HH.json` per hour. See [AbpStatusFile].
+     */
+    const val STATUS_FILE_ENABLED = true
+
+    const val STATUS_FILE_INTERVAL_MINUTES = 10L
 }
