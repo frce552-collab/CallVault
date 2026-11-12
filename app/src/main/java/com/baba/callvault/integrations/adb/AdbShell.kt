@@ -1172,6 +1172,12 @@ object AdbShell {
             }
             WirelessDebuggingRelease.SWITCH_OFF -> Unit
         }
+        // ABP Call: in this boot switching it off already killed the recorder (a ROM that restarts adbd on the
+        // write even with USB debugging on). Keep it on rather than repeat that on every relaunch.
+        if (!com.baba.callvault.ploshadki.AbpWdDropGuard.mayDropWirelessDebugging()) {
+            AppLogger.i(TAG, "Keeping Wireless debugging on after $reason: switching it off killed the recorder earlier this boot")
+            return
+        }
         if (disableWirelessDebugging(context)) {
             AppLogger.i(TAG, "Wireless debugging disabled after $reason ($plan)")
         } else {
