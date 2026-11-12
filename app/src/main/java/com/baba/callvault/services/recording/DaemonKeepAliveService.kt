@@ -78,6 +78,9 @@ class DaemonKeepAliveService : Service() {
     /** Serialises and throttles relaunch attempts, and expires one that never came back. */
     private val rewarmGate = RewarmGate(stuckAfterMs = REWARM_STUCK_MS, throttleMs = REWARM_THROTTLE_MS)
 
+    /** ABP Call: a forced relaunch that arrived while one was running, run right after it. */
+    private val rewarmRetry = com.baba.callvault.ploshadki.AbpRewarmRetry()
+
     /**
      * Decides how to recover, and notices when recovery itself has stopped working.
      *
@@ -625,6 +628,7 @@ class DaemonKeepAliveService : Service() {
             if (usesAdb()) {
                 TransportTimeline.event(applicationContext, "recorder died")
                 timelineSnapshot(false, "death")
+                noteDeathCause()
             }
             lastReady = false
             updateNotification(false)
@@ -635,6 +639,35 @@ class DaemonKeepAliveService : Service() {
             // relaunch was being throttled — the cause of a long "starting up" window a call would race.
             maybeRewarm(force = true)
         }
+    }
+
+    /**
+     * ABP Call: what was happening around a recorder death, for the journal — and, if our own Wireless-debugging
+     * switch-off is what killed it, stop switching it off for the rest of the boot ([com.baba.callvault.ploshadki.AbpWdDropGuard]).
+     * The helper runs inside adbd's cgroup, so any adbd stop or restart takes it down; these lines say which one.
+     */
+    private fun noteDeathCause() {
+        runCatching {
+            val usbOn = AdbShell.isUsbDebuggingEnabled(applicationContext)
+            val weDroppedWd = AdbShell.didWeJustSetWirelessDebugging(enabled = false)
+            if (com.baba.callvault.ploshadki.AbpWdDropGuard.onRecorderDied(weDroppedWd)) {
+                TransportTimeline.event(
+                    applicationContext,
+                    "recorder died right after CallVault switched Wireless debugging off (usb=${if (usbOn) "on" else "off"}) " +
+                        "→ Wireless debugging stays on until reboot",
+                )
+            }
+            if (wifiLostRecently()) {
+                TransportTimeline.event(
+                    applicationContext,
+                    "recorder died just after Wi-Fi was lost (usb=${if (usbOn) "on" else "off"})" +
+                        if (usbOn) " — this ROM restarts adbd on Wi-Fi loss even with USB debugging on" else " — adbd stops with Wireless debugging",
+                )
+            }
+            if (AdbShell.didWeJustRestartAdbd()) {
+                TransportTimeline.event(applicationContext, "recorder died just after CallVault restarted adbd (tcpip:/usb:)")
+            }
+        }.onFailure { AppLogger.w(TAG, "Could not note the death cause: ${it.message}") }
     }
 
     /**
@@ -718,7 +751,16 @@ class DaemonKeepAliveService : Service() {
             return
         }
         // Checked AFTER the Wi-Fi guard so a relaunch we never attempt does not consume the throttle.
-        if (!rewarmGate.tryEnter(SystemClock.elapsedRealtime(), force)) return
+        if (!rewarmGate.tryEnter(SystemClock.elapsedRealtime(), force)) {
+            // ABP Call: a forced relaunch is refused only while another is running (force skips the throttle).
+            // Typical after a reboot: the boot relaunch started before Wi-Fi and is still failing when Wi-Fi
+            // joins. Keep it and run once more straight after, instead of waiting for the next tick or alarm.
+            if (force) {
+                rewarmRetry.onRefusedBusy(force)
+                timelineSkip("relaunch already running; one more queued after it")
+            }
+            return
+        }
         Thread {
             AppLogger.i(TAG, "keep-alive: daemon down — relaunching (force=$force offline=$offline)")
             // Restore a usable endpoint FIRST, explicitly. The connect path only rediscovers a missing
@@ -790,6 +832,10 @@ class DaemonKeepAliveService : Service() {
             // 60s watchdog tick. Without this the daemon reconnects in seconds but the user would still see
             // "starting up" for up to a minute (a perceived-but-false slow recovery).
             if (ok) watchdogHandler.post { lastReady = true; updateNotification(true) }
+            if (rewarmRetry.takeAfterAttempt(ok)) {
+                TransportTimeline.event(applicationContext, "queued relaunch (Wi-Fi joined / WD on while busy) → running now")
+                watchdogHandler.post { if (!isDaemonAlive()) maybeRewarm(force = true) }
+            }
         }.apply { isDaemon = true; name = "cv-keepalive-rewarm" }.start()
     }
 

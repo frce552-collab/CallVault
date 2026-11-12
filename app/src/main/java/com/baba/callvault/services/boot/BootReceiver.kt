@@ -29,6 +29,19 @@ class BootReceiver : BroadcastReceiver() {
         // stopped Shizuku too.
         if (!AppPreferences(context).isPrivilegedTransportSetUp()) return
         AppLogger.i(TAG, "Boot completed; starting ADB connection service + post-boot call monitor")
+        // ABP Call: a "switched off by the user" mark from the previous boot must not hold recovery back after
+        // this one (it made the keep-alive stand down for good). See PloshadkiFork.REBOOT_FORGETS_WD_OFF_BY_USER.
+        runCatching {
+            val prefs = AppPreferences(context)
+            if (com.baba.callvault.ploshadki.AbpBootRecovery.shouldForgetWdOffByUser(prefs.wasWirelessDebuggingTurnedOffByUser())) {
+                prefs.setWirelessDebuggingTurnedOffByUser(false)
+                com.baba.callvault.integrations.adb.TransportTimeline.event(
+                    context, "boot: forgot \"Wireless debugging off by user\" from the previous boot — recovery may switch it on",
+                )
+            } else {
+                com.baba.callvault.integrations.adb.TransportTimeline.event(context, "boot: starting recorder recovery")
+            }
+        }.onFailure { AppLogger.w(TAG, "Could not reset the Wireless-debugging mark: ${it.message}") }
         AdbConnectionService.start(context)
         // Hold a live telephony listener for a bounded window so the first call(s) after a reboot are
         // detected in real time, instead of via the post-boot-delayed PHONE_STATE broadcast.
