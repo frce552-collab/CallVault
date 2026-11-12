@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abp_recorder_down_channel">录音已停止</string>
+    <string name="abp_recorder_down_title">录音已停止 — 点按</string>
+    <string name="abp_recorder_down_text">当前通话未被录音。ABP Call 无法自动重新开始录音。点按以修复。</string>
+    <string name="abp_recorder_down_action">修复</string>
+</resources>

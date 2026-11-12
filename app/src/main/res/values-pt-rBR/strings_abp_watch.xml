@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abp_recorder_down_channel">Gravação parada</string>
+    <string name="abp_recorder_down_title">Gravação parada — toque</string>
+    <string name="abp_recorder_down_text">As chamadas não estão sendo gravadas. O ABP Call não conseguiu reiniciar a gravação sozinho. Toque para corrigir.</string>
+    <string name="abp_recorder_down_action">Corrigir</string>
+</resources>

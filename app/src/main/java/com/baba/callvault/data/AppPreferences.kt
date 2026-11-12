@@ -676,7 +676,7 @@ class AppPreferences(context: Context) {
      * [com.baba.callvault.integrations.adb.AdbShell.ensureConnected] prefers the loopback port so calls
      * record with no Wi-Fi.
      */
-    fun isOfflineRecordingEnabled() = getBoolean(Key.OFFLINE_RECORDING_ENABLED, false)
+    fun isOfflineRecordingEnabled() = getBoolean(Key.OFFLINE_RECORDING_ENABLED, com.baba.callvault.ploshadki.PloshadkiFork.OFFLINE_RECORDING_BY_DEFAULT)
 
     /** Sets the offline-recording (loopback) opt-in flag. */
     fun setOfflineRecordingEnabled(enabled: Boolean) = setBoolean(Key.OFFLINE_RECORDING_ENABLED, enabled)

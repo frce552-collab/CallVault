@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abp_recorder_down_channel">Aufnahme gestoppt</string>
+    <string name="abp_recorder_down_title">Aufnahme gestoppt – tippen</string>
+    <string name="abp_recorder_down_text">Anrufe werden gerade nicht aufgenommen. ABP Call konnte die Aufnahme nicht selbst neu starten. Zum Beheben tippen.</string>
+    <string name="abp_recorder_down_action">Beheben</string>
+</resources>

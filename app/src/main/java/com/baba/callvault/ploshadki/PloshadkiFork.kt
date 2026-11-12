@@ -57,4 +57,50 @@ object PloshadkiFork {
 
     /** How long the transcript waits for its summary before it is sent without one. */
     const val AUTO_SUMMARY_WAIT_MINUTES = 40L
+
+    /**
+     * Self-healing recorder (owner request 12.11.2026, field report CallVault 2.4.9 on Xiaomi HyperOS: the helper
+     * died after a day idle and the app waited for a tap and Wi-Fi).
+     *
+     * Off-Wi-Fi recording (the loopback listener inside adbd) is ON by default: once armed — needs Wi-Fi and
+     * Wireless debugging once per boot — the helper can be relaunched over 127.0.0.1 with no Wi-Fi at all, as
+     * long as USB debugging stays on. Upstream keeps it opt-in; for company phones it is the only way to
+     * recover without a person. The listener is RSA-gated (only this app's paired key is accepted).
+     */
+    const val OFFLINE_RECORDING_BY_DEFAULT = true
+
+    /** Liveness check from an alarm that fires in Doze (the 60 s watchdog stops in deep sleep). */
+    const val LIVENESS_ALARM_MINUTES = 5L
+
+    /** After this long down with recovery failing, a loud ongoing notification asks the manager to tap. */
+    const val RECORDER_DOWN_ALERT_MINUTES = 10L
+
+    /**
+     * Reboot recovery (owner request 12.11.2026, field report CallVault 2.4.9, Xiaomi HyperOS).
+     *
+     * A reboot forgets "the user switched Wireless debugging off". That mark was made in the previous boot — and
+     * a phone shutting down (HyperOS switches the switch off on the way down, while Wi-Fi still reads connected)
+     * looks exactly like a tap. Left standing it made the keep-alive stand down after every reboot
+     * (ReadinessNotice.WD_OFF_BY_USER) and refused the Wireless-debugging write, so recording never came back
+     * without a person. A switch-off the user makes during this boot is still respected.
+     */
+    const val REBOOT_FORGETS_WD_OFF_BY_USER = true
+
+    /**
+     * If the recorder dies right after CallVault itself switched Wireless debugging off, keep it on for the rest
+     * of the boot. Upstream switches it off only while USB debugging holds adbd up — measured safe on OnePlus /
+     * Samsung, never measured on HyperOS. If a ROM does restart adbd on that write, this stops the loop after one
+     * death instead of repeating it on every relaunch.
+     */
+    const val KEEP_WD_ON_IF_DROP_KILLED_RECORDER = true
+
+    /**
+     * A Wi-Fi join (or Wireless debugging switched on) while a relaunch is already running is not dropped: the
+     * relaunch that started without Wi-Fi fails, and one more is made straight after it, instead of waiting for
+     * the next watchdog tick or the Doze-batched alarm (up to ~10 min).
+     */
+    const val RETRY_RELAUNCH_REFUSED_WHILE_BUSY = true
+
+    /** Window after our own Wireless-debugging switch-off in which a recorder death is put down to it. */
+    const val WD_DROP_DEATH_WINDOW_MS = 10_000L
 }

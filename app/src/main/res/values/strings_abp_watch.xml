@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ABP Call (Ploshadki.kz fork): loud "recorder stopped" notification. Not in upstream; all app locales. -->
+<resources>
+    <string name="abp_recorder_down_channel">Recording stopped</string>
+    <string name="abp_recorder_down_title">Recording stopped — tap</string>
+    <string name="abp_recorder_down_text">Calls are not being recorded. ABP Call could not restart recording by itself. Tap to fix.</string>
+    <string name="abp_recorder_down_action">Fix</string>
+</resources>

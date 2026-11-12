@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abp_recorder_down_channel">রেকর্ডিং বন্ধ</string>
+    <string name="abp_recorder_down_title">রেকর্ডিং বন্ধ — ট্যাপ করুন</string>
+    <string name="abp_recorder_down_text">এখন কল রেকর্ড হচ্ছে না। ABP Call নিজে রেকর্ডিং আবার চালু করতে পারেনি। ঠিক করতে ট্যাপ করুন।</string>
+    <string name="abp_recorder_down_action">ঠিক করুন</string>
+</resources>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abp_recorder_down_channel">A felvétel leállt</string>
+    <string name="abp_recorder_down_title">A felvétel leállt – koppintson</string>
+    <string name="abp_recorder_down_text">A hívások most nem kerülnek rögzítésre. Az ABP Call nem tudta magától újraindítani a felvételt. Koppintson a javításhoz.</string>
+    <string name="abp_recorder_down_action">Javítás</string>
+</resources>

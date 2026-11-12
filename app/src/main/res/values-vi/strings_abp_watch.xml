@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abp_recorder_down_channel">Đã dừng ghi âm</string>
+    <string name="abp_recorder_down_title">Đã dừng ghi âm — nhấn vào</string>
+    <string name="abp_recorder_down_text">Cuộc gọi hiện không được ghi âm. ABP Call không thể tự khởi động lại việc ghi âm. Nhấn để khắc phục.</string>
+    <string name="abp_recorder_down_action">Khắc phục</string>
+</resources>
