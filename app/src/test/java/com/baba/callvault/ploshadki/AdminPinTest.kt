@@ -19,8 +19,9 @@ class AdminPinTest {
     }
 
     @Test
-    fun `owner decision 12-11 - updates need the administrator PIN`() {
-        assertTrue(PloshadkiFork.ADMIN_PIN_FOR_UPDATES)
+    fun `owner decision 12-11 - no PIN, our releases install themselves, never upstream`() {
+        assertFalse("owner: PIN is not needed", PloshadkiFork.ADMIN_PIN_FOR_UPDATES)
+        assertTrue(PloshadkiFork.AUTO_INSTALL_UPDATES)
         assertFalse("upstream CallVault releases must never be used", PloshadkiFork.UPSTREAM_UPDATES_ENABLED)
         assertEquals("frce552-collab/abp-call-releases", PloshadkiFork.UPDATE_REPO)
     }

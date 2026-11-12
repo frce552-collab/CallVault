@@ -31,6 +31,8 @@ class UpdateCheckWorker(context: Context, params: WorkerParameters) : CoroutineW
         preferences.setLastUpdateCheckMillis(System.currentTimeMillis())
         val release = UpdateManager.checkForUpdate(applicationContext) ?: return@withContext Result.success()
         UpdateManager.notifyAvailableOnce(applicationContext, preferences, release.tag)
+        // ABP Call (owner decision 12.11): our released versions install themselves at night on Wi-Fi + charger.
+        com.baba.callvault.ploshadki.AbpAutoInstallWorker.enqueue(applicationContext)
         Result.success()
     }
 }

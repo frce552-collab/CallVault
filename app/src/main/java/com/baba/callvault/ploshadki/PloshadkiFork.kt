@@ -110,5 +110,16 @@ object PloshadkiFork {
      * "version X is available, the administrator will install it". The PIN is set on the phone when the app is set up
      * and stored only as a salted PBKDF2 hash ([AdminPin]).
      */
-    const val ADMIN_PIN_FOR_UPDATES = true
+    const val ADMIN_PIN_FOR_UPDATES = false // owner 12.11 (later): «PIN не надо» — we decide which releases go out.
+
+    /**
+     * Owner decision 12.11.2026: phones install OUR main-channel (Latest) releases by themselves. Only releases we
+     * promoted after the one-phone check reach them (new builds are pilot/pre-release). Unattended install happens
+     * only in [AUTO_INSTALL_FROM_HOUR]–[AUTO_INSTALL_UNTIL_HOUR] Almaty time, on unmetered Wi-Fi and charging, never
+     * during a call (CallInProgressGate), silently through the recorder's shell; never a dialog.
+     */
+    const val AUTO_INSTALL_UPDATES = true
+    const val AUTO_INSTALL_FROM_HOUR = 20
+    const val AUTO_INSTALL_UNTIL_HOUR = 8
+    const val AUTO_INSTALL_ZONE = "Asia/Almaty"
 }
