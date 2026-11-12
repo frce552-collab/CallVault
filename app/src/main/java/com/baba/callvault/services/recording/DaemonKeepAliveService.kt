@@ -653,13 +653,6 @@ class DaemonKeepAliveService : Service() {
         }.apply { isDaemon = true; name = "cv-usbdefault-calm" }.start()
     }
 
-    /**
-     * Relaunch the daemon if it's down. [force] (a confirmed binder-death) bypasses the throttle so a
-     * genuine recovery isn't delayed; the un-forced watchdog path still throttles to avoid hammering a
-     * relaunch that keeps failing. Loopback records off-Wi-Fi, so only the non-offline (Wireless
-     * Debugging) relaunch path requires Wi-Fi. When the daemon is already connected the [watchdog] never
-     * calls this, so an active recording is implicitly skipped and never churned.
-     */
     /** ABP Call: when the recorder went down (elapsedRealtime), for the loud alert; null while up. */
     private var downSinceMs: Long? = null
     private var downAlertShown = false
@@ -682,21 +675,73 @@ class DaemonKeepAliveService : Service() {
         }
     }
 
-    /** ABP Call: one liveness check from [com.baba.callvault.ploshadki.AbpLivenessAlarm] (works in Doze). Main thread. */
-    private fun livenessTick() {
-        val alive = isDaemonAlive()
-        TransportTimeline.event(applicationContext, "liveness alarm: recorder ${if (alive) "up" else "down"}")
+    /** ABP Call: set in [onDestroy]; a liveness check posted just before it must not relaunch or reschedule. */
+    @Volatile
+    private var destroyed = false
+
+    /**
+     * ABP Call: one liveness check from [com.baba.callvault.ploshadki.AbpLivenessAlarm] (works in Doze). Main thread.
+     *
+     * A single "down" read is confirmed once more after [LIVENESS_CONFIRM_MS] before relaunching, like the
+     * watchdog's debounce: a relaunch kills and respawns a recorder that was merely slow to answer one ping.
+     * The relaunch is un-forced, so it never races a watchdog attempt made seconds earlier ([RewarmGate]'s
+     * throttle); in Doze the watchdog has not ticked for minutes, so the throttle does not delay it.
+     * The next alarm is scheduled in `finally` — a throw here used to end the chain until the service restarted.
+     * [onDone] is told whether a relaunch was started, so the alarm's wake lock is released at once otherwise.
+     */
+    private fun livenessTick(onDone: (relaunching: Boolean) -> Unit) {
+        if (destroyed) { onDone(false); return }
+        var alive = true
+        var finished = false
+        try {
+            alive = isDaemonAlive()
+            TransportTimeline.event(applicationContext, "liveness alarm: recorder ${if (alive) "up" else "down"}")
+            if (!alive) {
+                finished = true // handed over to the confirm below
+                watchdogHandler.postDelayed({ livenessConfirmDown(onDone) }, LIVENESS_CONFIRM_MS)
+                return
+            }
+            applyLiveness(true)
+        } finally {
+            if (!finished) {
+                if (!destroyed) com.baba.callvault.ploshadki.AbpLivenessAlarm.schedule(
+                    applicationContext, com.baba.callvault.ploshadki.AbpRecorderWatch.nextCheckDelayMs(alive)
+                )
+                onDone(false)
+            }
+        }
+    }
+
+    private fun livenessConfirmDown(onDone: (relaunching: Boolean) -> Unit) {
+        if (destroyed) { onDone(false); return }
+        var alive = true
+        try {
+            alive = isDaemonAlive()
+            applyLiveness(alive)
+            if (!alive) maybeRewarm(force = false)
+        } finally {
+            if (!destroyed) com.baba.callvault.ploshadki.AbpLivenessAlarm.schedule(
+                applicationContext, com.baba.callvault.ploshadki.AbpRecorderWatch.nextCheckDelayMs(alive)
+            )
+            onDone(!alive)
+        }
+    }
+
+    private fun applyLiveness(alive: Boolean) {
         trackDownForAlert(alive)
         if (alive != (lastReady == true)) {
             lastReady = alive
             updateNotification(alive)
         }
-        if (!alive) maybeRewarm(force = true)
-        com.baba.callvault.ploshadki.AbpLivenessAlarm.schedule(
-            applicationContext, com.baba.callvault.ploshadki.AbpRecorderWatch.nextCheckDelayMs(alive)
-        )
     }
 
+    /**
+     * Relaunch the daemon if it's down. [force] (a confirmed binder-death) bypasses the throttle so a
+     * genuine recovery isn't delayed; the un-forced watchdog path still throttles to avoid hammering a
+     * relaunch that keeps failing. Loopback records off-Wi-Fi, so only the non-offline (Wireless
+     * Debugging) relaunch path requires Wi-Fi. When the daemon is already connected the [watchdog] never
+     * calls this, so an active recording is implicitly skipped and never churned.
+     */
     private fun maybeRewarm(force: Boolean = false) {
         if (!usesAdb()) {
             rebindShizuku(force)
@@ -951,7 +996,10 @@ class DaemonKeepAliveService : Service() {
     }
 
     override fun onDestroy() {
+        destroyed = true
         if (instance === this) instance = null
+        // A stop on purpose must not leave the ongoing "Recording stopped — tap" behind (it is not auto-cancel).
+        com.baba.callvault.ploshadki.AbpRecorderDownAlert.cancel(applicationContext)
         // Stopped on purpose (recording turned off / mode switch): no more checks. A process the system killed
         // never gets here, so its alarm stays and brings the keep-alive back.
         com.baba.callvault.ploshadki.AbpLivenessAlarm.cancel(applicationContext)
@@ -987,11 +1035,33 @@ class DaemonKeepAliveService : Service() {
         @Volatile
         private var instance: DaemonKeepAliveService? = null
 
-        /** ABP Call: runs one liveness check on the running keep-alive. False when it is not running. */
-        fun livenessCheckFromAlarm(context: Context): Boolean {
+        /**
+         * ABP Call: runs one liveness check on the running keep-alive, on its main-looper handler. False when it
+         * is not running (then [onDone] is never called). [onDone] runs once, on the main thread.
+         */
+        fun livenessCheckFromAlarm(context: Context, onDone: (relaunching: Boolean) -> Unit = {}): Boolean {
             val s = instance ?: return false
-            s.watchdogHandler.post { runCatching { s.livenessTick() } }
-            return true
+            if (s.destroyed) return false
+            val posted = s.watchdogHandler.post {
+                runCatching { s.livenessTick(onDone) }.onFailure {
+                    AppLogger.w(TAG, "Liveness tick failed: ${it.javaClass.simpleName}")
+                    onDone(false)
+                }
+            }
+            return posted
+        }
+
+        /** ABP Call: a "down" liveness read is confirmed once more after this before relaunching. */
+        private const val LIVENESS_CONFIRM_MS = 3_000L
+
+        /**
+         * Whether the keep-alive should run at all: the user has not turned recording off, and
+         * [KeepAlivePolicy] allows it in this mode. [start] and the liveness alarm both ask this.
+         */
+        fun shouldRun(context: Context): Boolean {
+            val prefs = AppPreferences(context)
+            return prefs.getRecordingState() != RecordingState.STOPPED &&
+                KeepAlivePolicy.shouldRun(prefs.getPrivilegedMode(), prefs.isVoipRecordingEnabled())
         }
 
         /** How long adbd may take to stop after USB debugging goes off before the off is believed. */

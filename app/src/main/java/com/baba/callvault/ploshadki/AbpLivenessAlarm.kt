@@ -28,22 +28,23 @@ class AbpLivenessAlarm : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != ACTION) return
         val app = context.applicationContext
-        val wl = (app.getSystemService(Context.POWER_SERVICE) as PowerManager)
-            .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "abpcall:liveness")
-        runCatching { wl.acquire(WAKE_MS) }
+        val wl = runCatching {
+            (app.getSystemService(Context.POWER_SERVICE) as PowerManager)
+                .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "abpcall:liveness")
+                .apply { setReferenceCounted(false); acquire(WAKE_MS) }
+        }.getOrNull()
         val pending = goAsync()
         Thread {
             try {
-                val handled = DaemonKeepAliveService.livenessCheckFromAlarm(app)
-                if (!handled) {
-                    // The keep-alive is not running (killed by the system): start it; it checks on start.
-                    runCatching { TransportTimeline.event(app, "liveness alarm: keep-alive not running — starting it") }
-                    DaemonKeepAliveService.start(app)
+                handle(app) { relaunching ->
+                    // Keep the (timed) lock only while a relaunch runs on its own thread; otherwise let the CPU
+                    // sleep now — holding it 90 s on every firing kept the phone awake for nothing.
+                    if (!relaunching) release(wl)
                 }
             } catch (e: Exception) {
                 AppLogger.w(TAG, "Liveness check failed: ${e.javaClass.simpleName}")
+                release(wl)
             } finally {
-                // Keep the lock for the relaunch the check may have started (it runs on its own thread).
                 pending.finish()
             }
         }.apply { isDaemon = true; name = "abp-liveness" }.start()
@@ -51,6 +52,37 @@ class AbpLivenessAlarm : BroadcastReceiver() {
 
     companion object {
         private const val TAG = "ABP:Liveness"
+
+        private fun release(wl: PowerManager.WakeLock?) {
+            runCatching { if (wl?.isHeld == true) wl.release() }
+        }
+
+        /**
+         * One firing. With the keep-alive running it checks there (main thread) and reports through [onDone].
+         * Without it (the process was killed): only if the user still wants recording and [KeepAlivePolicy]
+         * allows the keep-alive in this mode is it started — never against a STOPPED recording or in Shizuku mode
+         * without app calls; then the alarm is cancelled and the chain ends. [DaemonKeepAliveService.start]
+         * swallows a refused background start (ForegroundServiceStartNotAllowedException: an inexact alarm gives
+         * no FGS-start exemption on Android 12+), so the next check is scheduled here, not left to onCreate.
+         */
+        internal fun handle(context: Context, onDone: (relaunching: Boolean) -> Unit) {
+            if (DaemonKeepAliveService.livenessCheckFromAlarm(context, onDone)) return
+            if (!DaemonKeepAliveService.shouldRun(context)) {
+                runCatching { TransportTimeline.event(context, "liveness alarm: keep-alive not wanted (recording off or mode) — alarm cancelled") }
+                cancel(context)
+                onDone(false)
+                return
+            }
+            runCatching { TransportTimeline.event(context, "liveness alarm: keep-alive not running — starting it") }
+            try {
+                DaemonKeepAliveService.start(context)
+            } catch (e: Exception) {
+                // start() already catches; belt and braces for a refused foreground start.
+                AppLogger.w(TAG, "Could not start the keep-alive: ${e.javaClass.simpleName}")
+            }
+            schedule(context, AbpRecorderWatch.nextCheckDelayMs(recorderUp = false))
+            onDone(true)
+        }
         const val ACTION = "kz.ploshadki.recorder.LIVENESS_CHECK"
         private const val REQUEST_CODE = 0xAB9
         /** Long enough for one bounded relaunch (45 s) plus ADB connect. */
