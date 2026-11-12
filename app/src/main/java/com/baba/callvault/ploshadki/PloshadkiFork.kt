@@ -111,4 +111,12 @@ object PloshadkiFork {
      * and stored only as a salted PBKDF2 hash ([AdminPin]).
      */
     const val ADMIN_PIN_FOR_UPDATES = true
+
+    /**
+     * Setup wizard step "Phone check" (owner request 12.11.2026): USB debugging; on Xiaomi/HyperOS "USB debugging
+     * (Security settings)" and Autostart; "Keep Wireless debugging on for recording"; battery "No restrictions";
+     * automatic system updates off. Read where Android allows, otherwise the settings screen opens and the person
+     * marks it done. See [PhoneCheckState]. Off-Wi-Fi recording stays on the reliability step just before it.
+     */
+    const val WIZARD_PHONE_CHECKS = true
 }

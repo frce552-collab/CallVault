@@ -131,4 +131,19 @@ class WizardStepsTest {
             }
         }
     }
+
+    @Test
+    fun `ABP Call checks the phone settings in both modes, right after reliability`() {
+        assertTrue(com.baba.callvault.ploshadki.PloshadkiFork.WIZARD_PHONE_CHECKS)
+        for (usesDrive in listOf(false, true)) {
+            for (usesEmbeddedAdb in listOf(false, true)) {
+                val steps = wizardSteps(usesDrive, usesEmbeddedAdb)
+                assertTrue(steps.contains(WizardStep.PHONE_CHECKS))
+                assertTrue(steps.indexOf(WizardStep.PHONE_CHECKS) > steps.indexOf(WizardStep.AUTO_RECORD))
+                if (usesEmbeddedAdb) {
+                    assertEquals(steps.indexOf(WizardStep.RELIABILITY) + 1, steps.indexOf(WizardStep.PHONE_CHECKS))
+                }
+            }
+        }
+    }
 }
