@@ -18,6 +18,6 @@
     <string name="abp_phone_check_keep_wd_how">ABP Call turns Wireless debugging back on if it is switched off, so calls keep being recorded. Also in Settings &gt; Connection.</string>
     <string name="abp_phone_check_battery">Battery: No restrictions</string>
     <string name="abp_phone_check_battery_how">App info &gt; Battery (on Xiaomi: Battery saver) &gt; No restrictions. Otherwise the phone stops ABP Call in the background and calls are not recorded.</string>
-    <string name="abp_phone_check_system_updates">Automatic system updates off</string>
-    <string name="abp_phone_check_system_updates_how">A system update can switch the debugging settings off and restart the phone at night. Xiaomi: Settings &gt; About phone &gt; HyperOS version &gt; menu &gt; Settings &gt; turn off automatic download and install. Other phones: Developer options &gt; Automatic system updates, off; Samsung: Software update &gt; Auto download over Wi-Fi, off. The phone does not tell apps this setting, so tap \"I did it\" when it is off.</string>
+    <string name="abp_phone_check_system_updates">Big system updates: only after our check</string>
+    <string name="abp_phone_check_system_updates_how">Monthly security updates may install by themselves (better at night). A BIG update (new Android or HyperOS version) can switch the debugging settings off: do not tap it yourself, first the test phone is checked, then you get the go-ahead. Xiaomi: Settings &gt; About phone &gt; HyperOS version. Tap \"I did it\" when you have read this.</string>
 </resources>
