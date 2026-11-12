@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abp_recorder_down_channel">Registrazione interrotta</string>
+    <string name="abp_recorder_down_title">Registrazione interrotta: tocca</string>
+    <string name="abp_recorder_down_text">Le chiamate non vengono registrate. ABP Call non è riuscito a riavviare la registrazione da solo. Tocca per risolvere.</string>
+    <string name="abp_recorder_down_action">Risolvi</string>
+</resources>

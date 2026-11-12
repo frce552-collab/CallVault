@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abp_recorder_down_channel">ضبط متوقف شد</string>
+    <string name="abp_recorder_down_title">ضبط متوقف شد — ضربه بزنید</string>
+    <string name="abp_recorder_down_text">اکنون تماس‌ها ضبط نمی‌شوند. ABP Call نتوانست ضبط را خودش دوباره راه‌اندازی کند. برای رفع مشکل ضربه بزنید.</string>
+    <string name="abp_recorder_down_action">رفع مشکل</string>
+</resources>

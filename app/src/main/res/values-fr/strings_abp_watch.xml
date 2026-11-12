@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abp_recorder_down_channel">Enregistrement arrêté</string>
+    <string name="abp_recorder_down_title">Enregistrement arrêté — touchez</string>
+    <string name="abp_recorder_down_text">Les appels ne sont pas enregistrés pour le moment. ABP Call n\'a pas pu relancer l\'enregistrement tout seul. Touchez pour corriger.</string>
+    <string name="abp_recorder_down_action">Corriger</string>
+</resources>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abp_recorder_down_channel">Nagrywanie zatrzymane</string>
+    <string name="abp_recorder_down_title">Nagrywanie zatrzymane — dotknij</string>
+    <string name="abp_recorder_down_text">Rozmowy nie są teraz nagrywane. ABP Call nie mógł sam wznowić nagrywania. Dotknij, aby naprawić.</string>
+    <string name="abp_recorder_down_action">Napraw</string>
+</resources>

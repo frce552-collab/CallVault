@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abp_recorder_down_channel">توقف التسجيل</string>
+    <string name="abp_recorder_down_title">توقف التسجيل — اضغط</string>
+    <string name="abp_recorder_down_text">لا يتم تسجيل المكالمات الآن. لم يتمكن ABP Call من إعادة تشغيل التسجيل تلقائيًا. اضغط للإصلاح.</string>
+    <string name="abp_recorder_down_action">إصلاح</string>
+</resources>

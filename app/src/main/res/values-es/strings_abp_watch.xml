@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abp_recorder_down_channel">Grabación detenida</string>
+    <string name="abp_recorder_down_title">Grabación detenida: toca</string>
+    <string name="abp_recorder_down_text">Ahora no se graban las llamadas. ABP Call no pudo reiniciar la grabación por sí solo. Toca para arreglarlo.</string>
+    <string name="abp_recorder_down_action">Arreglar</string>
+</resources>

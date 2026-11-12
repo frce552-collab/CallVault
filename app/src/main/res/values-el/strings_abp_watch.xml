@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abp_recorder_down_channel">Η εγγραφή σταμάτησε</string>
+    <string name="abp_recorder_down_title">Η εγγραφή σταμάτησε — πατήστε</string>
+    <string name="abp_recorder_down_text">Οι κλήσεις δεν καταγράφονται τώρα. Το ABP Call δεν μπόρεσε να επανεκκινήσει μόνο του την εγγραφή. Πατήστε για διόρθωση.</string>
+    <string name="abp_recorder_down_action">Διόρθωση</string>
+</resources>
