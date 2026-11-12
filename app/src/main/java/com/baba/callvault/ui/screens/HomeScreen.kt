@@ -603,6 +603,26 @@ fun HomeScreen(
     // VM flag) does not yank the open dialog out from under the user; the VM persists "shown" once per
     // version, so it never reappears for the same release. The dashboard banner stays regardless.
     var updatePrompt by remember { mutableStateOf<String?>(null) }
+    // ABP Call (owner decision 12.11): updates are installed by an administrator with a PIN.
+    val pinContext = androidx.compose.ui.platform.LocalContext.current
+    var adminPinSet by remember {
+        mutableStateOf(com.baba.callvault.ploshadki.AdminPin.isSet(com.baba.callvault.ploshadki.AdminPin.store(pinContext)))
+    }
+    var pinGateTag by remember { mutableStateOf<String?>(null) }
+    val requestUpdate: (String?) -> Unit = { tag ->
+        if (com.baba.callvault.ploshadki.PloshadkiFork.ADMIN_PIN_FOR_UPDATES) pinGateTag = tag ?: ""
+        else viewModel.installAvailableUpdate()
+    }
+    if (com.baba.callvault.ploshadki.PloshadkiFork.ADMIN_PIN_FOR_UPDATES && !adminPinSet) {
+        com.baba.callvault.ploshadki.AdminPinSetupDialog(onDone = { adminPinSet = true })
+    }
+    pinGateTag?.let { tag ->
+        com.baba.callvault.ploshadki.AdminPinGateDialog(
+            version = tag.ifBlank { null },
+            onVerified = { pinGateTag = null; viewModel.installAvailableUpdate() },
+            onCancel = { pinGateTag = null },
+        )
+    }
     LaunchedEffect(uiState.updatePopupTag) {
         val tag = uiState.updatePopupTag ?: return@LaunchedEffect
         updatePrompt = tag
@@ -612,9 +632,14 @@ fun HomeScreen(
         AlertDialog(
             onDismissRequest = { updatePrompt = null },
             title = { Text(stringResource(R.string.update_popup_title, tag.removePrefix("v"))) },
-            text = { Text(stringResource(R.string.update_popup_text)) },
+            text = {
+                Text(
+                    if (com.baba.callvault.ploshadki.PloshadkiFork.ADMIN_PIN_FOR_UPDATES) stringResource(R.string.abp_update_by_admin_text)
+                    else stringResource(R.string.update_popup_text)
+                )
+            },
             confirmButton = {
-                TextButton(onClick = { updatePrompt = null; viewModel.installAvailableUpdate() }) {
+                TextButton(onClick = { updatePrompt = null; requestUpdate(tag) }) {
                     Text(stringResource(R.string.update_popup_update_now))
                 }
             },
@@ -1162,7 +1187,7 @@ fun HomeScreen(
                             tag = tag,
                             isInstalling = uiState.isUpdateInstalling,
                             progressPercent = uiState.updateProgressPercent,
-                            onUpdate = { viewModel.installAvailableUpdate() }
+                            onUpdate = { requestUpdate(tag) }
                         )
                     }
                 }

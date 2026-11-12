@@ -49,7 +49,11 @@ object UpdateNotifications {
         post(
             context, AVAILABLE_NOTIFICATION_ID,
             title = context.getString(R.string.update_notif_available_title, tag.removePrefix("v")),
-            text = context.getString(R.string.update_notif_available_text),
+            // ABP Call: the manager only learns of it; the administrator installs it with the PIN.
+            text = context.getString(
+                if (com.baba.callvault.ploshadki.PloshadkiFork.ADMIN_PIN_FOR_UPDATES) R.string.abp_update_by_admin_text
+                else R.string.update_notif_available_text
+            ),
             contentIntent = openApp
         )
     }

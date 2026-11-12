@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- English on purpose: company phones use Russian; a proper translation is welcome. -->
+<resources>
+    <string name="abp_admin_pin_setup_title">Administrator PIN</string>
+    <string name="abp_admin_pin_setup_text">Set the administrator PIN. Only the administrator installs ABP Call updates. Do not give the PIN to the manager.</string>
+    <string name="abp_admin_pin_label">PIN</string>
+    <string name="abp_admin_pin_again_label">PIN again</string>
+    <string name="abp_admin_pin_save">Save</string>
+    <string name="abp_admin_pin_bad_format">The PIN must be %1$d–%2$d digits.</string>
+    <string name="abp_admin_pin_mismatch">The PINs do not match.</string>
+    <string name="abp_admin_pin_gate_title">Update by administrator</string>
+    <string name="abp_admin_pin_gate_text">Version %1$s will be installed. Enter the administrator PIN.</string>
+    <string name="abp_admin_pin_wrong">Wrong PIN.</string>
+    <string name="abp_admin_pin_locked">Too many attempts. Try again in %1$d min.</string>
+    <string name="abp_admin_pin_install">Install</string>
+    <string name="abp_admin_pin_cancel">Cancel</string>
+    <string name="abp_update_by_admin_text">A new version of ABP Call is available. The administrator will install it.</string>
+</resources>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abp_admin_pin_setup_title">PIN администратора</string>
+    <string name="abp_admin_pin_setup_text">Задайте PIN администратора. Обновления ABP Call ставит только администратор. Менеджеру PIN не сообщайте.</string>
+    <string name="abp_admin_pin_label">PIN</string>
+    <string name="abp_admin_pin_again_label">PIN ещё раз</string>
+    <string name="abp_admin_pin_save">Сохранить</string>
+    <string name="abp_admin_pin_bad_format">PIN — от %1$d до %2$d цифр.</string>
+    <string name="abp_admin_pin_mismatch">PIN не совпадают.</string>
+    <string name="abp_admin_pin_gate_title">Обновление — администратор</string>
+    <string name="abp_admin_pin_gate_text">Будет установлена версия %1$s. Введите PIN администратора.</string>
+    <string name="abp_admin_pin_wrong">Неверный PIN.</string>
+    <string name="abp_admin_pin_locked">Слишком много попыток. Повторите через %1$d мин.</string>
+    <string name="abp_admin_pin_install">Установить</string>
+    <string name="abp_admin_pin_cancel">Отмена</string>
+    <string name="abp_update_by_admin_text">Есть новая версия ABP Call. Её установит администратор.</string>
+</resources>

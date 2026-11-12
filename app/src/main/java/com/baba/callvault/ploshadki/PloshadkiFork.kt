@@ -103,4 +103,12 @@ object PloshadkiFork {
 
     /** Window after our own Wireless-debugging switch-off in which a recorder death is put down to it. */
     const val WD_DROP_DEATH_WINDOW_MS = 10_000L
+
+    /**
+     * Owner decision 12.11.2026: an update is installed only by an administrator. The Update button (Home banner and
+     * the "update available" popup) asks for the administrator PIN first; the daily check only tells the manager
+     * "version X is available, the administrator will install it". The PIN is set on the phone when the app is set up
+     * and stored only as a salted PBKDF2 hash ([AdminPin]).
+     */
+    const val ADMIN_PIN_FOR_UPDATES = true
 }
