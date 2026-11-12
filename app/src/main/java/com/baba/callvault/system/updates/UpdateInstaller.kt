@@ -96,7 +96,10 @@ object UpdateInstaller {
         // background-launch limits an app itself is subject to.
         val pkg = context.packageName
         val grant = "pm grant $pkg android.permission.WRITE_SECURE_SETTINGS"
-        val command = "pm install -r -S $size && { $grant; am start -n $pkg/$pkg.MainActivity; }"
+        // ABP Call: the application id (kz.ploshadki.recorder) differs from the Kotlin namespace, so the activity
+        // is named by its class, not "$pkg.MainActivity" (that component does not exist and the app never reopened).
+        val activity = com.baba.callvault.MainActivity::class.java.name
+        val command = "pm install -r -S $size && { $grant; am start -n $pkg/$activity; }"
 
         // exec: (raw, no PTY) — REQUIRED for streaming the binary APK to stdin; shell: would corrupt
         // or prematurely close the stream (the "Stream closed mid-send" failure this fixes).
