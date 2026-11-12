@@ -9,7 +9,6 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.PowerManager
 import android.os.SystemClock
 import com.baba.callvault.integrations.adb.TransportTimeline
@@ -20,8 +19,7 @@ import com.baba.callvault.utils.AppLogger
  * A liveness check that also runs in Doze / HyperOS deep sleep, where the keep-alive's 60 s Handler watchdog
  * does not tick (Handler delays are uptime-based and stop while the CPU sleeps).
  *
- * Uses `setExactAndAllowWhileIdle` when exact alarms are allowed, otherwise `setAndAllowWhileIdle` (no special
- * permission; Android batches it, roughly every 9–15 min in deep Doze). Each firing holds a partial wake lock
+ * Uses `setAndAllowWhileIdle` (no special permission; Android batches it, roughly every 9–15 min in deep Doze). Each firing holds a partial wake lock
  * while the keep-alive checks the recorder and relaunches it if it is down; every firing is written to the
  * always-on transport timeline, which is part of "Share debug report".
  */
@@ -71,9 +69,9 @@ class AbpLivenessAlarm : BroadcastReceiver() {
                 val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
                 val at = SystemClock.elapsedRealtime() + delayMs
                 val pi = pendingIntent(context)
-                val exact = Build.VERSION.SDK_INT < Build.VERSION_CODES.S || am.canScheduleExactAlarms()
-                if (exact) am.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, at, pi)
-                else am.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, at, pi)
+                // Inexact on purpose: no SCHEDULE_EXACT_ALARM permission (denied by default on Android 14). Still fires
+                // in Doze; Android may batch it (about every 9–15 min in deep idle).
+                am.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, at, pi)
             }.onFailure { AppLogger.w(TAG, "Could not schedule the liveness alarm: ${it.javaClass.simpleName}") }
         }
 
