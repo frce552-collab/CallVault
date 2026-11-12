@@ -24,8 +24,8 @@ on:
   push:
     branches:
       - 'ploshadki/main'
-      # Первый релиз до вливания в ploshadki/main (решение владельца 09.11: «ускорить»).
-      - 's1/self-update'
+      # s1/self-update убран после вливания #3 (аудит 11.11): push в любую рабочую ветку не должен
+      # выпускать релиз --latest, который тихо встанет на все телефоны.
   workflow_dispatch:
     inputs:
       channel:
