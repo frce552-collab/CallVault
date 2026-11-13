@@ -92,6 +92,9 @@ Modified by Ploshadki.kz since 2026-11-07, based on CallVault v2.4.9
   `air.wa-capture.transcript.v1` (`ploshadki/TranscriptReport.kt`, `ploshadki/AbpTranscriptWorker.kt`,
   hook in `transcription/TranscriptionRunner.kt`); an enrolled phone defaults to transcribing after
   each call (`data/AppPreferences.kt`); Kazakh (`kk`) added to the transcription languages.
+- 2026-11-13: app calls are recorded for ordinary WhatsApp (`com.whatsapp`) as well as WhatsApp
+  Business; every other or unidentified app is still not recorded (`ploshadki/PloshadkiFork.kt`);
+  the upload names the real app (`ploshadki/CaptureReport.kt`).
 
 ABP Call remains licensed under GPL-3.0-or-later with the Section 7 terms in LICENSE.
 Source: https://github.com/frce552-collab/CallVault

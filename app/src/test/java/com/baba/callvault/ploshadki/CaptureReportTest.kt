@@ -36,10 +36,27 @@ class CaptureReportTest {
     }
 
     @Test
-    fun `WhatsApp Business app id, never personal WhatsApp`() {
+    fun `WhatsApp Business app id`() {
         val r = report(CaptureReport.build(identity, policy, call(CaptureReport.Source.WHATSAPP_BUSINESS, CaptureReport.NearChannel.FIRST), media, 0L, "x"))
         assertEquals("com.whatsapp.w4b", (r["sourceApp"] as Map<*, *>)["appId"])
         assertEquals("APP_FILTERED", r["isolation"])
+    }
+
+    @Test
+    fun `ordinary WhatsApp gets its own app id, not WhatsApp Business`() {
+        val r = report(CaptureReport.build(identity, policy, call(CaptureReport.Source.WHATSAPP, CaptureReport.NearChannel.FIRST), media, 0L, "x"))
+        assertEquals("com.whatsapp", (r["sourceApp"] as Map<*, *>)["appId"])
+        assertEquals("APP_FILTERED", r["isolation"])
+    }
+
+    @Test
+    fun `which WhatsApp, by the app name on the file`() {
+        assertEquals(CaptureReport.Source.WHATSAPP, CaptureReport.voipSource("WhatsApp"))
+        assertEquals(CaptureReport.Source.WHATSAPP, CaptureReport.voipSource(" whatsapp "))
+        assertEquals(CaptureReport.Source.WHATSAPP_BUSINESS, CaptureReport.voipSource("WhatsApp Business"))
+        assertEquals(CaptureReport.Source.WHATSAPP_BUSINESS, CaptureReport.voipSource("WA Business"))
+        // No app on the name (old file): as before 13.11, WhatsApp Business.
+        assertEquals(CaptureReport.Source.WHATSAPP_BUSINESS, CaptureReport.voipSource(null))
     }
 
     @Test

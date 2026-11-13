@@ -22,7 +22,10 @@ import java.util.concurrent.CopyOnWriteArraySet
  */
 object RecorderEvents {
 
-    /** Where the call came from. Personal WhatsApp is never recorded, so it never appears. */
+    /**
+     * Where the call came from. WA_BUSINESS is any WhatsApp call recording ("_voip" file): WhatsApp Business or,
+     * since 13.11.2026, ordinary WhatsApp. The name is kept so host apps (Capacitor plugin) do not break.
+     */
     enum class Channel { GSM, WA_BUSINESS }
 
     enum class UploadState {

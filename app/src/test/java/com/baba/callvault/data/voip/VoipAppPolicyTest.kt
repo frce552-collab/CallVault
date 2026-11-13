@@ -1,6 +1,6 @@
 /*
  * ABP Call — Ploshadki.kz fork of CallVault. GPL-3.0-or-later with the Section 7 terms in LICENSE.
- * Upstream tests rewritten for the fork's fail-closed allow-list (only WhatsApp Business).
+ * Upstream tests rewritten for the fork's fail-closed allow-list (WhatsApp Business and WhatsApp, owner 13.11.2026).
  */
 package com.baba.callvault.data.voip
 
@@ -20,8 +20,9 @@ class VoipAppPolicyTest {
     }
 
     @Test
-    fun `never records personal WhatsApp`() {
-        assertFalse(VoipAppPolicy.shouldRecord("com.whatsapp", emptySet()))
+    fun `records ordinary WhatsApp too (owner 13_11_2026)`() {
+        assertTrue(VoipAppPolicy.shouldRecord("com.whatsapp", emptySet()))
+        assertFalse(VoipAppPolicy.shouldRecord("com.whatsapp", setOf("com.whatsapp")))
     }
 
     @Test
@@ -29,6 +30,8 @@ class VoipAppPolicyTest {
         assertFalse(VoipAppPolicy.shouldRecord("org.telegram.messenger", emptySet()))
         assertFalse(VoipAppPolicy.shouldRecord("org.thoughtcrime.securesms", emptySet()))
         assertFalse(VoipAppPolicy.shouldRecord("com.whatsapp.w4b.fake", emptySet()))
+        assertFalse(VoipAppPolicy.shouldRecord("com.whatsapp.fake", emptySet()))
+        assertFalse(VoipAppPolicy.shouldRecord("com.gbwhatsapp", emptySet()))
     }
 
     @Test
