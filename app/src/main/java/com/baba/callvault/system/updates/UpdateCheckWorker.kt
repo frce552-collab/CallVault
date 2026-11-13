@@ -29,7 +29,10 @@ class UpdateCheckWorker(context: Context, params: WorkerParameters) : CoroutineW
         if (!preferences.isUpdateCheckEnabled()) return@withContext Result.success()
 
         preferences.setLastUpdateCheckMillis(System.currentTimeMillis())
-        val release = UpdateManager.checkForUpdate(applicationContext) ?: return@withContext Result.success()
+        val release = UpdateManager.checkForUpdate(applicationContext)
+        // ABP Call: if the update key has expired, say so on the phone (only then; reminders go to the owner).
+        runCatching { com.baba.callvault.ploshadki.AbpUpdateKey.checkAndNotify(applicationContext) }
+        if (release == null) return@withContext Result.success()
         UpdateManager.notifyAvailableOnce(applicationContext, preferences, release.tag)
         // ABP Call (owner decision 12.11): our released versions install themselves at night on Wi-Fi + charger.
         com.baba.callvault.ploshadki.AbpAutoInstallWorker.enqueue(applicationContext)
