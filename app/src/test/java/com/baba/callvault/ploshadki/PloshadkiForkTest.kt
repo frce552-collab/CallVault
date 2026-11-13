@@ -18,8 +18,8 @@ class PloshadkiForkTest {
     }
 
     @Test
-    fun `only WhatsApp Business is recordable`() {
-        assertEquals(setOf("com.whatsapp.w4b"), PloshadkiFork.RECORDABLE_VOIP_PACKAGES)
+    fun `only WhatsApp Business and WhatsApp are recordable`() {
+        assertEquals(setOf("com.whatsapp.w4b", "com.whatsapp"), PloshadkiFork.RECORDABLE_VOIP_PACKAGES)
     }
 
     @Test

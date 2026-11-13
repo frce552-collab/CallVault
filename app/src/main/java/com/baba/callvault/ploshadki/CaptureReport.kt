@@ -22,9 +22,26 @@ object CaptureReport {
     const val SOURCE_VERSION = "air.wa-capture.source.v1"
     /** Pseudo app id of a carrier (GSM/VoLTE) call in the contract. */
     const val GSM_APP_ID = "android.telephony"
-    const val WA_BUSINESS_APP_ID = "com.whatsapp.w4b"
+    const val WA_BUSINESS_APP_ID = PloshadkiFork.WHATSAPP_BUSINESS_PACKAGE
+    /** Ordinary WhatsApp (owner decision 13.11.2026). The server admits it only if the enrollment allows it. */
+    const val WA_APP_ID = PloshadkiFork.WHATSAPP_PACKAGE
 
-    enum class Source { GSM, WHATSAPP_BUSINESS }
+    enum class Source { GSM, WHATSAPP_BUSINESS, WHATSAPP }
+
+    /**
+     * Which WhatsApp a recording came from, by the app name CallVault put on the file ("…_voip-WhatsApp_…").
+     * The name is the app's own label, read from the package that owned the call audio: ordinary WhatsApp is
+     * labelled exactly "WhatsApp"; WhatsApp Business is "WhatsApp Business" or "WA Business". Anything else —
+     * no label, an old file — stays WhatsApp Business, as every VoIP file was before 13.11.
+     */
+    fun voipSource(voipAppLabel: String?): Source =
+        if (voipAppLabel?.trim()?.equals("WhatsApp", ignoreCase = true) == true) Source.WHATSAPP else Source.WHATSAPP_BUSINESS
+
+    fun appIdOf(source: Source): String = when (source) {
+        Source.GSM -> GSM_APP_ID
+        Source.WHATSAPP_BUSINESS -> WA_BUSINESS_APP_ID
+        Source.WHATSAPP -> WA_APP_ID
+    }
     enum class Direction { INBOUND, OUTBOUND, UNKNOWN }
 
     /** Which captured channel carries the manager's own voice (the near side), when known. */
@@ -150,12 +167,12 @@ object CaptureReport {
             "employeeRef" to identity.employeeRef,
             "sourceAccountId" to identity.sourceAccountId,
             "sourceApp" to mapOf(
-                "appId" to if (call.source == Source.GSM) GSM_APP_ID else WA_BUSINESS_APP_ID,
+                "appId" to appIdOf(call.source),
                 "appVersion" to call.sourceAppVersion.take(60).ifBlank { "unknown" },
             ),
             "captureTool" to mapOf("name" to "ABP Call", "version" to captureToolVersion.take(60).ifBlank { "unknown" }),
             "captureMode" to mode,
-            // Carrier: the telephony voice streams; WhatsApp Business: the app's own call stream (fail-closed allow-list).
+            // Carrier: the telephony voice streams; WhatsApp / WhatsApp Business: the app's own call stream (fail-closed allow-list).
             "isolation" to if (call.source == Source.GSM) "PROCESS_ISOLATED" else "APP_FILTERED",
             "boundarySource" to "AUTO",
             "direction" to call.direction.name,

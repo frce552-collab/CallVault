@@ -34,9 +34,9 @@ object VoipAppPolicy {
      * open is the recoverable direction, and it is also what the app did before this existed.
      */
     fun shouldRecord(packageName: String?, excluded: Set<String>): Boolean {
-        // ABP Call (Ploshadki fork): fail-CLOSED allow-list. Only WhatsApp Business is recorded;
-        // an unidentified app, personal WhatsApp and every other app are not. Replaces upstream's
-        // fail-open rule described above.
+        // ABP Call (Ploshadki fork): fail-CLOSED allow-list. Only WhatsApp Business and WhatsApp
+        // (PloshadkiFork.RECORDABLE_VOIP_PACKAGES) are recorded; an unidentified app and every other
+        // app are not. Replaces upstream's fail-open rule described above.
         if (packageName.isNullOrBlank()) return false
         if (packageName !in PloshadkiFork.RECORDABLE_VOIP_PACKAGES) return false
         return packageName !in excluded

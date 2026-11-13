@@ -55,11 +55,14 @@ object PloshadkiFork {
     const val UPSTREAM_SUPPORT_LINKS_ENABLED = false
 
     /**
-     * App calls are recorded ONLY for these packages (owner decision 2026-10-21, #161):
-     * WhatsApp Business. Personal WhatsApp (com.whatsapp) and any other or unidentified app
-     * are never recorded (fail-closed).
+     * App calls are recorded ONLY for these packages: WhatsApp Business (owner decision 2026-10-21, #161) and
+     * ordinary WhatsApp (owner decision 13.11.2026: managers talk to clients through it too; it replaces the
+     * #161 rule "never personal WhatsApp"). Both are captured the same way — the call audio of the app's own
+     * uid. Any other app (Telegram, Signal, …) and an unidentified app are never recorded (fail-closed).
      */
-    val RECORDABLE_VOIP_PACKAGES: Set<String> = setOf("com.whatsapp.w4b")
+    const val WHATSAPP_BUSINESS_PACKAGE = "com.whatsapp.w4b"
+    const val WHATSAPP_PACKAGE = "com.whatsapp"
+    val RECORDABLE_VOIP_PACKAGES: Set<String> = setOf(WHATSAPP_BUSINESS_PACKAGE, WHATSAPP_PACKAGE)
 
     /**
      * Automatic short summary of every ABP call on the phone (owner decision 11.11.2026: «включить»).

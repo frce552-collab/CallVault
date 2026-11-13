@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit
 
 /**
  * Sends one finished recording to the company server over ANY network (Wi-Fi or mobile data), resumably:
- * create (refusals such as personal WhatsApp come back before the file is sent) → 1 MiB chunks from the
+ * create (refusals such as an app the enrollment does not allow come back before the file is sent) → 1 MiB chunks from the
  * server's offset → the last chunk returns the receipt. A dropped connection resumes from the server's offset.
  */
 class AbpUploadWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
@@ -203,10 +203,10 @@ class AbpUploadWorker(context: Context, params: WorkerParameters) : CoroutineWor
         }
         val near = nearChannelFor(applicationContext, name)
         val autoTime = runCatching { Settings.Global.getInt(applicationContext.contentResolver, Settings.Global.AUTO_TIME) == 1 }.getOrDefault(false)
-        val source = if (isVoip) CaptureReport.Source.WHATSAPP_BUSINESS else CaptureReport.Source.GSM
-        val sourceVersion = if (isVoip) packageVersion(CaptureReport.WA_BUSINESS_APP_ID) else "Android ${Build.VERSION.RELEASE}"
+        val source = if (isVoip) CaptureReport.voipSource(parsed.voipApp) else CaptureReport.Source.GSM
+        val sourceVersion = if (isVoip) packageVersion(CaptureReport.appIdOf(source)) else "Android ${Build.VERSION.RELEASE}"
         // The other party's number, for linking the recording to the CRM client and deal. It comes from the file
-        // name (CallVault writes the number there): carrier calls carry it in the number slot; a WhatsApp Business
+        // name (CallVault writes the number there): carrier calls carry it in the number slot; a WhatsApp (Business)
         // call carries the caller as shown by the app, which is used only if it is itself a phone number.
         // CaptureReport drops anything that is not a valid E.164. Never logged, never put in RecorderEvents.
         val counterparty = if (isVoip) parsed.contactName else parsed.number
