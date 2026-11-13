@@ -68,6 +68,8 @@ object GitHubReleases {
             authorize(this)
         }
         try {
+            // ABP Call: 401 here means the update key (RELEASES_READ_TOKEN) is dead → AbpUpdateKey tells the phone.
+            if (overrideUrl == null) com.baba.callvault.ploshadki.AbpUpdateKey.onReleaseQuery(connection.responseCode)
             if (connection.responseCode != HttpURLConnection.HTTP_OK) {
                 AppLogger.w(TAG, "Latest-release query failed: HTTP ${connection.responseCode}")
                 return null

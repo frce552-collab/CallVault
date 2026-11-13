@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ABP Call (Ploshadki.kz fork): phone notice when the update key has expired (AbpUpdateKey). -->
+<resources>
+    <string name="abp_update_key_expired_title">ABP Call 已停止更新</string>
+    <string name="abp_update_key_expired_text">更新密钥已过期，新版本不再推送。通话录音仍在正常工作。请告知管理员。</string>
+</resources>

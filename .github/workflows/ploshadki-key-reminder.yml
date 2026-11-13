@@ -1,0 +1,118 @@
+# Площадки: напоминание о ключе обновлений abp-call-read (RELEASES_READ_TOKEN).
+#
+# Ключ зашит в APK и даёт телефонам читать релизы из приватного abp-call-releases. Когда он истекает,
+# обновления на телефоны перестают приходить. Этот процесс раз в день:
+#   1) берёт дату из PloshadkiFork.UPDATE_KEY_EXPIRES (одна строка в коде, её же видит приложение);
+#   2) спрашивает GitHub настоящую дату окончания ключа (заголовок github-authentication-token-expiration;
+#      сам ключ не печатается) и проверяет, что ключ жив;
+#   3) за 14 дней до окончания (или если ключ мёртв, или даты в коде нет, а GitHub её знает) открывает Issue
+#      с меткой key-reminder и назначает владельца → GitHub шлёт письмо. Повторно не открывает, пока Issue открыт.
+#
+# ВАЖНО: GitHub запускает расписание только из ветки по умолчанию форка. До влития файла туда работает только
+# ручной запуск (Actions → «Ploshadki Key Reminder» → Run workflow).
+
+name: Ploshadki Key Reminder
+
+on:
+  schedule:
+    - cron: '17 3 * * *' # 09:17 по Алматы
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Только показать итог, Issue не открывать'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: ploshadki-key-reminder
+  cancel-in-progress: false
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: app/src/main/java/com/baba/callvault/ploshadki/PloshadkiFork.kt
+          sparse-checkout-cone-mode: false
+
+      - name: Проверить ключ
+        id: check
+        env:
+          READ_TOKEN: ${{ secrets.RELEASES_READ_TOKEN }}
+          RELEASES_REPO: frce552-collab/abp-call-releases
+          OWNER: frce552-collab
+        run: |
+          set -euo pipefail
+          f=app/src/main/java/com/baba/callvault/ploshadki/PloshadkiFork.kt
+          code_date=$(sed -nE 's/.*const val UPDATE_KEY_EXPIRES = "([0-9-]*)".*/\1/p' "$f" | head -1)
+          remind=$(sed -nE 's/.*const val UPDATE_KEY_REMIND_DAYS = ([0-9]+)L.*/\1/p' "$f" | head -1)
+          remind=${remind:-14}
+
+          gh_date=""; http=""
+          if [ -n "${READ_TOKEN}" ]; then
+            hdr=$(mktemp)
+            http=$(curl -sS -o /dev/null -D "$hdr" -w '%{http_code}' \
+              -H "Authorization: Bearer ${READ_TOKEN}" -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${RELEASES_REPO}") || http="000"
+            gh_date=$(grep -i '^github-authentication-token-expiration:' "$hdr" | head -1 | awk '{print $2}' | tr -d '\r' || true)
+            rm -f "$hdr"
+          fi
+
+          python3 - "$code_date" "$gh_date" "$http" "$remind" <<'PY' >> "$GITHUB_OUTPUT"
+          import sys, datetime as dt
+          code, gh, http, remind = sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4])
+          today = dt.datetime.now(dt.timezone(dt.timedelta(hours=5))).date()  # Алматы
+          def d(s):
+              try: return dt.date.fromisoformat(s)
+              except Exception: return None
+          code_d, gh_d = d(code), d(gh)
+          exp = gh_d or code_d
+          reasons = []
+          if http == "":
+              reasons.append("В секретах форка нет RELEASES_READ_TOKEN, проверить ключ нельзя.")
+          elif http == "401":
+              reasons.append("GitHub отвечает 401: ключ уже не работает, телефоны обновления не получают.")
+          elif http != "200":
+              reasons.append(f"GitHub ответил HTTP {http} на чтение abp-call-releases (ожидалось 200).")
+          if exp is not None:
+              left = (exp - today).days
+              if left < 0: reasons.append(f"Ключ истёк {exp} ({-left} дн. назад).")
+              elif left <= remind: reasons.append(f"Ключ истекает {exp}: осталось {left} дн.")
+          if code_d is None and gh_d is not None:
+              reasons.append(f"В коде нет даты (PloshadkiFork.UPDATE_KEY_EXPIRES), а GitHub знает: {gh_d}. Вписать её.")
+          if code_d and gh_d and code_d != gh_d:
+              reasons.append(f"Дата в коде {code_d} не совпадает с GitHub {gh_d}. Исправить константу.")
+          summary = f"Сегодня {today}. В коде: {code or '—'}. GitHub: {gh or '—'}. HTTP: {http or '—'}."
+          print(f"summary={summary}")
+          print(f"alert={'true' if reasons else 'false'}")
+          print("reasons<<EOF"); print("\n".join("- " + r for r in reasons)); print("EOF")
+          PY
+
+      - name: Итог
+        env:
+          SUMMARY: ${{ steps.check.outputs.summary }}
+          REASONS: ${{ steps.check.outputs.reasons }}
+        run: printf '### Ключ обновлений\n%s\n%s\n' "$SUMMARY" "$REASONS" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Открыть Issue и написать владельцу
+        if: steps.check.outputs.alert == 'true' && !inputs.dry_run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SUMMARY: ${{ steps.check.outputs.summary }}
+          REASONS: ${{ steps.check.outputs.reasons }}
+        run: |
+          set -euo pipefail
+          gh label create key-reminder --repo "$GITHUB_REPOSITORY" --color D93F0B \
+            --description "Ключ обновлений abp-call-read" 2>/dev/null || true
+          open=$(gh issue list --repo "$GITHUB_REPOSITORY" --label key-reminder --state open --json number --jq 'length')
+          if [ "$open" != "0" ]; then echo "Issue уже открыт, новый не нужен."; exit 0; fi
+          body=$(printf '%s\n\n%s\n\n%s\n' "$REASONS" "$SUMMARY" \
+          "Что сделать: 1) GitHub → Settings → Developer settings → Fine-grained tokens → новый ключ только на abp-call-releases, Contents: Read-only. 2) Заменить секрет RELEASES_READ_TOKEN в форке. 3) Вписать новую дату в PloshadkiFork.UPDATE_KEY_EXPIRES. 4) Собрать «Плошадки Релиз» (пилот), проверить на одном телефоне, сделать основным — ДО окончания старого ключа, иначе телефоны новую сборку сами не получат. Закрыть этот Issue.")
+          gh issue create --repo "$GITHUB_REPOSITORY" --label key-reminder --assignee frce552-collab \
+            --title "Ключ обновлений ABP Call: нужна замена" --body "$body"

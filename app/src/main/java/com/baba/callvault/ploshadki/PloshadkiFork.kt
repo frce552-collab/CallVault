@@ -33,6 +33,24 @@ object PloshadkiFork {
     /** Release asset name the updater downloads. ploshadki-release.yml uploads exactly this. */
     const val UPDATE_APK_ASSET = "ABP-Call.apk"
 
+    /**
+     * Expiry date (ISO yyyy-MM-dd) of the read-only key for [UPDATE_REPO] (secret RELEASES_READ_TOKEN, baked into the
+     * APK as BuildConfig.UPDATE_READ_TOKEN). After it, phones get no updates until a release with a new key is installed.
+     * Blank = not known yet. The scheduled workflow ploshadki-key-reminder.yml reads THIS line and opens an Issue
+     * [UPDATE_KEY_REMIND_DAYS] days before; it also reads the real expiry from GitHub and flags a mismatch.
+     */
+    // TODO(owner): дата окончания ключа abp-call-read, например "2027-05-13". Пока не дана владельцем.
+    const val UPDATE_KEY_EXPIRES = ""
+
+    /** How many days before [UPDATE_KEY_EXPIRES] the owner is reminded (Issue + e-mail from GitHub). */
+    const val UPDATE_KEY_REMIND_DAYS = 14L
+
+    /**
+     * Phone notice "updates no longer arrive" — ONLY once the key has expired (by [UPDATE_KEY_EXPIRES] or GitHub answering
+     * 401 to the update check). Never before: the manager cannot do anything about a key that is still valid.
+     */
+    const val UPDATE_KEY_EXPIRED_NOTICE = true
+
     /** Upstream donation (Ko-fi/PayPal) and community (Telegram) links are not shown. */
     const val UPSTREAM_SUPPORT_LINKS_ENABLED = false
 
