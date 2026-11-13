@@ -145,6 +145,21 @@ object PloshadkiFork {
     const val AUTO_INSTALL_ZONE = "Asia/Almaty"
 
     /**
+     * Owner request 13.11.2026 ("как у CallVault"): the "update available" notification says "ABP Call update
+     * available" and carries an **Update** button; the Home banner and popup have the same button. Tapped → installs at
+     * once (never during a call: it waits for the call to end). Not tapped → the night auto-install above. See
+     * [AbpUpdatePrompt].
+     */
+    const val UPDATE_NOW_BUTTON = true
+
+    /**
+     * Owner request 13.11.2026: after an update, check that recording came back; if not, the loud "Recording stopped"
+     * ([AbpRecorderDownAlert]). Runs [POST_UPDATE_CHECK_MINUTES] after the replace. See [AbpPostUpdateCheck].
+     */
+    const val POST_UPDATE_CHECK = true
+    const val POST_UPDATE_CHECK_MINUTES = 3L
+
+    /**
      * CRM status file (owner decision 12.11.2026, variant "A": through Google Drive, no HTTP). The phone overwrites ONE
      * `abp-call-status.json` in the Drive folder the recordings go to — every [STATUS_FILE_INTERVAL_MINUTES] and on
      * every change of recorder state — with the recorder state, its reason and the last 24 h of calls that have no

@@ -144,7 +144,10 @@ object UpdateManager {
                 false
             }
             UpdateInstaller.ShellResult.UNAVAILABLE -> {
-                if (allowInteractiveFallback && UpdateInstaller.installViaPackageInstaller(context, apk)) {
+                // ABP Call: the system installer kills the app as surely as the shell does — never during a call.
+                if (allowInteractiveFallback && CallInProgressGate.mayInstall(context) &&
+                    UpdateInstaller.installViaPackageInstaller(context, apk)
+                ) {
                     true
                 } else {
                     preferences.setPendingUpdateTag(null)

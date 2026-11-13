@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abp_update_notif_title">Есть обновление ABP Call</string>
+    <string name="abp_update_ready_text">Нажмите «Обновить», чтобы поставить сейчас. Иначе обновление встанет само ночью на Wi-Fi и зарядке.</string>
+    <string name="abp_update_waiting_call">Идёт звонок. ABP Call обновится сразу после него.</string>
+</resources>

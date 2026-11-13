@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abp_update_notif_title">Є оновлення ABP Call</string>
+    <string name="abp_update_ready_text">Натисніть «Оновити», щоб встановити зараз. Інакше оновлення встановиться саме вночі на Wi-Fi і зарядці.</string>
+    <string name="abp_update_waiting_call">Триває дзвінок. ABP Call оновиться одразу після нього.</string>
+</resources>

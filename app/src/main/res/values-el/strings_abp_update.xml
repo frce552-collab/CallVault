@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abp_update_notif_title">Διαθέσιμη ενημέρωση του ABP Call</string>
+    <string name="abp_update_ready_text">Πατήστε Ενημέρωση για εγκατάσταση τώρα. Διαφορετικά θα εγκατασταθεί αυτόματα απόψε σε Wi-Fi ενώ φορτίζει.</string>
+    <string name="abp_update_waiting_call">Υπάρχει κλήση σε εξέλιξη. Το ABP Call θα ενημερωθεί αμέσως μετά.</string>
+</resources>

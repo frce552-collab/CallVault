@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abp_update_notif_title">به‌روزرسانی ABP Call موجود است</string>
+    <string name="abp_update_ready_text">برای نصب همین حالا روی به‌روزرسانی بزنید. در غیر این صورت امشب هنگام شارژ و با Wi-Fi خودکار نصب می‌شود.</string>
+    <string name="abp_update_waiting_call">تماسی در جریان است. ABP Call بلافاصله پس از آن به‌روزرسانی می‌شود.</string>
+</resources>

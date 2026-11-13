@@ -52,6 +52,9 @@ class UpdatePackageReplacedReceiver : BroadcastReceiver() {
         preferences.setLastNotifiedUpdateTag(null)
         UpdateNotifications.cancelAvailable(context)
         UpdateManager.cleanupDownloadCache(context)
+        // ABP Call (owner 13.11): check a few minutes later that recording came back, else "Recording stopped".
+        com.baba.callvault.ploshadki.AbpUpdatePrompt.cancelWaitingForCall(context)
+        com.baba.callvault.ploshadki.AbpPostUpdateCheck.enqueue(context.applicationContext)
 
         recoverAfterReplace(context.applicationContext)
     }

@@ -635,6 +635,7 @@ fun HomeScreen(
             text = {
                 Text(
                     if (com.baba.callvault.ploshadki.PloshadkiFork.ADMIN_PIN_FOR_UPDATES) stringResource(R.string.abp_update_by_admin_text)
+                    else if (com.baba.callvault.ploshadki.PloshadkiFork.UPDATE_NOW_BUTTON) stringResource(R.string.abp_update_ready_text)
                     else stringResource(R.string.update_popup_text)
                 )
             },
@@ -2518,7 +2519,11 @@ private fun UpdateBannerCard(
     // reported) shows the download label; only once the download completes (percent >= 100) does it
     // switch to "Installing…". A determinate bar during download, indeterminate before/after.
     val subtitle = when {
+        !isInstalling && com.baba.callvault.ploshadki.PloshadkiFork.UPDATE_NOW_BUTTON -> stringResource(R.string.abp_update_ready_text)
         !isInstalling -> stringResource(R.string.home_update_banner_text)
+        // ABP Call: tapped during a call, the install waits for it to end.
+        progressPercent == com.baba.callvault.system.updates.UpdateInstallWorker.WAITING_FOR_CALL ->
+            stringResource(R.string.abp_update_waiting_call)
         progressPercent >= 100 -> stringResource(R.string.home_update_banner_installing)
         else -> stringResource(R.string.home_update_banner_downloading, progressPercent.coerceAtLeast(0))
     }

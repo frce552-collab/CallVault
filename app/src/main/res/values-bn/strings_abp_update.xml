@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abp_update_notif_title">ABP Call-এর আপডেট উপলব্ধ</string>
+    <string name="abp_update_ready_text">এখনই ইনস্টল করতে আপডেট চাপুন। নইলে আজ রাতে Wi-Fi ও চার্জে থাকার সময় এটি নিজে থেকেই ইনস্টল হবে।</string>
+    <string name="abp_update_waiting_call">একটি কল চলছে। কল শেষ হলেই ABP Call আপডেট হবে।</string>
+</resources>

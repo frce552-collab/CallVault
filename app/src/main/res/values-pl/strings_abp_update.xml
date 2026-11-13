@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abp_update_notif_title">Dostępna aktualizacja ABP Call</string>
+    <string name="abp_update_ready_text">Dotknij Aktualizuj, aby zainstalować teraz. W przeciwnym razie zainstaluje się sama w nocy przez Wi-Fi podczas ładowania.</string>
+    <string name="abp_update_waiting_call">Trwa połączenie. ABP Call zaktualizuje się zaraz po nim.</string>
+</resources>

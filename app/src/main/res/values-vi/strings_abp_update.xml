@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abp_update_notif_title">Có bản cập nhật ABP Call</string>
+    <string name="abp_update_ready_text">Nhấn Cập nhật để cài ngay. Nếu không, bản cập nhật sẽ tự cài tối nay khi có Wi-Fi và đang sạc.</string>
+    <string name="abp_update_waiting_call">Đang có cuộc gọi. ABP Call sẽ cập nhật ngay sau cuộc gọi.</string>
+</resources>

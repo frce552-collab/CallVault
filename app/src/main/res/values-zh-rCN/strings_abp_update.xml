@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abp_update_notif_title">ABP Call 有可用更新</string>
+    <string name="abp_update_ready_text">点按“更新”立即安装。否则将在今晚连接 Wi-Fi 并充电时自动安装。</string>
+    <string name="abp_update_waiting_call">正在通话中。通话结束后 ABP Call 将立即更新。</string>
+</resources>
