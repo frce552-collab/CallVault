@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abp_update_notif_title">ABP Call update available</string>
+    <string name="abp_update_ready_text">Tap Update to install it now. Otherwise it installs itself tonight on Wi-Fi while charging.</string>
+    <string name="abp_update_waiting_call">A call is in progress. ABP Call will update right after it.</string>
+</resources>

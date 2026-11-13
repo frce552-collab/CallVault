@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abp_update_notif_title">ABP Call-frissítés érhető el</string>
+    <string name="abp_update_ready_text">Koppints a Frissítés gombra a telepítéshez most. Különben ma éjjel magától települ Wi-Fin, töltés közben.</string>
+    <string name="abp_update_waiting_call">Hívás van folyamatban. Az ABP Call közvetlenül utána frissül.</string>
+</resources>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abp_update_notif_title">Mise à jour d’ABP Call disponible</string>
+    <string name="abp_update_ready_text">Appuyez sur « Mettre à jour » pour l’installer maintenant. Sinon, elle s’installera seule cette nuit en Wi-Fi pendant la charge.</string>
+    <string name="abp_update_waiting_call">Un appel est en cours. ABP Call se mettra à jour juste après.</string>
+</resources>

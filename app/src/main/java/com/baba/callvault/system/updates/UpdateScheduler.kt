@@ -94,6 +94,8 @@ object UpdateScheduler {
             .setConstraints(
                 Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
             )
+            // ABP Call: a tap during a call retries soon after it (UpdateInstallWorker.deferForCall).
+            .setBackoffCriteria(androidx.work.BackoffPolicy.LINEAR, 30, java.util.concurrent.TimeUnit.SECONDS)
             .build()
         WorkManager.getInstance(context)
             .enqueueUniqueWork(INSTALL_WORK_NAME, ExistingWorkPolicy.KEEP, request)

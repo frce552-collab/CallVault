@@ -46,15 +46,23 @@ object UpdateNotifications {
                 .putExtra(NotificationDestination.EXTRA, NotificationDestination.Update.key),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
+        // ABP Call (owner 13.11): "ABP Call update available — Update"; the button installs at once.
+        val updateNow = com.baba.callvault.ploshadki.AbpUpdatePrompt.updateNowIntent(context)
         post(
             context, AVAILABLE_NOTIFICATION_ID,
-            title = context.getString(R.string.update_notif_available_title, tag.removePrefix("v")),
+            title = if (updateNow != null) context.getString(R.string.abp_update_notif_title)
+            else context.getString(R.string.update_notif_available_title, tag.removePrefix("v")),
             // ABP Call: the manager only learns of it; the administrator installs it with the PIN.
             text = context.getString(
-                if (com.baba.callvault.ploshadki.PloshadkiFork.ADMIN_PIN_FOR_UPDATES) R.string.abp_update_by_admin_text
-                else R.string.update_notif_available_text
+                when {
+                    com.baba.callvault.ploshadki.PloshadkiFork.ADMIN_PIN_FOR_UPDATES -> R.string.abp_update_by_admin_text
+                    updateNow != null -> R.string.abp_update_ready_text
+                    else -> R.string.update_notif_available_text
+                }
             ),
-            contentIntent = openApp
+            contentIntent = openApp,
+            subText = if (updateNow != null) tag.removePrefix("v") else null,
+            action = updateNow?.let { context.getString(R.string.home_update_banner_button) to it },
         )
     }
 
@@ -141,7 +149,9 @@ object UpdateNotifications {
         id: Int,
         title: String,
         text: String,
-        contentIntent: PendingIntent? = null
+        contentIntent: PendingIntent? = null,
+        subText: String? = null,
+        action: Pair<String, PendingIntent>? = null,
     ) {
         if (!PermissionChecks.hasNotificationPermission(context)) return
         createChannel(context)
@@ -152,6 +162,8 @@ object UpdateNotifications {
             .setStyle(NotificationCompat.BigTextStyle().bigText(text))
             .setAutoCancel(true)
             .apply { contentIntent?.let { setContentIntent(it) } }
+            .apply { subText?.let { setSubText(it) } }
+            .apply { action?.let { (label, intent) -> addAction(0, label, intent) } }
             .build()
         runCatching {
             context.getSystemService(NotificationManager::class.java).notify(id, notification)

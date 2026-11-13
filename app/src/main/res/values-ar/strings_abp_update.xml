@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="abp_update_notif_title">يتوفر تحديث لـ ABP Call</string>
+    <string name="abp_update_ready_text">اضغط على تحديث لتثبيته الآن. وإلا فسيُثبَّت تلقائيًا الليلة عبر Wi-Fi أثناء الشحن.</string>
+    <string name="abp_update_waiting_call">توجد مكالمة جارية. سيتم تحديث ABP Call مباشرةً بعدها.</string>
+</resources>
